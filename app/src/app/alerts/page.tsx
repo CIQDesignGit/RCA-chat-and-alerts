@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import type { AlertItem } from "@/components/alerts/types";
@@ -13,7 +13,9 @@ import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 
 type GroupBy = "category" | "date";
 
-export default function AlertsPage() {
+// Wrapped in Suspense by the default export below — required by Next.js because
+// useSearchParams() opts this subtree out of static rendering.
+function AlertsContent() {
   // Read brand + category pre-filters from URL (set by home page category row clicks)
   const searchParams = useSearchParams();
   const initialFilters: Partial<FilterState> = {
@@ -135,5 +137,15 @@ export default function AlertsPage() {
 
       </div>{/* end two-panel body */}
     </div>
+  );
+}
+
+// Default export wraps AlertsContent in Suspense — this is required by Next.js
+// whenever useSearchParams() is used inside a page component.
+export default function AlertsPage() {
+  return (
+    <Suspense>
+      <AlertsContent />
+    </Suspense>
   );
 }
