@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search, X, ChevronDown } from "lucide-react";
 import type { AlertItem } from "@/components/alerts/types";
 import { AlertCard } from "@/components/alerts/alert-card";
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
+import { FilterBar, type FilterState } from "@/components/alerts/filter-bar";
 
 // ─── Placeholder data — realistic CIQ-style SKU alerts ───────────────────────
 
@@ -157,80 +157,32 @@ const ALERTS: AlertItem[] = [
   },
 ];
 
-// ─── Filter chip data ─────────────────────────────────────────────────────────
-// Three distinct chip types match the three filter categories:
-//   "issue"  — e.g. "Lost Buy Box"  → lavender fill, violet text
-//   "brand"  — e.g. "Shark"         → lavender fill, violet text (same visual, different semantic)
-//   "unread" — toggle, no remove    → outlined pill
-
-type FilterChip =
-  | { type: "issue" | "brand"; label: string }
-  | { type: "unread" };
-
-const CHIPS: FilterChip[] = [
-  { type: "unread" },
-  { type: "issue", label: "Lost Buy Box" },
-  { type: "brand", label: "Shark" },
-];
-
-// ─── Filter bar ───────────────────────────────────────────────────────────────
-
-function FilterBar() {
-  return (
-    <div className="flex items-center gap-2 border-b bg-white px-4 py-3">
-
-      {/* Search — square icon button with a border, matches screenshot */}
-      <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50">
-        <Search className="h-4 w-4" />
-      </button>
-
-      {CHIPS.map((chip, i) => {
-        // ── Unread toggle chip — outlined, no × ──
-        if (chip.type === "unread") {
-          return (
-            <button
-              key="unread"
-              className="rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
-            >
-              Unread
-            </button>
-          );
-        }
-
-        // ── Issue / Brand active filter chip — light lavender fill, violet text, × ──
-        return (
-          <span
-            key={i}
-            className="flex items-center gap-2 rounded-full bg-violet-100 px-3.5 py-1.5 text-sm font-semibold text-violet-700"
-          >
-            {chip.label}
-            <button
-              className="flex h-4 w-4 items-center justify-center rounded-full text-violet-500 hover:bg-violet-200 hover:text-violet-700 transition-colors"
-              aria-label={`Remove ${chip.label} filter`}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        );
-      })}
-
-      {/* All Categories dropdown — outlined pill, pushed to the right */}
-      <button className="ml-auto flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50">
-        All Categories
-        <ChevronDown className="h-4 w-4 text-zinc-400" />
-      </button>
-    </div>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AlertsPage() {
   const [selectedId, setSelectedId] = useState<string>(ALERTS[0].id);
-  const selectedAlert = ALERTS.find((a) => a.id === selectedId) ?? ALERTS[0];
+  const [filters, setFilters] = useState<FilterState>({
+    unreadOnly: false,
+    brand: null,
+    category: null,
+    sku: null,
+  });
 
-  // Group alerts by date
-  const groups = ALERTS.reduce<Record<string, AlertItem[]>>((acc, a) => {
+  // Apply active filters to the full alerts list
+  const filteredAlerts = ALERTS.filter((alert) => {
+    if (filters.unreadOnly && !alert.hasUnread) return false;
+    if (filters.brand && alert.brand !== filters.brand) return false;
+    if (filters.category && alert.category !== filters.category) return false;
+    if (filters.sku && alert.asin !== filters.sku) return false;
+    return true;
+  });
+
+  // Keep selected alert valid — if it gets filtered out, default to the first visible one
+  const selectedAlert =
+    filteredAlerts.find((a) => a.id === selectedId) ?? filteredAlerts[0];
+
+  // Group visible alerts by date for the left panel
+  const groups = filteredAlerts.reduce<Record<string, AlertItem[]>>((acc, a) => {
     (acc[a.date] ??= []).push(a);
     return acc;
   }, {});
@@ -239,7 +191,7 @@ export default function AlertsPage() {
     <div className="flex h-full flex-col overflow-hidden">
 
       {/* ── Filter bar — spans full width above both panels ── */}
-      <FilterBar />
+      <FilterBar onFiltersChange={setFilters} />
 
       {/* ── Two-panel body ── */}
       <div className="flex flex-1 overflow-hidden">
@@ -273,7 +225,13 @@ export default function AlertsPage() {
 
       {/* Right: alert details panel — white canvas so inner zinc-50 cards contrast */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white">
-        <AlertDetailsPanel alert={selectedAlert} />
+        {selectedAlert ? (
+          <AlertDetailsPanel alert={selectedAlert} />
+        ) : (
+          <div className="flex flex-1 items-center justify-center text-sm text-zinc-400">
+            No alerts match the current filters.
+          </div>
+        )}
       </div>
 
       </div>{/* end two-panel body */}

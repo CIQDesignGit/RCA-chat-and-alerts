@@ -104,7 +104,7 @@ function CategoryCard({
         <p className="text-xs font-semibold text-zinc-600 leading-snug">
           {category.name}
         </p>
-        <span className="shrink-0 text-base font-bold text-red-500 leading-none">
+        <span className="shrink-0 text-sm font-medium text-red-500 leading-none">
           {formatDollar(category.gapDollar)}
         </span>
       </div>
