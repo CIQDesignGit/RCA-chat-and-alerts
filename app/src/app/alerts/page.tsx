@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import type { AlertItem } from "@/components/alerts/types";
 import { SkuAlertCard } from "@/components/alerts/sku-alert-card";
@@ -13,13 +14,20 @@ import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 type GroupBy = "category" | "date";
 
 export default function AlertsPage() {
+  // Read brand + category pre-filters from URL (set by home page category row clicks)
+  const searchParams = useSearchParams();
+  const initialFilters: Partial<FilterState> = {
+    brand:    searchParams.get("brand")    ?? null,
+    category: searchParams.get("category") ?? null,
+  };
+
   const [selectedId, setSelectedId] = useState<string>(ALERT_ITEMS[0].id);
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
-    brand: null,
-    category: null,
-    sku: null,
+    brand:      initialFilters.brand    ?? null,
+    category:   initialFilters.category ?? null,
+    sku:        null,
   });
 
   // Apply active filters to the full alerts list
@@ -50,7 +58,7 @@ export default function AlertsPage() {
     <div className="flex h-full flex-col overflow-hidden">
 
       {/* ── Filter bar — spans full width above both panels ── */}
-      <FilterBar onFiltersChange={setFilters} />
+      <FilterBar onFiltersChange={setFilters} initialFilters={initialFilters} />
 
       {/* ── Two-panel body ── */}
       <div className="flex flex-1 overflow-hidden">

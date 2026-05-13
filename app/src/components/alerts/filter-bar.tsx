@@ -30,16 +30,19 @@ export interface FilterState {
 
 interface FilterBarProps {
   onFiltersChange: (filters: FilterState) => void;
+  // Pre-populate filters from URL params (e.g. when navigating from the home page)
+  initialFilters?: Partial<FilterState>;
 }
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────
 
-export function FilterBar({ onFiltersChange }: FilterBarProps) {
+export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
     brand: null,
     category: null,
     sku: null,
+    ...initialFilters,
   });
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
