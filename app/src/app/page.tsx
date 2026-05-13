@@ -37,7 +37,7 @@ export default function HomePage() {
   return (
     <div className="flex h-full">
       {/* Left: Today's Alerts panel — always visible */}
-      <AlertsPanel onSkuSelect={setSelectedSku} />
+      <AlertsPanel onSkuSelect={setSelectedSku} selectedSkuId={selectedSku?.id} />
 
       {/* Right: switches between home overview and SKU detail */}
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -46,18 +46,18 @@ export default function HomePage() {
           <SkuDetail sku={selectedSku} onBack={() => setSelectedSku(null)} />
         ) : (
           // ── Home overview — no scroll, fits the viewport ─────────────────
-          <div className="flex h-full flex-col justify-between px-8 py-5">
+          <div className="flex h-full flex-col items-center justify-between py-5">
 
-            {/* Top: greeting + business insights */}
-            <div className="flex flex-col gap-3">
+            {/* Top: greeting + business insights — max 800px, centered */}
+            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
               <h1 className="text-2xl font-bold text-foreground">
                 Good Morning, Steve
               </h1>
               <BusinessLevelInsights />
             </div>
 
-            {/* Bottom: suggestion chips (row) + chat input */}
-            <div className="flex flex-col gap-3">
+            {/* Bottom: suggestion chips (row) + chat input — max 800px, centered */}
+            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
               {/* Chips wrap into a row so they use horizontal space */}
               <div className="flex flex-wrap gap-2">
                 {SUGGESTIONS.map((s) => (
