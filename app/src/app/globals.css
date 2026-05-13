@@ -1,0 +1,387 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ====================================================================
+   DESIGN TOKENS
+   Source: Figma "Design Variables ft. Tailwind CSS"
+   Confirmed from Figma:
+     Purple/500 = #875BF7  (brand primary)
+     Purple/200 = #DDD6FE  (brand light)
+     Warning/600 = #DC6803 (warning text/icon)
+     Warning/100 = #FEF0C7 (warning background)
+     Base/White  = #FFFFFF
+   Typeface: Inter (sans), JetBrains Mono (code)
+   ==================================================================== */
+@theme {
+  /* ------------------------------------------------------------------
+     TYPOGRAPHY
+     Font CSS variables are injected by next/font/google onto <html>:
+       --font-inter           → loaded Inter typeface
+       --font-jetbrains-mono  → loaded JetBrains Mono typeface
+
+     Do NOT define --font-sans or --font-mono here.
+     Those are wired in @theme inline below to avoid circular references.
+     ------------------------------------------------------------------ */
+
+  /* Font sizes — 4px base grid */
+  --text-2xs: 0.625rem; /* 10px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px — heading sm */
+  --text-3xl: 1.875rem; /* 30px — heading md */
+  --text-4xl: 2.25rem; /* 36px — heading lg */
+  --text-5xl: 3rem; /* 48px — display sm */
+  --text-6xl: 3.75rem; /* 60px — display md */
+  --text-7xl: 4.5rem; /* 72px — display lg */
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ------------------------------------------------------------------
+     BRAND COLORS — Purple
+     Seed: Purple/500 = #875BF7, Purple/200 = #DDD6FE (from Figma)
+     Full palette derived from seed values.
+     ------------------------------------------------------------------ */
+  --color-brand-50: #faf5ff;
+  --color-brand-100: #f3e8ff;
+  --color-brand-200: #ddd6fe; /* Figma: Purple/200 */
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #875bf7; /* Figma: Purple/500 — primary brand */
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+  --color-brand-950: #2e1065;
+
+  /* ------------------------------------------------------------------
+     WARNING COLORS — Amber
+     Seeds: Warning/100 = #FEF0C7, Warning/600 = #DC6803 (from Figma)
+     ------------------------------------------------------------------ */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef0c7; /* Figma: Warning/100 */
+  --color-warning-200: #fed27a;
+  --color-warning-300: #fdc63c;
+  --color-warning-400: #fcb519;
+  --color-warning-500: #f89b04;
+  --color-warning-600: #dc6803; /* Figma: Warning/600 */
+  --color-warning-700: #b54107;
+  --color-warning-800: #923009;
+  --color-warning-900: #78270a;
+  --color-warning-950: #451002;
+
+  /* ------------------------------------------------------------------
+     SUCCESS COLORS — Green
+     ------------------------------------------------------------------ */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-success-950: #052e16;
+
+  /* ------------------------------------------------------------------
+     ERROR COLORS — Red
+     ------------------------------------------------------------------ */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+  --color-error-950: #450a0a;
+
+  /* ------------------------------------------------------------------
+     INFO COLORS — Blue
+     ------------------------------------------------------------------ */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+  --color-info-950: #172554;
+
+  /* ------------------------------------------------------------------
+     NEUTRAL COLORS — Gray
+     Used for text, borders, surfaces, and backgrounds.
+     ------------------------------------------------------------------ */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  --color-neutral-950: #030712;
+
+  /* ------------------------------------------------------------------
+     BORDER RADIUS
+     Base unit: 4px. Follows an 8pt grid.
+     ------------------------------------------------------------------ */
+  --radius-none: 0px;
+  --radius-xs: 0.125rem; /* 2px */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem; /* 8px — default card/button */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
+  --radius-3xl: 1.5rem; /* 24px */
+  --radius-4xl: 2rem; /* 32px */
+  --radius-full: 9999px; /* pills, badges, avatars */
+
+  /* ------------------------------------------------------------------
+     SHADOWS
+     Elevation system: xs → sm → md → lg → xl → 2xl
+     Brand shadows use the brand purple with low opacity.
+     ------------------------------------------------------------------ */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.06);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  /* Brand glow — use on focused/active brand elements */
+  --shadow-brand: 0 4px 14px 0 rgb(135 91 247 / 0.35);
+  --shadow-brand-lg: 0 8px 28px 0 rgb(135 91 247 / 0.4);
+  /* Inset shadow — used for inputs and pressed states */
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.06);
+}
+
+/* ====================================================================
+   SHADCN / TAILWIND THEME MAPPING
+   Maps CSS variables from :root to Tailwind utility classes.
+   "inline" means these do NOT create extra CSS variables —
+   they only generate Tailwind utilities that reference the CSS vars.
+   ==================================================================== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Point font utilities directly at the Next.js-injected CSS variables.
+     --font-inter and --font-jetbrains-mono are set on <html> by next/font. */
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-inter);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* Border radius — based on --radius base token */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ====================================================================
+   SEMANTIC TOKENS — LIGHT MODE
+   These map brand colors to semantic roles (primary, accent, etc.)
+   Components built with shadcn will automatically pick up these values.
+   ==================================================================== */
+:root {
+  /* Surfaces */
+  --background: oklch(1 0 0); /* #FFFFFF — Figma: Base/White */
+  --foreground: oklch(0.145 0 0); /* ~#111827 neutral-900 */
+
+  /* Card & Popover — same as background in light mode */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Primary — Brand Purple (#875BF7) */
+  --primary: #875bf7; /* Figma: Purple/500 */
+  --primary-foreground: #ffffff; /* white text on purple */
+
+  /* Secondary — neutral light */
+  --secondary: oklch(0.97 0 0); /* ~neutral-100 */
+  --secondary-foreground: oklch(0.205 0 0); /* ~neutral-800 */
+
+  /* Muted — subtle backgrounds and disabled states */
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0); /* ~neutral-500 */
+
+  /* Accent — brand light (#DDD6FE) */
+  --accent: #ddd6fe; /* Figma: Purple/200 */
+  --accent-foreground: #4c1d95; /* brand-900, readable on brand-200 */
+
+  /* Destructive — error red */
+  --destructive: oklch(0.577 0.245 27.325); /* ~#ef4444 */
+
+  /* Border, Input, Ring */
+  --border: oklch(0.922 0 0); /* ~neutral-200 */
+  --input: oklch(0.922 0 0);
+  --ring: #875bf7; /* brand purple for focus rings */
+
+  /* Border radius base unit */
+  --radius: 0.5rem; /* 8px — matches --radius-lg */
+
+  /* Charts — using brand + semantic palette */
+  --chart-1: #875bf7; /* brand-500 */
+  --chart-2: #3b82f6; /* info-500 */
+  --chart-3: #22c55e; /* success-500 */
+  --chart-4: #dc6803; /* warning-600 */
+  --chart-5: #ef4444; /* error-500 */
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #875bf7; /* brand purple */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ddd6fe; /* brand-200 */
+  --sidebar-accent-foreground: #4c1d95; /* brand-900 */
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: #875bf7;
+}
+
+/* ====================================================================
+   SEMANTIC TOKENS — DARK MODE
+   ==================================================================== */
+.dark {
+  /* Surfaces */
+  --background: oklch(0.145 0 0); /* ~#111827 neutral-900 */
+  --foreground: oklch(0.985 0 0); /* ~#f9fafb neutral-50 */
+
+  /* Card & Popover */
+  --card: oklch(0.205 0 0); /* ~#1f2937 neutral-800 */
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  /* Primary — lighter purple for dark bg */
+  --primary: #a78bfa; /* brand-400 — lighter for dark backgrounds */
+  --primary-foreground: #2e1065; /* brand-950 — dark text on light purple */
+
+  /* Secondary */
+  --secondary: oklch(0.269 0 0); /* ~#374151 neutral-700 */
+  --secondary-foreground: oklch(0.985 0 0);
+
+  /* Muted */
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0); /* ~neutral-400 */
+
+  /* Accent — brand in dark mode */
+  --accent: #4c1d95; /* brand-900 */
+  --accent-foreground: #ddd6fe; /* brand-200 */
+
+  /* Destructive */
+  --destructive: oklch(0.704 0.191 22.216);
+
+  /* Border, Input, Ring */
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: #a78bfa; /* brand-400 for dark mode focus */
+
+  /* Charts */
+  --chart-1: #a78bfa; /* brand-400 */
+  --chart-2: #60a5fa; /* info-400 */
+  --chart-3: #4ade80; /* success-400 */
+  --chart-4: #fcb519; /* warning-400 */
+  --chart-5: #f87171; /* error-400 */
+
+  /* Sidebar */
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #a78bfa; /* brand-400 */
+  --sidebar-primary-foreground: #2e1065;
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: #a78bfa;
+}
+
+/* ====================================================================
+   BASE STYLES
+   Global resets and defaults applied to all elements.
+   ==================================================================== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1; /* enable Inter ligatures */
+  }
+
+  html {
+    /* Use Inter directly. var(--font-inter) is set on <html> by next/font.
+       Fallbacks kick in only if the font hasn't loaded yet. */
+    font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
