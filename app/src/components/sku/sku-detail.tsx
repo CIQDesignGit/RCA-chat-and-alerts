@@ -58,7 +58,7 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
       <div className="flex items-start gap-5 rounded-xl border bg-white p-5 shadow-sm">
         {/* Product image placeholder */}
         <img
-          src={`https://placehold.co/80x80/f4f4f5/71717a?text=${sku.category[0]}`}
+          src={`https://placehold.co/80x80/f4f4f5/71717a?text=${(sku.category ?? "?")[0]}`}
           alt={sku.skuName}
           className="h-20 w-20 rounded-lg border border-zinc-200 object-cover shrink-0"
         />

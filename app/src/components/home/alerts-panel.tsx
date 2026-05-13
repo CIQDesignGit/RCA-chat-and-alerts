@@ -6,7 +6,7 @@ export type SkuAlert = {
   id: string;
   skuName: string;
   asin: string;
-  category: string;   // injected from the group when clicked
+  category?: string;  // injected from the group when clicked
   gapValue: number;
   alertType: string;
 };
