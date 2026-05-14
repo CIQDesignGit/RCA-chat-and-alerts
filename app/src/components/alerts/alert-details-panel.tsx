@@ -257,12 +257,12 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
         )}
 
         {/* ── SKU RCA accordion — open by default, collapsible ── */}
-        <div className="border-t-2 border-violet-100 bg-violet-50/30">
+        <div className="border-t-2 border-brand-100 bg-brand-50/30">
           {/* Accordion header — click to toggle */}
           <button
             type="button"
             onClick={() => setRcaOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-violet-100 transition-colors"
+            className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-brand-100 transition-colors"
           >
             <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
               SKU Root Cause Analysis
@@ -308,7 +308,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               <button
                 key={q}
                 type="button"
-                className="rounded-full border border-violet-200 bg-violet-50 px-3.5 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100"
+                className="rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
               >
                 {q}
               </button>
@@ -343,7 +343,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               type="button"
               disabled={!chatInput.trim()}
               aria-label="Send"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               <ArrowUp className="h-3.5 w-3.5" />
             </button>

@@ -87,7 +87,7 @@ export function SkusDropdown({
               className={cn(
                 "w-full rounded-lg px-3 py-2.5 text-left transition-colors",
                 !hasIssues && "opacity-60",
-                selectedAsin === sku.asin ? "bg-violet-50" : "hover:bg-zinc-50",
+                selectedAsin === sku.asin ? "bg-brand-50" : "hover:bg-zinc-50",
               )}
             >
               {/* Line 1: thumbnail | name | proportional bar | gap $ | units */}

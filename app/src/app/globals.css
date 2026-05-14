@@ -65,63 +65,65 @@
      Seed: Purple/500 = #875BF7, Purple/200 = #DDD6FE (from Figma)
      Full palette derived from seed values.
      ------------------------------------------------------------------ */
-  --color-brand-50: #faf5ff;
-  --color-brand-100: #f3e8ff;
+  --color-brand-50: #f5f3ff;
+  --color-brand-100: #ede9fe;
   --color-brand-200: #ddd6fe; /* Figma: Purple/200 */
   --color-brand-300: #c4b5fd;
   --color-brand-400: #a78bfa;
-  --color-brand-500: #875bf7; /* Figma: Purple/500 — primary brand */
-  --color-brand-600: #7c3aed;
+  --color-brand-500: #8b5cf6; /* Figma: brand/500 */
+  --color-brand-600: #7c3aed; /* Figma: brand/600 — primary */
   --color-brand-700: #6d28d9;
   --color-brand-800: #5b21b6;
   --color-brand-900: #4c1d95;
-  --color-brand-950: #2e1065;
+  --color-brand-950: #1e1b4b;
 
   /* ------------------------------------------------------------------
      WARNING COLORS — Amber
-     Seeds: Warning/100 = #FEF0C7, Warning/600 = #DC6803 (from Figma)
+     Source: Figma tailwind colors/warning
      ------------------------------------------------------------------ */
-  --color-warning-50: #fffbeb;
-  --color-warning-100: #fef0c7; /* Figma: Warning/100 */
-  --color-warning-200: #fed27a;
-  --color-warning-300: #fdc63c;
-  --color-warning-400: #fcb519;
-  --color-warning-500: #f89b04;
-  --color-warning-600: #dc6803; /* Figma: Warning/600 */
-  --color-warning-700: #b54107;
-  --color-warning-800: #923009;
-  --color-warning-900: #78270a;
-  --color-warning-950: #451002;
+  --color-warning-50: #fffaeb;
+  --color-warning-100: #fef0c7;
+  --color-warning-200: #fedf89;
+  --color-warning-300: #fec84b;
+  --color-warning-400: #fdb022;
+  --color-warning-500: #f79009;
+  --color-warning-600: #dc6803;
+  --color-warning-700: #b54708;
+  --color-warning-800: #93370d;
+  --color-warning-900: #7a2e0e;
+  --color-warning-950: #4e1d09;
 
   /* ------------------------------------------------------------------
      SUCCESS COLORS — Green
+     Source: Figma tailwind colors/success
      ------------------------------------------------------------------ */
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-300: #86efac;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-800: #166534;
-  --color-success-900: #14532d;
-  --color-success-950: #052e16;
+  --color-success-50: #ecfdf3;
+  --color-success-100: #dcfae6;
+  --color-success-200: #abefc6;
+  --color-success-300: #75e0a7;
+  --color-success-400: #47cd89;
+  --color-success-500: #17b26a;
+  --color-success-600: #079455;
+  --color-success-700: #067647;
+  --color-success-800: #085d3a;
+  --color-success-900: #074d31;
+  --color-success-950: #074d31;
 
   /* ------------------------------------------------------------------
      ERROR COLORS — Red
+     Source: Figma tailwind colors/error
      ------------------------------------------------------------------ */
-  --color-error-50: #fef2f2;
-  --color-error-100: #fee2e2;
-  --color-error-200: #fecaca;
-  --color-error-300: #fca5a5;
-  --color-error-400: #f87171;
-  --color-error-500: #ef4444;
-  --color-error-600: #dc2626;
-  --color-error-700: #b91c1c;
-  --color-error-800: #991b1b;
-  --color-error-900: #7f1d1d;
-  --color-error-950: #450a0a;
+  --color-error-50: #fef3f2;
+  --color-error-100: #fee4e2;
+  --color-error-200: #fecdca;
+  --color-error-300: #fda29b;
+  --color-error-400: #f97066;
+  --color-error-500: #f04438;
+  --color-error-600: #d92d20;
+  --color-error-700: #b42318;
+  --color-error-800: #912018;
+  --color-error-900: #7a271a;
+  --color-error-950: #55160c;
 
   /* ------------------------------------------------------------------
      INFO COLORS — Blue
@@ -153,6 +155,34 @@
   --color-neutral-800: #1f2937;
   --color-neutral-900: #111827;
   --color-neutral-950: #030712;
+
+  /* ------------------------------------------------------------------
+     SLATE COLORS
+     Source: Figma tailwind colors/slate
+     Used for text hierarchy (primary / secondary / tertiary).
+     ------------------------------------------------------------------ */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* ------------------------------------------------------------------
+     TEXT SEMANTIC TOKENS
+     Source: Figma tailwind colors/text
+     primary   → slate/950  (near-black — headings, primary labels)
+     secondary → slate/700  (dark gray — body text, descriptions)
+     tertiary  → slate/500  (medium gray — captions, placeholders)
+     ------------------------------------------------------------------ */
+  --color-text-primary: #020617;   /* slate-950 */
+  --color-text-secondary: #334155; /* slate-700 */
+  --color-text-tertiary: #64748b;  /* slate-500 */
 
   /* ------------------------------------------------------------------
      BORDER RADIUS
@@ -221,6 +251,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -245,63 +276,65 @@
 
 /* ====================================================================
    SEMANTIC TOKENS — LIGHT MODE
-   These map brand colors to semantic roles (primary, accent, etc.)
-   Components built with shadcn will automatically pick up these values.
+   Source: Figma export — "*-light" variable values.
+   These map semantic roles to exact Figma hex values.
+   Components built with shadcn automatically pick up these values.
    ==================================================================== */
 :root {
   /* Surfaces */
-  --background: oklch(1 0 0); /* #FFFFFF — Figma: Base/White */
-  --foreground: oklch(0.145 0 0); /* ~#111827 neutral-900 */
+  --background: #ffffff;              /* Figma: base/white */
+  --foreground: #030712;              /* Figma: gray/950 */
 
-  /* Card & Popover — same as background in light mode */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  /* Card & Popover */
+  --card: #ffffff;                    /* Figma: base/white */
+  --card-foreground: #030712;         /* Figma: gray/950 */
+  --popover: #ffffff;                 /* Figma: base/white */
+  --popover-foreground: #030712;      /* Figma: gray/950 */
 
-  /* Primary — Brand Purple (#875BF7) */
-  --primary: #875bf7; /* Figma: Purple/500 */
-  --primary-foreground: #ffffff; /* white text on purple */
+  /* Primary — brand/600 (slightly deeper than brand-500) */
+  --primary: #7c3aed;                 /* Figma: brand/600 */
+  --primary-foreground: #f9fafb;      /* Figma: gray/50 */
 
-  /* Secondary — neutral light */
-  --secondary: oklch(0.97 0 0); /* ~neutral-100 */
-  --secondary-foreground: oklch(0.205 0 0); /* ~neutral-800 */
+  /* Secondary — neutral surface */
+  --secondary: #f3f4f6;               /* Figma: gray/100 */
+  --secondary-foreground: #111827;    /* Figma: gray/900 */
 
   /* Muted — subtle backgrounds and disabled states */
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0); /* ~neutral-500 */
+  --muted: #f3f4f6;                   /* Figma: gray/100 */
+  --muted-foreground: #6b7280;        /* Figma: gray/500 */
 
-  /* Accent — brand light (#DDD6FE) */
-  --accent: #ddd6fe; /* Figma: Purple/200 */
-  --accent-foreground: #4c1d95; /* brand-900, readable on brand-200 */
+  /* Accent — neutral hover surface (changed from brand purple) */
+  --accent: #f3f4f6;                  /* Figma: gray/100 */
+  --accent-foreground: #111827;       /* Figma: gray/900 */
 
-  /* Destructive — error red */
-  --destructive: oklch(0.577 0.245 27.325); /* ~#ef4444 */
+  /* Destructive — red/600 */
+  --destructive: #dc2626;             /* Figma: red/600 */
+  --destructive-foreground: #fef2f2;  /* Figma: red/50 */
 
   /* Border, Input, Ring */
-  --border: oklch(0.922 0 0); /* ~neutral-200 */
-  --input: oklch(0.922 0 0);
-  --ring: #875bf7; /* brand purple for focus rings */
+  --border: #e5e7eb;                  /* Figma: gray/200 */
+  --input: #e5e7eb;                   /* Figma: gray/200 */
+  --ring: #a78bfa;                    /* Figma: brand/400 */
 
   /* Border radius base unit */
-  --radius: 0.5rem; /* 8px — matches --radius-lg */
+  --radius: 0.5rem;                   /* 8px — shadcn base */
 
-  /* Charts — using brand + semantic palette */
-  --chart-1: #875bf7; /* brand-500 */
-  --chart-2: #3b82f6; /* info-500 */
-  --chart-3: #22c55e; /* success-500 */
-  --chart-4: #dc6803; /* warning-600 */
-  --chart-5: #ef4444; /* error-500 */
+  /* Charts */
+  --chart-1: #7c3aed;                 /* Figma: brand/600 */
+  --chart-2: #0284c7;                 /* Figma: sky/600 */
+  --chart-3: #164e63;                 /* Figma: cyan/900 */
+  --chart-4: #fbbf24;                 /* Figma: amber/400 */
+  --chart-5: #f59e0b;                 /* Figma: amber/500 */
 
   /* Sidebar */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #875bf7; /* brand purple */
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ddd6fe; /* brand-200 */
-  --sidebar-accent-foreground: #4c1d95; /* brand-900 */
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: #875bf7;
+  --sidebar: #f9fafb;                             /* Figma: gray/50 */
+  --sidebar-foreground: #030712;                  /* Figma: gray/950 */
+  --sidebar-primary: #7c3aed;                     /* Figma: brand/600 */
+  --sidebar-primary-foreground: #f9fafb;          /* Figma: gray/50 */
+  --sidebar-accent: #f3f4f6;                      /* Figma: gray/100 */
+  --sidebar-accent-foreground: #111827;           /* Figma: gray/900 */
+  --sidebar-border: #e5e7eb;                      /* Figma: gray/200 */
+  --sidebar-ring: #9ca3af;                        /* Figma: gray/400 */
 }
 
 /* ====================================================================

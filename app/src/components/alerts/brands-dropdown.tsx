@@ -58,7 +58,7 @@ export function BrandsDropdown({
               onClick={() => onSelect(brand.name)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-sm transition-colors",
-                selectedBrand === brand.name ? "bg-violet-50" : "hover:bg-zinc-50",
+                selectedBrand === brand.name ? "bg-brand-50" : "hover:bg-zinc-50",
               )}
             >
               {/* Short horizontal dash — brand legend indicator */}

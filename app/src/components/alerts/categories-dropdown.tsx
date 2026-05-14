@@ -84,7 +84,7 @@ export function CategoriesDropdown({
                 "w-full rounded-lg px-3 py-2.5 text-left transition-colors",
                 isDimmed && "opacity-60",
                 selectedCategory === cat.name
-                  ? "bg-violet-50"
+                  ? "bg-brand-50"
                   : "hover:bg-zinc-50",
               )}
             >

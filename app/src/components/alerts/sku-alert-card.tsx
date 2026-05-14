@@ -42,7 +42,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
         className={cn(
           "flex cursor-pointer items-start gap-3 border-l-2 px-4 py-3 transition-colors",
           isActive
-            ? "border-l-violet-500 bg-white/70"
+            ? "border-l-brand-500 bg-white/70"
             : "border-l-transparent hover:bg-black/4",
         )}
       >
@@ -85,14 +85,14 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
       onClick={onClick}
       className={cn(
         "relative w-full border-l-2 px-4 py-3 text-left transition-colors",
-        isActive
-          ? "border-l-violet-500 bg-white/70"
+          isActive
+          ? "border-l-brand-500 bg-white/70"
           : "border-l-transparent hover:bg-zinc-50",
       )}
     >
       {/* Unread indicator dot */}
       {alert.hasUnread && (
-        <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-violet-500" />
+        <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-brand-500" />
       )}
 
       <div className="flex items-start gap-3">

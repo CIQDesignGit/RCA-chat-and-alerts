@@ -79,6 +79,7 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
   const categoryOptions = filters.brand ? (CATEGORY_DATA[filters.brand] ?? []) : [];
   const selectedCategory = categoryOptions.find((c) => c.name === filters.category);
   const skuOptions = filters.category ? (SKU_DATA[filters.category] ?? []) : [];
+  const selectedSku = skuOptions.find((s) => s.asin === filters.sku);
 
   return (
     <div className="flex items-center gap-2 border-b bg-white px-4 py-3">
@@ -99,6 +100,8 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
           <SelectedFilterChip
             label={filters.brand}
             onRemove={() => applyFilters({ brand: null, category: null, sku: null })}
+            gapDollar={selectedBrand?.gapDollar}
+            gapUnits={selectedBrand?.gapUnits}
           />
         ) : (
           <BrandSummaryChip
@@ -129,6 +132,8 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
             <SelectedFilterChip
               label={filters.category}
               onRemove={() => applyFilters({ category: null, sku: null })}
+              gapDollar={selectedCategory?.gapDollar}
+              gapUnits={selectedCategory?.gapUnits}
             />
           ) : (
             <DropdownTriggerChip
@@ -159,6 +164,8 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
             <SelectedFilterChip
               label={filters.sku}
               onRemove={() => applyFilters({ sku: null })}
+              gapDollar={selectedSku?.gapDollar}
+              gapUnits={selectedSku?.gapUnits}
             />
           ) : (
             <SkuListChip
