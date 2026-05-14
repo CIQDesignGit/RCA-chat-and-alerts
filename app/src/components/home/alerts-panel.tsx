@@ -6,6 +6,7 @@ import {
   ALERT_ITEMS,
   CATEGORY_TOTALS,
   CATEGORY_ORDER,
+  CATEGORY_BRAND,
 } from "@/components/alerts/mock-data";
 
 // ─── Backward-compat type ─────────────────────────────────────────────────────
@@ -62,8 +63,8 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
   }
 
   return (
-    <div className="flex shrink-0 flex-col p-4 pr-2">
-      <aside className="flex w-[368px] flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-black/4 shadow-sm">
+    <div className="flex shrink-0 flex-col">
+      <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-zinc-200 bg-white/50">
 
         {/* ── Panel header ── */}
         <div className="flex items-center justify-between px-4 py-3">
@@ -98,7 +99,7 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
                 </div>
 
                 {/* First N SKUs */}
-                <div className="divide-y divide-zinc-50">
+                <div className="flex flex-col gap-2 p-3">
                   {visibleItems.map((item) => (
                     <SkuAlertCard
                       key={item.id}
@@ -110,14 +111,12 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
                   ))}
                 </div>
 
-                {/* "See all" — only shown when there are hidden SKUs */}
+                {/* Link to alerts page pre-filtered to this brand + category */}
                 <Link
-                  href="/alerts"
+                  href={`/alerts?brand=${encodeURIComponent(CATEGORY_BRAND[group.category])}&category=${encodeURIComponent(group.category)}`}
                   className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
                 >
-                  {hiddenCount > 0
-                    ? `See all ${group.items.length} ${group.category} SKUs`
-                    : `View ${group.category} on Alerts`}
+                  {`View all ${group.category} alerts`}
                   <ChevronRight className="h-3 w-3" />
                 </Link>
               </div>

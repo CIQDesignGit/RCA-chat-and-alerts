@@ -65,9 +65,9 @@ function AlertsContent() {
       {/* ── Two-panel body ── */}
       <div className="flex flex-1 overflow-hidden">
 
-      {/* Left: floating alert list — same shell as the home AlertsPanel */}
-      <div className="flex shrink-0 flex-col p-4 pr-2">
-        <aside className="flex w-[368px] flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-black/4 shadow-sm">
+      {/* Left: docked alert list */}
+      <div className="flex shrink-0 flex-col">
+        <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-zinc-200 bg-white/50">
 
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3">
@@ -107,7 +107,7 @@ function AlertsContent() {
                 </div>
 
                 {/* Alert cards — shared card in full mode */}
-                <div className="divide-y divide-zinc-50">
+                <div className="flex flex-col gap-2 p-3">
                   {items.map((alert) => (
                     <SkuAlertCard
                       key={alert.id}
