@@ -52,7 +52,7 @@ function fmtSales(v: number): string {
 
 function PropBar({ pct }: { pct: number }) {
   return (
-    <div className="h-0.5 w-10 shrink-0 overflow-hidden rounded-full bg-zinc-200">
+    <div className="h-0.5 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200">
       <div
         className="h-full rounded-full bg-brand-500"
         style={{ width: `${pct}%` }}
@@ -77,7 +77,7 @@ export function BrandInsightsTabs({ brands }: BrandInsightsTabsProps) {
   );
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 
       {/* ── Tab strip — all brands, always visible ─────────────────────────── */}
       <div className="flex">
@@ -91,15 +91,15 @@ export function BrandInsightsTabs({ brands }: BrandInsightsTabsProps) {
                 "flex flex-1 flex-col items-start border-b-2 px-4 py-3 text-left transition-colors",
                 isActive
                   ? "border-brand-500 bg-white"
-                  : "border-zinc-100 bg-zinc-50 hover:bg-zinc-100",
+                  : "border-slate-100 bg-slate-50 hover:bg-slate-100",
                 // Separate inactive tabs with a right border
-                i < brands.length - 1 && "border-r border-r-zinc-100",
+                i < brands.length - 1 && "border-r border-r-slate-100",
               )}
             >
               <span
                 className={cn(
                   "text-sm font-semibold",
-                  isActive ? "text-zinc-800" : "text-zinc-500",
+                  isActive ? "text-slate-800" : "text-slate-500",
                 )}
               >
                 {brand.name}
@@ -112,7 +112,7 @@ export function BrandInsightsTabs({ brands }: BrandInsightsTabsProps) {
               >
                 {fmtDollar(brand.gapDollar)}
               </span>
-              <span className="text-xs text-zinc-400">
+              <span className="text-xs text-slate-400">
                 {fmtUnits(brand.gapUnits)}
               </span>
             </button>
@@ -121,31 +121,31 @@ export function BrandInsightsTabs({ brands }: BrandInsightsTabsProps) {
       </div>
 
       {/* ── Achieved / Target header — active brand only ───────────────────── */}
-      <div className="border-b border-zinc-100 px-4 pt-3 pb-3">
+      <div className="border-b border-slate-100 px-4 pt-3 pb-3">
         <div className="mb-2.5 flex items-end justify-between">
           {/* Left — Achieved */}
           <div className="flex flex-col gap-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+            <div className="flex items-center gap-1.5 text-xs text-slate-400">
               <span className="h-2 w-2 rounded-sm bg-brand-500" />
               Achieved
             </div>
-            <span className="text-base font-bold text-zinc-900">
+            <span className="text-base font-bold text-slate-900">
               {fmtSales(active.achievedSales)}
             </span>
           </div>
           {/* Right — Target */}
           <div className="flex flex-col items-end gap-0.5">
-            <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+            <div className="flex items-center gap-1.5 text-xs text-slate-400">
               Target
-              <span className="h-2 w-2 rounded-sm border border-zinc-300" />
+              <span className="h-2 w-2 rounded-sm border border-slate-300" />
             </div>
-            <span className="text-base font-bold text-zinc-400">
+            <span className="text-base font-bold text-slate-400">
               {fmtSales(active.targetSales)}
             </span>
           </div>
         </div>
         {/* Progress bar — inline style only for dynamic % */}
-        <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
             className="h-full rounded-full bg-brand-500 transition-all duration-300"
             style={{ width: `${progressPct}%` }}
@@ -167,16 +167,16 @@ export function BrandInsightsTabs({ brands }: BrandInsightsTabsProps) {
                 });
                 router.push(`/alerts?${params.toString()}`);
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-zinc-50"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-slate-50"
             >
-              <span className="flex-1 truncate text-sm font-medium text-zinc-700">
+              <span className="flex-1 truncate text-sm font-medium text-slate-700">
                 {cat.name}
               </span>
               <PropBar pct={barPct} />
               <span className="w-14 shrink-0 text-right text-sm font-normal text-rose-500">
                 {fmtDollar(cat.gapDollar)}
               </span>
-              <span className="w-20 shrink-0 text-right text-sm text-zinc-700">
+              <span className="w-20 shrink-0 text-right text-sm text-slate-700">
                 {fmtUnits(cat.gapUnits)}
               </span>
             </button>

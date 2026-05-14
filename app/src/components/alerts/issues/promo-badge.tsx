@@ -24,15 +24,15 @@ export function PromoBadgeIssue({
   return (
     <div className="flex flex-col gap-4">
       {/* Checklist card */}
-      <div className="w-[370px] overflow-hidden rounded-xl border border-zinc-200 bg-slate-50">
+      <div className="w-[370px] overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
         {checks.map((item, i) => (
           <div
             key={item.label}
             className={`flex items-center justify-between gap-6 px-4 py-2.5 ${
-              i < checks.length - 1 ? "border-b border-zinc-200" : ""
+              i < checks.length - 1 ? "border-b border-slate-200" : ""
             }`}
           >
-            <span className="text-sm text-zinc-700">{item.label}</span>
+            <span className="text-sm text-slate-700">{item.label}</span>
             {item.passed ? (
               <Check className="h-4 w-4 text-green-500" />
             ) : (
@@ -46,31 +46,31 @@ export function PromoBadgeIssue({
       <div className="flex gap-3">
         {/* Current Price — light rose bg to signal something is wrong */}
         <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3">
-          <p className="text-xs font-semibold text-zinc-600">Current Price</p>
+          <p className="text-xs font-semibold text-slate-600">Current Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-zinc-400">Original</span>
-              <span className="text-lg font-bold text-zinc-800">{currentOriginalPrice}</span>
+              <span className="text-[10px] text-slate-400">Original</span>
+              <span className="text-lg font-bold text-slate-800">{currentOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-zinc-400">Selling</span>
-              <span className="text-lg font-bold text-zinc-800">{currentSellingPrice}</span>
+              <span className="text-[10px] text-slate-400">Selling</span>
+              <span className="text-lg font-bold text-slate-800">{currentSellingPrice}</span>
             </div>
           </div>
         </div>
 
         {/* Expected Price — neutral white */}
-        <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-          <p className="text-xs font-semibold text-zinc-600">Expected Price</p>
+        <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <p className="text-xs font-semibold text-slate-600">Expected Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-zinc-400">Original</span>
-              <span className="text-lg font-bold text-zinc-800">{expectedOriginalPrice}</span>
+              <span className="text-[10px] text-slate-400">Original</span>
+              <span className="text-lg font-bold text-slate-800">{expectedOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-zinc-400">Selling</span>
+              <span className="text-[10px] text-slate-400">Selling</span>
               {/* Struck through to show price mismatch */}
-              <span className="text-lg font-bold text-zinc-400 line-through">
+              <span className="text-lg font-bold text-slate-400 line-through">
                 {expectedSellingPrice}
               </span>
             </div>

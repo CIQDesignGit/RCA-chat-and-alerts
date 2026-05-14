@@ -11,9 +11,10 @@ Always follow them unless the user explicitly says otherwise.
 - Import from `lucide-react`. Example: `import { Bell, Home } from "lucide-react"`
 
 ## Colors
-- Use **Tailwind CSS color palette** only (e.g. `violet-600`, `zinc-100`, `red-500`).
+- Use **Tailwind CSS color palette** only (e.g. `violet-600`, `slate-100`, `red-500`).
 - No raw hex values (e.g. avoid `#6d28d9`).
 - Semantic colors like `bg-background`, `text-foreground`, `text-muted-foreground` from shadcn are fine.
+- **Slate is our neutral color** — use `slate-*` shades for all neutral/gray UI elements (borders, muted backgrounds, secondary text, etc.). Do NOT use `zinc-*`.
 
 ## Images & Avatars
 - Use placeholder images via `https://placehold.co/{width}x{height}` for any product/user images.

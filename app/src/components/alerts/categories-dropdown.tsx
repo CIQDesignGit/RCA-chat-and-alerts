@@ -20,7 +20,7 @@ interface CategoriesDropdownProps {
 
 function PropBar({ pct }: { pct: number }) {
   return (
-    <div className="h-0.5 w-20 shrink-0 overflow-hidden rounded-full bg-zinc-200">
+    <div className="h-0.5 w-20 shrink-0 overflow-hidden rounded-full bg-slate-200">
       <div
         className="h-full rounded-full bg-brand-500"
         style={{ width: `${pct}%` }}
@@ -50,18 +50,18 @@ export function CategoriesDropdown({
   return (
     <div
       className={cn(
-        "absolute left-0 top-full z-50 mt-1 w-[520px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg",
+        "absolute left-0 top-full z-50 mt-1 w-[520px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg",
         className,
       )}
     >
       {/* ── "All Categories" summary row — totals, non-clickable ─────────── */}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="font-semibold text-zinc-800">All Categories</span>
+        <span className="font-semibold text-slate-800">All Categories</span>
         <div className="flex items-center gap-3">
           <span className="font-semibold text-rose-500">
             {formatGapDollar(totalGapDollar)}
           </span>
-          <span className="text-sm text-zinc-700">
+          <span className="text-sm text-slate-700">
             {formatGapUnits(totalGapUnits)}
           </span>
         </div>
@@ -85,7 +85,7 @@ export function CategoriesDropdown({
                 isDimmed && "opacity-60",
                 selectedCategory === cat.name
                   ? "bg-brand-50"
-                  : "hover:bg-zinc-50",
+                  : "hover:bg-slate-50",
               )}
             >
               {/* Line 1: name | proportional bar | gap $ | units */}
@@ -93,7 +93,7 @@ export function CategoriesDropdown({
                 <span
                   className={cn(
                     "flex-1 text-sm font-medium",
-                    isDimmed ? "text-zinc-400" : "text-zinc-700",
+                    isDimmed ? "text-slate-400" : "text-slate-700",
                   )}
                 >
                   {cat.name}
@@ -102,7 +102,7 @@ export function CategoriesDropdown({
                 <span className="w-16 shrink-0 text-right text-sm font-normal text-rose-500">
                   {formatGapDollar(cat.gapDollar)}
                 </span>
-                <span className="w-20 shrink-0 text-right text-sm text-zinc-700">
+                <span className="w-20 shrink-0 text-right text-sm text-slate-700">
                   {formatGapUnits(cat.gapUnits)}
                 </span>
               </div>
@@ -113,8 +113,8 @@ export function CategoriesDropdown({
                   className={cn(
                     "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
                     isDimmed
-                      ? "bg-zinc-100 text-zinc-400"
-                      : "bg-zinc-100 text-zinc-600",
+                      ? "bg-slate-100 text-slate-400"
+                      : "bg-slate-100 text-slate-600",
                   )}
                 >
                   {cat.issueCount} Issues

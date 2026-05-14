@@ -19,11 +19,11 @@ interface SkusDropdownProps {
   className?: string;
 }
 
-// ── PropBar: matches categories-dropdown exactly (bg-zinc-200 track) ──────────
+// ── PropBar: matches categories-dropdown exactly (bg-slate-200 track) ──────────
 
 function PropBar({ pct }: { pct: number }) {
   return (
-    <div className="h-0.5 w-20 shrink-0 overflow-hidden rounded-full bg-zinc-200">
+    <div className="h-0.5 w-20 shrink-0 overflow-hidden rounded-full bg-slate-200">
       <div
         className="h-full rounded-full bg-brand-500"
         style={{ width: `${pct}%` }}
@@ -54,18 +54,18 @@ export function SkusDropdown({
   return (
     <div
       className={cn(
-        "absolute left-0 top-full z-50 mt-1 w-[560px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg",
+        "absolute left-0 top-full z-50 mt-1 w-[560px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg",
         className,
       )}
     >
       {/* 1. Title row — category name + gap totals, no border-b (matches categories) */}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="font-semibold text-zinc-800">{categoryName}</span>
+        <span className="font-semibold text-slate-800">{categoryName}</span>
         <div className="flex items-center gap-3">
           <span className="font-semibold text-rose-500">
             {formatGapDollar(categoryGapDollar)}
           </span>
-          <span className="text-sm text-zinc-700">
+          <span className="text-sm text-slate-700">
             {formatGapUnits(categoryGapUnits)}
           </span>
         </div>
@@ -87,7 +87,7 @@ export function SkusDropdown({
               className={cn(
                 "w-full rounded-lg px-3 py-2.5 text-left transition-colors",
                 !hasIssues && "opacity-60",
-                selectedAsin === sku.asin ? "bg-brand-50" : "hover:bg-zinc-50",
+                selectedAsin === sku.asin ? "bg-brand-50" : "hover:bg-slate-50",
               )}
             >
               {/* Line 1: thumbnail | name | proportional bar | gap $ | units */}
@@ -97,27 +97,27 @@ export function SkusDropdown({
                   alt={sku.name}
                   className="h-8 w-8 shrink-0 rounded-md object-cover"
                 />
-                <span className="flex-1 truncate text-sm font-medium text-zinc-700">
+                <span className="flex-1 truncate text-sm font-medium text-slate-700">
                   {sku.name}
                 </span>
                 <PropBar pct={barPct} />
                 <span className="w-14 shrink-0 text-right text-sm font-normal text-rose-500">
                   {formatGapDollar(sku.gapDollar)}
                 </span>
-                <span className="w-20 shrink-0 text-right text-sm text-zinc-700">
+                <span className="w-20 shrink-0 text-right text-sm text-slate-700">
                   {formatGapUnits(sku.gapUnits)}
                 </span>
               </div>
 
               {/* Line 2: ASIN + issues badge (mirrors categories "issues badge" row) */}
               <div className="mt-1.5 flex items-center gap-2 pl-11">
-                <span className="text-xs text-zinc-400">{sku.asin}</span>
+                <span className="text-xs text-slate-400">{sku.asin}</span>
                 <span
                   className={cn(
                     "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
                     hasIssues
-                      ? "bg-zinc-100 text-zinc-600"
-                      : "bg-zinc-100 text-zinc-400",
+                      ? "bg-slate-100 text-slate-600"
+                      : "bg-slate-100 text-slate-400",
                   )}
                 >
                   {sku.issueCount} Issues

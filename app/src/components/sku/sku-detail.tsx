@@ -48,7 +48,7 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
       {/* ── Back button ── */}
       <button
         onClick={onBack}
-        className="flex w-fit items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+        className="flex w-fit items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Overview
@@ -60,17 +60,17 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
         <img
           src={`https://placehold.co/80x80/f4f4f5/71717a?text=${(sku.category ?? "?")[0]}`}
           alt={sku.skuName}
-          className="h-20 w-20 rounded-lg border border-zinc-200 object-cover shrink-0"
+          className="h-20 w-20 rounded-lg border border-slate-200 object-cover shrink-0"
         />
 
         {/* SKU info */}
         <div className="flex flex-col gap-2 min-w-0 flex-1">
-          <h2 className="text-lg font-bold text-zinc-900 leading-snug">
+          <h2 className="text-lg font-bold text-slate-900 leading-snug">
             {sku.skuName}
           </h2>
 
           {/* Metadata row */}
-          <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
             {/* ASIN */}
             <div className="flex items-center gap-1">
               <Tag className="h-3.5 w-3.5" />
@@ -97,7 +97,7 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                ALERT_BADGE[sku.alertType] ?? "bg-zinc-100 text-zinc-600"
+                ALERT_BADGE[sku.alertType] ?? "bg-slate-100 text-slate-600"
               }`}
             >
               {sku.alertType}
@@ -114,13 +114,13 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
     </div>
 
     {/* ── Floating chat bar ── */}
-    <div className="absolute bottom-0 left-0 right-0 px-10 pb-5 pt-3 bg-linear-to-t from-zinc-50 via-zinc-50 to-transparent">
+    <div className="absolute bottom-0 left-0 right-0 px-10 pb-5 pt-3 bg-linear-to-t from-slate-50 via-slate-50 to-transparent">
       <PromptInput
         value={chatInput}
         onValueChange={setChatInput}
         isLoading={false}
         onSubmit={() => {}}
-        className="w-full bg-white shadow-md border-zinc-200"
+        className="w-full bg-white shadow-md border-slate-200"
         maxHeight={44} // single-line — prevents growing
       >
         <PromptInputTextarea

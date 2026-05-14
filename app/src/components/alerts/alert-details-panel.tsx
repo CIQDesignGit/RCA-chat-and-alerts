@@ -108,7 +108,7 @@ function IssueThread({ issue }: { issue: Issue }) {
   const isResolved = issue.status === "resolved";
 
   return (
-    <div className="flex flex-col gap-4 border-b border-zinc-100 bg-white py-6 px-6 last:border-b-0">
+    <div className="flex flex-col gap-4 border-b border-slate-100 bg-white py-6 px-6 last:border-b-0">
       {/* Thread header: avatar + analyst name + time + status */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -120,7 +120,7 @@ function IssueThread({ issue }: { issue: Issue }) {
             <span className="text-sm font-semibold text-blue-700">
               {issue.analyst}
             </span>
-            <span className="text-xs text-zinc-400">· {issue.timeAgo}</span>
+            <span className="text-xs text-slate-400">· {issue.timeAgo}</span>
           </div>
         </div>
 
@@ -142,8 +142,8 @@ function IssueThread({ issue }: { issue: Issue }) {
 
       {/* Issue title + description */}
       <div className="flex flex-col gap-1">
-        <h4 className="text-base font-bold text-zinc-800">{issue.title}</h4>
-        <p className="text-sm leading-relaxed text-zinc-500">{issue.description}</p>
+        <h4 className="text-base font-bold text-slate-800">{issue.title}</h4>
+        <p className="text-sm leading-relaxed text-slate-500">{issue.description}</p>
       </div>
 
       {/* Issue-type-specific content */}
@@ -151,11 +151,11 @@ function IssueThread({ issue }: { issue: Issue }) {
 
       {/* Helpful feedback row */}
       <div className="flex items-center justify-end gap-2">
-        <span className="text-xs text-zinc-400">Helpful</span>
-        <button className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors">
+        <span className="text-xs text-slate-400">Helpful</span>
+        <button className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
           <ThumbsUp className="h-4 w-4" />
         </button>
-        <button className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors">
+        <button className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
           <ThumbsDown className="h-4 w-4" />
         </button>
       </div>
@@ -194,23 +194,23 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
           <img
             src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
             alt={alert.skuName}
-            className="h-16 w-16 shrink-0 rounded-lg border border-zinc-200 object-cover"
+            className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
           />
 
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             {/* SKU name */}
-            <h2 className="text-base font-bold leading-snug text-zinc-900">
+            <h2 className="text-base font-bold leading-snug text-slate-900">
               {alert.skuName}
             </h2>
 
             {/* Breadcrumb */}
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-slate-400">
               {alert.accountId}
-              <span className="mx-1.5 text-zinc-300">·</span>
+              <span className="mx-1.5 text-slate-300">·</span>
               <span className="font-mono">{alert.asin}</span>
-              <span className="mx-1.5 text-zinc-300">·</span>
+              <span className="mx-1.5 text-slate-300">·</span>
               {alert.category}
-              <span className="mx-1.5 text-zinc-300">·</span>
+              <span className="mx-1.5 text-slate-300">·</span>
               {alert.brand}
             </p>
 
@@ -221,7 +221,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
                 href={`https://www.amazon.com/dp/${alert.asin}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50"
+                className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
               >
                 <span className="text-[10px] font-bold text-amber-600">a</span>
                 PDP Content
@@ -232,7 +232,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
 
               {/* Date — pushed to the right */}
-              <span className="ml-auto text-xs text-zinc-400">{alert.date}</span>
+              <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
       <div className="flex-1 overflow-y-auto pb-32">
         {/* Issue threads */}
         {alert.issues.length === 0 ? (
-          <p className="py-12 text-center text-sm text-zinc-400">
+          <p className="py-12 text-center text-sm text-slate-400">
             No issues found for this SKU.
           </p>
         ) : (
@@ -263,7 +263,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               SKU Root Cause Analysis
             </span>
             <ChevronDown
-              className={`h-4 w-4 text-zinc-400 transition-transform duration-200 ${
+              className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
                 rcaOpen ? "rotate-180" : ""
               }`}
             />
@@ -287,8 +287,8 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
         </div>
 
         {/* ── Follow-up questions — outside the accordion, always visible ── */}
-        <div className="border-t border-zinc-100 bg-white px-6 py-5 pb-10">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+        <div className="border-t border-slate-100 bg-white px-6 py-5 pb-10">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
             Follow-up questions
           </p>
           <div className="flex flex-wrap gap-2">
@@ -313,14 +313,14 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
       </div>
 
       {/* ── Floating chat bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-zinc-50 via-zinc-50 to-transparent px-6 pb-5 pt-3">
+      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50 to-transparent px-6 pb-5 pt-3">
         <PromptInput
           value={chatInput}
           onValueChange={setChatInput}
           isLoading={false}
           onSubmit={() => {}}
           maxHeight={44}
-          className="flex w-full items-center rounded-full border-zinc-200 bg-white shadow-md"
+          className="flex w-full items-center rounded-full border-slate-200 bg-white shadow-md"
         >
           <PromptInputTextarea
             disableAutosize

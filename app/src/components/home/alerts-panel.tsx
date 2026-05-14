@@ -64,15 +64,15 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
 
   return (
     <div className="flex shrink-0 flex-col">
-      <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-zinc-200 bg-white/50">
+      <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-slate-200 bg-white/50">
 
         {/* ── Panel header ── */}
         <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-sm font-semibold text-zinc-800">
+          <span className="text-sm font-semibold text-slate-800">
             Today&apos;s Alerts{" "}
-            <span className="text-zinc-400">({TOTAL_SKUS})</span>
+            <span className="text-slate-400">({TOTAL_SKUS})</span>
           </span>
-          <button className="text-zinc-400 hover:text-zinc-700" aria-label="Expand">
+          <button className="text-slate-400 hover:text-slate-700" aria-label="Expand">
             <Maximize2 className="h-4 w-4" />
           </button>
         </div>
@@ -86,11 +86,11 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
             return (
               <div
                 key={group.category}
-                className={groupIndex > 0 ? "border-t border-zinc-100" : ""}
+                className={groupIndex > 0 ? "border-t border-slate-100" : ""}
               >
                 {/* Category header */}
                 <div className="flex items-center justify-between bg-black/4 px-4 py-2">
-                  <span className="text-xs font-semibold text-zinc-800">
+                  <span className="text-xs font-semibold text-slate-800">
                     {group.category}
                   </span>
                   <span className="text-xs font-bold text-red-500">

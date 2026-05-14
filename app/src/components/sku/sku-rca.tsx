@@ -83,7 +83,7 @@ function getRcaData(sku: SkuAlert): RcaData {
         label: "WTD",
         period: "May 10–13",
         value: "$126.3K",
-        valueColor: "text-zinc-800",
+        valueColor: "text-slate-800",
         sub: "in sales · 49.2% of week elapsed",
       },
       {
@@ -151,7 +151,7 @@ function getRcaData(sku: SkuAlert): RcaData {
         label: "Unavailability",
         impact: null,
         statusLabel: "OK",
-        statusStyle: "bg-zinc-100 text-zinc-500",
+        statusStyle: "bg-slate-100 text-slate-500",
         description:
           "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
       },
@@ -161,7 +161,7 @@ function getRcaData(sku: SkuAlert): RcaData {
         label: "Shipping",
         impact: null,
         statusLabel: "OK",
-        statusStyle: "bg-zinc-100 text-zinc-500",
+        statusStyle: "bg-slate-100 text-slate-500",
         description:
           "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
       },
@@ -171,7 +171,7 @@ function getRcaData(sku: SkuAlert): RcaData {
         label: "Review Sentiment",
         impact: null,
         statusLabel: "OK",
-        statusStyle: "bg-zinc-100 text-zinc-500",
+        statusStyle: "bg-slate-100 text-slate-500",
         description:
           "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
       },
@@ -229,7 +229,7 @@ function getRcaData(sku: SkuAlert): RcaData {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
       {children}
     </h3>
   );
@@ -241,16 +241,16 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
   return (
     <div className="grid grid-cols-3 gap-4">
       {kpis.map((k) => (
-        <div key={k.label} className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div key={k.label} className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">{k.label}</span>
-            <span className="text-[10px] text-zinc-300">({k.period})</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{k.label}</span>
+            <span className="text-[10px] text-slate-300">({k.period})</span>
           </div>
           <p className={`text-2xl font-bold leading-none ${k.valueColor}`}>
             {k.value.includes(" vs ") ? (
               <>
                 {k.value.split(" vs ")[0]}
-                <span className="ml-1.5 text-sm font-normal text-zinc-400">
+                <span className="ml-1.5 text-sm font-normal text-slate-400">
                   vs {k.value.split(" vs ")[1]}
                 </span>
               </>
@@ -258,7 +258,7 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
               k.value
             )}
           </p>
-          <p className="text-[11px] leading-snug text-zinc-400">{k.sub}</p>
+          <p className="text-[11px] leading-snug text-slate-400">{k.sub}</p>
         </div>
       ))}
     </div>
@@ -270,20 +270,20 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
 const STATUS_DOT: Record<StatusPill["status"], string> = {
   ok:      "bg-emerald-500",
   warning: "bg-amber-400",
-  info:    "bg-zinc-400",
+  info:    "bg-slate-400",
 };
 
 function StatusPillsRow({ pills }: { pills: StatusPill[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 mr-1">Live Now</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mr-1">Live Now</span>
       {pills.map((p) => (
         <span
           key={p.label}
-          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600"
+          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
         >
           <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[p.status]}`} />
-          <span className="font-medium text-zinc-400">{p.label}:</span>
+          <span className="font-medium text-slate-400">{p.label}:</span>
           <span className={p.status === "warning" ? "font-semibold text-amber-600" : ""}>{p.value}</span>
         </span>
       ))}
@@ -332,7 +332,7 @@ function RevenueChart({
           />
           {/* Highlight the collapse week */}
           <ReferenceLine x="Apr 28" stroke="#fca5a5" strokeDasharray="3 3" label={{ value: "LBB", position: "top", fontSize: 9, fill: "#f87171" }} />
-          {/* Plan line — dashed zinc */}
+          {/* Plan line — dashed slate */}
           <Line
             type="monotone"
             dataKey="plan"
@@ -353,7 +353,7 @@ function RevenueChart({
           />
         </LineChart>
       </ResponsiveContainer>
-      <p className="max-w-[750px] text-[11px] leading-relaxed text-zinc-400">{caption}</p>
+      <p className="max-w-[750px] text-[11px] leading-relaxed text-slate-400">{caption}</p>
     </div>
   );
 }
@@ -373,20 +373,20 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <SectionHeading>Root causes · last week <span className="normal-case font-normal text-zinc-300 tracking-normal">· ordered by $ impact</span></SectionHeading>
-      <div className="overflow-hidden rounded-xl border border-zinc-200">
+      <SectionHeading>Root causes · last week <span className="normal-case font-normal text-slate-300 tracking-normal">· ordered by $ impact</span></SectionHeading>
+      <div className="overflow-hidden rounded-xl border border-slate-200">
         {causes.map((cause, i) => {
           const isOpen = openIds.has(cause.id);
           return (
-            <div key={cause.id} className={i < causes.length - 1 ? "border-b border-zinc-100" : ""}>
+            <div key={cause.id} className={i < causes.length - 1 ? "border-b border-slate-100" : ""}>
               {/* Row header */}
               <button
                 type="button"
                 onClick={() => toggle(cause.id)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-zinc-50 transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
               >
-                <span className="text-zinc-400">{cause.icon}</span>
-                <span className="flex-1 text-sm font-medium text-zinc-700">{cause.label}</span>
+                <span className="text-slate-400">{cause.icon}</span>
+                <span className="flex-1 text-sm font-medium text-slate-700">{cause.label}</span>
                 {cause.impact && (
                   <span className="text-sm font-semibold text-red-500">{cause.impact}</span>
                 )}
@@ -394,14 +394,14 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
                   {cause.statusLabel}
                 </span>
                 <ChevronDown
-                  className={`h-3.5 w-3.5 shrink-0 text-zinc-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
+                  className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
               {/* Expanded description */}
               {isOpen && (
-                <div className="border-t border-zinc-100 bg-zinc-50 px-4 pb-3 pt-2.5">
-                  <p className="max-w-[750px] text-sm leading-relaxed text-zinc-500">
+                <div className="border-t border-slate-100 bg-slate-50 px-4 pb-3 pt-2.5">
+                  <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
                     {cause.description}
                   </p>
                 </div>
@@ -422,8 +422,8 @@ function AnalysisSection({ blocks }: { blocks: AnalysisBlock[] }) {
       <SectionHeading>Analysis</SectionHeading>
       {blocks.map((b) => (
         <div key={b.heading} className="max-w-[750px]">
-          <p className="mb-1 text-sm font-semibold text-zinc-700">{b.heading}</p>
-          <p className="text-sm leading-relaxed text-zinc-500">{b.body}</p>
+          <p className="mb-1 text-sm font-semibold text-slate-700">{b.heading}</p>
+          <p className="text-sm leading-relaxed text-slate-500">{b.body}</p>
         </div>
       ))}
     </div>
@@ -442,8 +442,8 @@ function RecommendationsSection({ recs }: { recs: Recommendation[] }) {
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 text-[11px] font-bold text-violet-700">
               {i + 1}
             </span>
-            <p className="text-sm leading-relaxed text-zinc-600">
-              <span className="font-semibold text-zinc-800">{r.action}</span>{" "}
+            <p className="text-sm leading-relaxed text-slate-600">
+              <span className="font-semibold text-slate-800">{r.action}</span>{" "}
               {r.detail}
             </p>
           </li>
@@ -457,15 +457,15 @@ function RecommendationsSection({ recs }: { recs: Recommendation[] }) {
 
 function FeedbackRow() {
   return (
-    <div className="flex items-center justify-between border-t border-zinc-100 pt-5">
-      <p className="text-xs text-zinc-400">
+    <div className="flex items-center justify-between border-t border-slate-100 pt-5">
+      <p className="text-xs text-slate-400">
         Please help us improve the responses. Did you find that helpful?
       </p>
       <div className="flex items-center gap-2">
-        <button className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700">
+        <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
           <ThumbsUp className="h-4 w-4" />
         </button>
-        <button className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700">
+        <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
           <ThumbsDown className="h-4 w-4" />
         </button>
       </div>

@@ -37,7 +37,7 @@ export function ReadFilterGroup({ showUnreadOnly, onToggle }: ReadFilterGroupPro
           "rounded-md px-2.5 py-1 text-sm font-semibold transition-colors",
           !showUnreadOnly
             ? "bg-brand-50 text-brand-500"
-            : "text-zinc-400 hover:text-zinc-600",
+            : "text-slate-400 hover:text-slate-600",
         )}
       >
         All
@@ -49,7 +49,7 @@ export function ReadFilterGroup({ showUnreadOnly, onToggle }: ReadFilterGroupPro
           "rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors",
           showUnreadOnly
             ? "bg-brand-50 text-brand-500"
-            : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
+            : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
         )}
       >
         Unread
@@ -80,22 +80,22 @@ export function BrandSummaryChip({
       className={cn(
         "flex items-center gap-1.5 rounded-md border px-3.5 py-1.5 text-sm transition-colors",
         isOpen
-          ? "border-zinc-400 bg-zinc-50"
-          : "border-zinc-200 bg-white hover:bg-zinc-50",
+          ? "border-slate-400 bg-slate-50"
+          : "border-slate-200 bg-white hover:bg-slate-50",
       )}
     >
-      <span className="font-medium text-zinc-600">All Brands</span>
+      <span className="font-medium text-slate-600">All Brands</span>
       {/* Vertical divider */}
-      <span className="h-3.5 w-px bg-zinc-200" />
+      <span className="h-3.5 w-px bg-slate-200" />
       <span className="font-semibold text-rose-500">
         {formatGapDollar(totalGapDollar)}
       </span>
-      <span className="font-medium text-zinc-500">
+      <span className="font-medium text-slate-500">
         {formatGapUnits(totalGapUnits)}
       </span>
       <ChevronDown
         className={cn(
-          "h-4 w-4 text-zinc-400 transition-transform duration-150",
+          "h-4 w-4 text-slate-400 transition-transform duration-150",
           isOpen && "rotate-180",
         )}
       />
@@ -169,14 +169,14 @@ export function DropdownTriggerChip({
       className={cn(
         "flex items-center gap-1.5 rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors",
         isOpen
-          ? "border-zinc-400 bg-zinc-50 text-zinc-700"
-          : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
+          ? "border-slate-400 bg-slate-50 text-slate-700"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
       )}
     >
       {label}
       <ChevronDown
         className={cn(
-          "h-4 w-4 text-zinc-400 transition-transform duration-150",
+          "h-4 w-4 text-slate-400 transition-transform duration-150",
           isOpen && "rotate-180",
         )}
       />
@@ -201,15 +201,15 @@ export function SkuListChip({ count, onClick, isOpen }: SkuListChipProps) {
       className={cn(
         "flex items-center gap-1.5 rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors",
         isOpen
-          ? "border-zinc-400 bg-zinc-50 text-zinc-700"
-          : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
+          ? "border-slate-400 bg-slate-50 text-slate-700"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
       )}
     >
-      <Box className="h-3.5 w-3.5 text-zinc-400" />
+      <Box className="h-3.5 w-3.5 text-slate-400" />
       SKU List ({count})
       <ChevronDown
         className={cn(
-          "h-4 w-4 text-zinc-400 transition-transform duration-150",
+          "h-4 w-4 text-slate-400 transition-transform duration-150",
           isOpen && "rotate-180",
         )}
       />

@@ -45,7 +45,7 @@ export function GapBadge({
           {formatDollar(gapDollar)}
         </span>
         {showUnitPart && (
-          <span className="text-[11px] text-zinc-400">
+          <span className="text-[11px] text-slate-400">
             {formatUnits(gapUnits!)}
           </span>
         )}
@@ -60,7 +60,7 @@ export function GapBadge({
       {showUnitPart && (
         <>
           <span className="text-red-200">·</span>
-          <span className="text-zinc-400">{formatUnits(gapUnits!)}</span>
+          <span className="text-slate-400">{formatUnits(gapUnits!)}</span>
         </>
       )}
     </span>

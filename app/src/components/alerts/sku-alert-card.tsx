@@ -46,7 +46,7 @@ function cardShell(isActive?: boolean) {
     "relative w-full cursor-pointer rounded-lg border bg-white text-left transition-colors",
     isActive
       ? "border-brand-400 bg-brand-50/40 shadow-sm"
-      : "border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50/60",
+      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50/60",
   );
 }
 
@@ -55,7 +55,7 @@ function cardShell(isActive?: boolean) {
 function TagChip({ alert, tag }: { alert: AlertItem; tag: string }) {
   const resolved = isTagResolved(alert, tag);
   return (
-    <span className="flex items-center gap-0.5 rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-500">
+    <span className="flex items-center gap-0.5 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-500">
       {resolved && <Check className="h-2.5 w-2.5 text-emerald-500" />}
       {tag}
     </span>
@@ -74,7 +74,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
 
           {/* Row 1 — overline: breadcrumb left, gap badge right */}
           <div className="flex items-center justify-between gap-2">
-            <p className="truncate text-[11px] text-zinc-400">
+            <p className="truncate text-[11px] text-slate-400">
               <span className="font-mono">{alert.asin}</span>
               <span className="mx-1">·</span>
               {alert.accountId}
@@ -89,9 +89,9 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
             <img
               src={`https://placehold.co/44x44/f4f4f5/71717a?text=${alert.category[0]}`}
               alt={alert.skuName}
-              className="h-11 w-11 shrink-0 rounded-md border border-zinc-200 object-cover"
+              className="h-11 w-11 shrink-0 rounded-md border border-slate-200 object-cover"
             />
-            <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-800">
+            <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800">
               {alert.skuName}
             </p>
           </div>
@@ -117,7 +117,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
 
         {/* Row 1 — overline: breadcrumb left, gap badge right */}
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-[11px] text-zinc-400">
+          <p className="truncate text-[11px] text-slate-400">
             <span className="font-mono">{alert.asin}</span>
             <span className="mx-1">·</span>
             {alert.accountId}
@@ -132,9 +132,9 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
           <img
             src={`https://placehold.co/44x44/f4f4f5/71717a?text=${alert.category[0]}`}
             alt={alert.skuName}
-            className="h-11 w-11 shrink-0 rounded-md border border-zinc-200 object-cover"
+            className="h-11 w-11 shrink-0 rounded-md border border-slate-200 object-cover"
           />
-          <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-800">
+          <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800">
             {alert.skuName}
           </p>
         </div>

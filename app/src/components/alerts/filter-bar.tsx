@@ -84,7 +84,7 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
   return (
     <div className="flex items-center gap-2 border-b bg-white px-4 py-3">
       {/* Search icon button */}
-      <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50">
+      <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50">
         <Search className="h-4 w-4" />
       </button>
 

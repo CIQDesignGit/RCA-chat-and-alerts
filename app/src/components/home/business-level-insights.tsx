@@ -57,15 +57,15 @@ export function BusinessLevelInsights() {
       {/* Summary sentence — unchanged */}
       <div className="flex items-start gap-2">
         <TrendingDown className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-        <p className="text-sm leading-snug text-zinc-600">
+        <p className="text-sm leading-snug text-slate-600">
           The overall business is{" "}
           <span className="font-bold text-red-500">
             {formatDollar(overallGap)} down
           </span>{" "}
           this week, driven by{" "}
-          <span className="font-semibold text-zinc-800">{BRANDS.length} brands</span>.{" "}
+          <span className="font-semibold text-slate-800">{BRANDS.length} brands</span>.{" "}
           Largest contributor:{" "}
-          <span className="font-semibold text-zinc-800">{BRANDS[0].name}</span>{" "}
+          <span className="font-semibold text-slate-800">{BRANDS[0].name}</span>{" "}
           at{" "}
           <span className="font-semibold text-red-500">
             {formatDollar(BRANDS[0].gapDollar)}
