@@ -41,11 +41,12 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -38200,
     gapUnits: -120,
-    tags: ["Sales Drop", "Keyword Rank Drop"],
+    tags: ["SoV Drop", "Keyword Rank Drop"],
     date: "Today",
     hasUnread: true,
     issues: [
-      { id: "i2", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Blender keywords dropped 6 positions after a content update.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
+      { id: "i2a", type: "sov-drop",          title: "SoV Drop",          description: "Sales dropped after a competitor increased ad spend and captured share of voice on key blender terms.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
+      { id: "i2b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Blender keywords dropped 6 positions after a content update.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
     ],
   },
   {

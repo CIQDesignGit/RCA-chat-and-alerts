@@ -35,7 +35,7 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
   return (
     <div className="flex items-center gap-4">
       {/* Old rating box — grey, neutral */}
-      <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-4">
+      <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-slate-50 px-5 py-4">
         <div className="flex items-baseline gap-1.5">
           <span className="text-2xl font-bold text-zinc-400">{oldRating.toFixed(1)}</span>
           <Stars rating={oldRating} active={false} />
@@ -47,7 +47,7 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
       <ArrowRight className="h-5 w-5 shrink-0 text-zinc-400" />
 
       {/* New rating box — rose/pink, indicates the drop */}
-      <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-zinc-50 px-5 py-4">
+      <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-slate-50 px-5 py-4">
         <div className="flex items-baseline gap-1.5">
           <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
           <Stars rating={newRating} active={true} />

@@ -16,7 +16,7 @@ function SovMetricCard({
   competitorLabel: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-slate-50 px-4 py-3">
       {/* Label + info icon */}
       <div className="flex items-center gap-1 text-sm font-semibold text-zinc-700">
         {label}
@@ -82,7 +82,7 @@ export function SovDropIssue(p: SovDropProps) {
         <p className="mb-2 text-sm font-semibold text-zinc-700">
           Top Contributing Keywords
         </p>
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-slate-50">
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-500">

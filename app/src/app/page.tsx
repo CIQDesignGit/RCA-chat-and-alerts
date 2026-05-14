@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUp } from "lucide-react";
+import { SendHorizontal } from "lucide-react";
 import {
   PromptInput,
   PromptInputTextarea,
@@ -76,22 +76,25 @@ export default function HomePage() {
                 onValueChange={setInput}
                 isLoading={false}
                 onSubmit={() => {}}
-                className="w-full bg-background shadow-sm"
+                maxHeight={44}
+                className="flex w-full items-center rounded-full bg-background shadow-sm"
               >
                 <PromptInputTextarea
+                  disableAutosize
+                  rows={1}
                   placeholder="Ask AllyAI — e.g. What were my sales last week?"
                   onKeyDown={handleKeyDown}
-                  className="min-h-[44px]"
+                  className="min-h-0 flex-1 py-1.5"
                 />
-                <PromptInputActions className="justify-end">
+                <PromptInputActions>
                   <button
                     type="button"
                     onClick={() => {}}
                     disabled={!input.trim()}
                     aria-label="Send message"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
                   >
-                    <ArrowUp className="h-4 w-4" />
+                    <SendHorizontal className="h-4 w-4" />
                   </button>
                 </PromptInputActions>
               </PromptInput>

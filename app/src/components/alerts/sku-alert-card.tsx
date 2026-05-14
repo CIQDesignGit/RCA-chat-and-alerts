@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AlertItem, IssueType } from "./types";
+import { GapBadge } from "./gap-badge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,6 +29,7 @@ const TAG_TO_ISSUE_TYPE: Record<string, IssueType> = {
   "Promo Badge":       "promo-badge",
   "Keyword Rank Drop": "keyword-rank-drop",
   "Star Rating":       "star-rating",
+  "SoV Drop":          "sov-drop",
   "SOV Drop":          "sov-drop",
   "Share of Voice":    "sov-drop",
 };
@@ -38,12 +40,6 @@ function isTagResolved(alert: AlertItem, tag: string): boolean {
   return alert.issues.some((i) => i.type === issueType && i.status === "resolved");
 }
 
-function formatGap(value: number): string {
-  const abs = Math.abs(value);
-  if (abs >= 1_000_000) return `-$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000)     return `-$${(abs / 1_000).toFixed(1)}K`;
-  return `-$${abs}`;
-}
 
 function cardShell(isActive?: boolean) {
   return cn(
@@ -81,11 +77,11 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
             <p className="truncate text-[11px] text-zinc-400">
               <span className="font-mono">{alert.asin}</span>
               <span className="mx-1">·</span>
+              {alert.accountId}
+              <span className="mx-1">·</span>
               {alert.category}
             </p>
-            <span className="shrink-0 rounded-md bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
-              {formatGap(alert.gapDollar)}
-            </span>
+            <GapBadge gapDollar={alert.gapDollar} layout="stacked" showUnits={false} />
           </div>
 
           {/* Row 2 — thumbnail + SKU name */}
@@ -100,10 +96,12 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
             </p>
           </div>
 
-          {/* Row 3 — first tag, full width (no image indent) */}
-          {alert.tags[0] && (
+          {/* Row 3 — all tags, full width (no image indent) */}
+          {alert.tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-1">
-              <TagChip alert={alert} tag={alert.tags[0]} />
+              {alert.tags.map((tag) => (
+                <TagChip key={tag} alert={alert} tag={tag} />
+              ))}
             </div>
           )}
 
@@ -117,7 +115,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
     <button onClick={onClick} className={cardShell(isActive)}>
       <div className="flex flex-col gap-2 px-3 py-3">
 
-        {/* Row 1 — overline: breadcrumb left, unread dot + gap badge right */}
+        {/* Row 1 — overline: breadcrumb left, gap badge right */}
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-[11px] text-zinc-400">
             <span className="font-mono">{alert.asin}</span>
@@ -126,15 +124,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
             <span className="mx-1">·</span>
             {alert.category}
           </p>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {/* Unread dot lives inline so it never overlaps the badge */}
-            {alert.hasUnread && (
-              <span className="h-2 w-2 rounded-full bg-brand-500" />
-            )}
-            <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-              {formatGap(alert.gapDollar)}
-            </span>
-          </div>
+          <GapBadge gapDollar={alert.gapDollar} layout="stacked" showUnits={false} />
         </div>
 
         {/* Row 2 — thumbnail + SKU name */}
@@ -159,6 +149,11 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
         )}
 
       </div>
+
+      {/* Unread dot — bottom right corner of the card */}
+      {alert.hasUnread && (
+        <span className="absolute bottom-3 right-3 h-2 w-2 rounded-full bg-brand-500" />
+      )}
     </button>
   );
 }

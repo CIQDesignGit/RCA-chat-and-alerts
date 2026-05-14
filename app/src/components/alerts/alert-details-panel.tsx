@@ -6,7 +6,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   Check,
-  Circle,
   ArrowUp,
   ChevronDown,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import {
   PromptInputActions,
 } from "@/components/ui/prompt-input";
 import type { AlertItem, Issue } from "./types";
+import { GapBadge } from "./gap-badge";
 import { SkuRca, getFollowUpQuestions } from "@/components/sku/sku-rca";
 import { LostBuyBoxIssue } from "./issues/lost-buy-box";
 import { StarRatingIssue } from "./issues/star-rating";
@@ -23,14 +23,6 @@ import { SovDropIssue } from "./issues/sov-drop";
 import { PromoBadgeIssue } from "./issues/promo-badge";
 import { KeywordRankDropIssue } from "./issues/keyword-rank-drop";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatGapDollar(value: number): string {
-  const abs = Math.abs(value);
-  if (abs >= 1_000_000) return `-$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `-$${(abs / 1_000).toFixed(1)}K`;
-  return `-$${abs}`;
-}
 
 // ─── Issue body — renders the right visual per type ──────────────────────────
 
@@ -76,10 +68,18 @@ function IssueBody({ issue }: { issue: Issue }) {
         <PromoBadgeIssue
           promoDateRange="28 Apr to 10 May"
           checks={[
-            { label: "Promo Badge Visible?", passed: false },
-            { label: "Original Price is Correct?", passed: false },
-            { label: "Discounted Price is Correct?", passed: true },
-            { label: "Original price is struck through?", passed: false },
+            // Promo badge
+            { label: "Is Promo Badge Visible?",            passed: false },
+            // List price group
+            { label: "Is List Price Visible?",             passed: false },
+            { label: "Is List Price Correct (MSRP)?",      passed: false },
+            { label: "Does List Price Have Strikethrough?", passed: true  },
+            // Selling price + discount group
+            { label: "Is Selling Price Correct?",          passed: true  },
+            { label: "Is Discount % Visible?",             passed: false },
+            { label: "Is Discount % Correct?",             passed: true  },
+            // Buy Box
+            { label: "Are You the Buy Box Winner?",        passed: false },
           ]}
           currentOriginalPrice="$25.99"
           currentSellingPrice="$25.99"
@@ -113,11 +113,11 @@ function IssueThread({ issue }: { issue: Issue }) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           {/* Orange analyst avatar — matches screenshot */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-400 text-[11px] font-bold text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700">
             SA
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-orange-500">
+            <span className="text-sm font-semibold text-blue-700">
               {issue.analyst}
             </span>
             <span className="text-xs text-zinc-400">· {issue.timeAgo}</span>
@@ -126,15 +126,17 @@ function IssueThread({ issue }: { issue: Issue }) {
 
         {/* Status badge */}
         {isResolved ? (
-          <span className="flex items-center gap-1.5 rounded-full border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-600">
-            <Check className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">
+            <Check className="h-4 w-4" />
             Resolved
           </span>
         ) : (
-          <span className="flex items-center gap-1.5 rounded-full border border-amber-300 px-3 py-1 text-xs font-semibold text-amber-600">
-            <Circle className="h-3.5 w-3.5" />
-            Open
-          </span>
+          <button
+            type="button"
+            className="flex items-center rounded-2xl border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-slate-50"
+          >
+            Mark as Resolved
+          </button>
         )}
       </div>
 
@@ -226,15 +228,8 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
                 <ExternalLink className="h-3 w-3" />
               </a>
 
-              {/* Gap dollar */}
-              <span className="rounded-md bg-red-100 px-2.5 py-1 text-xs font-bold text-red-600">
-                Gap {formatGapDollar(alert.gapDollar)}
-              </span>
-
-              {/* Gap units */}
-              <span className="text-xs font-semibold text-zinc-500">
-                {alert.gapUnits.toLocaleString()} units
-              </span>
+              {/* Gap dollar + units */}
+              <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
 
               {/* Date — pushed to the right */}
               <span className="ml-auto text-xs text-zinc-400">{alert.date}</span>
@@ -264,7 +259,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
             onClick={() => setRcaOpen((prev) => !prev)}
             className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-brand-100 transition-colors"
           >
-            <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
+            <span className="text-sm font-semibold tracking-wide text-foreground">
               SKU Root Cause Analysis
             </span>
             <ChevronDown
@@ -324,26 +319,24 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
           onValueChange={setChatInput}
           isLoading={false}
           onSubmit={() => {}}
-          className="w-full border-zinc-200 bg-white shadow-md"
           maxHeight={44}
+          className="flex w-full items-center rounded-full border-zinc-200 bg-white shadow-md"
         >
           <PromptInputTextarea
             disableAutosize
             rows={1}
             placeholder={`Ask AllyAI about ${skuShortName}…`}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-              }
+              if (e.key === "Enter" && !e.shiftKey) e.preventDefault();
             }}
-            className="h-7 min-h-0 resize-none py-0 leading-7"
+            className="min-h-0 flex-1 py-1.5"
           />
-          <PromptInputActions className="justify-end">
+          <PromptInputActions>
             <button
               type="button"
               disabled={!chatInput.trim()}
               aria-label="Send"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               <ArrowUp className="h-3.5 w-3.5" />
             </button>

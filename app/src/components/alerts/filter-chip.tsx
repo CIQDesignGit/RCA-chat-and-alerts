@@ -36,7 +36,7 @@ export function ReadFilterGroup({ showUnreadOnly, onToggle }: ReadFilterGroupPro
         className={cn(
           "rounded-md px-2.5 py-1 text-sm font-semibold transition-colors",
           !showUnreadOnly
-            ? "bg-zinc-900 text-white"
+            ? "bg-brand-50 text-brand-500"
             : "text-zinc-400 hover:text-zinc-600",
         )}
       >
@@ -48,7 +48,7 @@ export function ReadFilterGroup({ showUnreadOnly, onToggle }: ReadFilterGroupPro
         className={cn(
           "rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors",
           showUnreadOnly
-            ? "bg-zinc-900 text-white"
+            ? "bg-brand-50 text-brand-500"
             : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
         )}
       >
@@ -123,7 +123,7 @@ export function SelectedFilterChip({
   const showGap = gapDollar !== undefined && gapUnits !== undefined;
 
   return (
-    <span className="flex items-center gap-1.5 rounded-md bg-brand-50 px-3.5 py-1.5 text-sm font-semibold text-brand-700">
+    <span className="flex items-center gap-1.5 rounded-md bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700">
       {label}
 
       {showGap && (

@@ -45,7 +45,7 @@ export function TopBar() {
 
       {/* User avatar — initials in a colored circle */}
       <button
-        className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white"
+        className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white"
         aria-label="Profile"
       >
         MP

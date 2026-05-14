@@ -31,7 +31,7 @@ function RankDelta({ prev, curr }: { prev: number; curr: number }) {
 
 export function KeywordRankDropIssue({ keywords }: KeywordRankDropProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-slate-50">
       {/* Header */}
       <div className="grid grid-cols-4 border-b bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500">
         <div className="col-span-2 px-4 py-2">Keyword</div>

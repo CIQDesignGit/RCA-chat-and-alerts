@@ -246,7 +246,18 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
             <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">{k.label}</span>
             <span className="text-[10px] text-zinc-300">({k.period})</span>
           </div>
-          <p className={`text-2xl font-bold leading-none ${k.valueColor}`}>{k.value}</p>
+          <p className={`text-2xl font-bold leading-none ${k.valueColor}`}>
+            {k.value.includes(" vs ") ? (
+              <>
+                {k.value.split(" vs ")[0]}
+                <span className="ml-1.5 text-sm font-normal text-zinc-400">
+                  vs {k.value.split(" vs ")[1]}
+                </span>
+              </>
+            ) : (
+              k.value
+            )}
+          </p>
           <p className="text-[11px] leading-snug text-zinc-400">{k.sub}</p>
         </div>
       ))}

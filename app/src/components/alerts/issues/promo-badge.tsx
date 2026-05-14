@@ -24,17 +24,17 @@ export function PromoBadgeIssue({
   return (
     <div className="flex flex-col gap-4">
       {/* Checklist card */}
-      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+      <div className="w-[370px] overflow-hidden rounded-xl border border-zinc-200 bg-slate-50">
         {checks.map((item, i) => (
           <div
             key={item.label}
-            className={`flex items-center justify-between px-4 py-3 ${
+            className={`flex items-center justify-between gap-6 px-4 py-2.5 ${
               i < checks.length - 1 ? "border-b border-zinc-200" : ""
             }`}
           >
             <span className="text-sm text-zinc-700">{item.label}</span>
             {item.passed ? (
-              <Check className="h-4 w-4 text-zinc-400" />
+              <Check className="h-4 w-4 text-green-500" />
             ) : (
               <X className="h-4 w-4 text-rose-500" />
             )}
