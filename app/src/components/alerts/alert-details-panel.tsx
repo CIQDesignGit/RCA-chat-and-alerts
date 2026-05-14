@@ -227,7 +227,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               </a>
 
               {/* Gap dollar */}
-              <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-600">
+              <span className="rounded-md bg-red-100 px-2.5 py-1 text-xs font-bold text-red-600">
                 Gap {formatGapDollar(alert.gapDollar)}
               </span>
 

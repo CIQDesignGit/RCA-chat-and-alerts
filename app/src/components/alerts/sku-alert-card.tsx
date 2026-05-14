@@ -19,7 +19,7 @@ type SkuAlertCardProps = {
 };
 
 // Shared neutral style for all tag chips
-const TAG_CLASS = "rounded-full border border-zinc-200 bg-white px-2 py-0.5 text-[10px] text-zinc-500";
+const TAG_CLASS = "rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-500";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
           </p>
 
           {/* ASIN · category (no accountId on home) */}
-          <p className="text-[11px] text-zinc-400">
+          <p className="text-xs text-zinc-400">
             <span className="font-mono">{alert.asin}</span>
             <span className="mx-1">·</span>
             {alert.category}
@@ -67,7 +67,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
 
           {/* Gap + first tag only */}
           <div className="flex flex-wrap items-center gap-1">
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+            <span className="rounded-md bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
               Gap {formatGap(alert.gapDollar)}
             </span>
             {alert.tags[0] && (
@@ -119,7 +119,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
 
           {/* Gap badge + all tags */}
           <div className="flex flex-wrap items-center gap-1">
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+            <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
               Gap {formatGap(alert.gapDollar)}
             </span>
             {alert.tags.map((tag) => (
