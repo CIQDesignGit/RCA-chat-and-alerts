@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingDown } from "lucide-react";
+import { Pin } from "lucide-react";
 import { BrandInsightsTabs } from "./brand-insights-tabs";
 
 // ─── Data — mirrors the RCA Landing Page API shape (FR-002 / FR-003) ──────────
@@ -56,15 +56,15 @@ export function BusinessLevelInsights() {
 
       {/* Summary sentence — unchanged */}
       <div className="flex items-start gap-2">
-        <TrendingDown className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-        <p className="text-sm leading-snug text-slate-600">
+        <Pin className="mt-0.5 h-4 w-4 shrink-0 text-secondary-500" />
+        <p className="text-xl font-semibold leading-snug text-foreground">
           The overall business is{" "}
-          <span className="font-bold text-red-500">
+          <span className="font-semibold text-red-500">
             {formatDollar(overallGap)} down
           </span>{" "}
           this week, driven by{" "}
           <span className="font-semibold text-slate-800">{BRANDS.length} brands</span>.{" "}
-          Largest contributor:{" "}
+          Largest contributor — {" "}
           <span className="font-semibold text-slate-800">{BRANDS[0].name}</span>{" "}
           at{" "}
           <span className="font-semibold text-red-500">

@@ -50,9 +50,9 @@ export default function HomePage() {
 
             {/* Top: greeting + business insights — max 800px, centered */}
             <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-              <h1 className="text-2xl font-bold text-foreground">
+              <p className="text-sm text-muted-foreground">
                 Good Morning, Steve
-              </h1>
+              </p>
               <BusinessLevelInsights />
             </div>
 
