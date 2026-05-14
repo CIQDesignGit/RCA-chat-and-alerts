@@ -1,7 +1,7 @@
 "use client";
 
 import { Pin } from "lucide-react";
-import { BrandInsightsTabs } from "./brand-insights-tabs";
+import { BrandInsightsTabsV2 } from "./brand-insights-tabs-v2";
 
 // ─── Data — mirrors the RCA Landing Page API shape (FR-002 / FR-003) ──────────
 // Sorted by gapDollar ascending (most negative first) per FR-004.
@@ -56,7 +56,7 @@ export function BusinessLevelInsights() {
 
       {/* Summary sentence — unchanged */}
       <div className="flex items-start gap-2">
-        <Pin className="mt-0.5 h-4 w-4 shrink-0 text-secondary-500" />
+        <Pin className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
         <p className="text-xl font-semibold leading-snug text-foreground">
           The overall business is{" "}
           <span className="font-semibold text-red-500">
@@ -74,7 +74,7 @@ export function BusinessLevelInsights() {
       </div>
 
       {/* Tabbed brand insights — one tab per brand, active brand shows full detail */}
-      <BrandInsightsTabs brands={BRANDS} />
+      <BrandInsightsTabsV2 brands={BRANDS} />
 
     </div>
   );

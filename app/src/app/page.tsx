@@ -50,14 +50,14 @@ export default function HomePage() {
 
             {/* Top: greeting + business insights — max 800px, centered */}
             <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xl text-muted-foreground">
                 Good Morning, Steve
               </p>
               <BusinessLevelInsights />
             </div>
 
             {/* Bottom: suggestion chips (row) + chat input — max 800px, centered */}
-            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
+            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
               {/* Chips wrap into a row so they use horizontal space */}
               <div className="flex flex-wrap gap-2">
                 {SUGGESTIONS.map((s) => (
@@ -77,7 +77,7 @@ export default function HomePage() {
                 isLoading={false}
                 onSubmit={() => {}}
                 maxHeight={44}
-                className="flex w-full items-center rounded-full bg-background shadow-sm"
+                className="flex w-full items-center rounded-full bg-background shadow-md"
               >
                 <PromptInputTextarea
                   disableAutosize
