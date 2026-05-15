@@ -89,7 +89,7 @@ export function AlertsPanel({ onSkuSelect, selectedSkuId }: AlertsPanelProps) {
                 className={groupIndex > 0 ? "border-t border-slate-100" : ""}
               >
                 {/* Category header */}
-                <div className="flex items-center justify-between bg-black/4 px-4 py-2">
+                <div className="flex items-center justify-between bg-slate-50 px-4 py-2">
                   <span className="text-xs font-semibold text-slate-800">
                     {group.category}
                   </span>

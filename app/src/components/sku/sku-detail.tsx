@@ -115,6 +115,7 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
 
     {/* ── Floating chat bar ── */}
     <div className="absolute bottom-0 left-0 right-0 px-10 pb-5 pt-3 bg-linear-to-t from-slate-50 via-slate-50 to-transparent">
+      <div className="mx-auto w-full max-w-[750px]">
       <PromptInput
         value={chatInput}
         onValueChange={setChatInput}
@@ -146,6 +147,7 @@ export function SkuDetail({ sku, onBack }: SkuDetailProps) {
           </button>
         </PromptInputActions>
       </PromptInput>
+      </div>
     </div>
   </div>
   );
