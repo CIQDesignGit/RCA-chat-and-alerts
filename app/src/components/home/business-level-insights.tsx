@@ -50,9 +50,10 @@ function formatDollar(value: number): string {
 
 interface BusinessLevelInsightsProps {
   onBrandChange?: (brandName: string) => void;
+  onViewAllCategories?: (brandName: string) => void;
 }
 
-export function BusinessLevelInsights({ onBrandChange }: BusinessLevelInsightsProps) {
+export function BusinessLevelInsights({ onBrandChange, onViewAllCategories }: BusinessLevelInsightsProps) {
   const overallGap = BRANDS.reduce((sum, b) => sum + b.gapDollar, 0);
 
   return (
@@ -78,7 +79,7 @@ export function BusinessLevelInsights({ onBrandChange }: BusinessLevelInsightsPr
       </div>
 
       {/* Tabbed brand insights — one tab per brand, active brand shows full detail */}
-      <BrandInsightsTabsV2 brands={BRANDS} onBrandChange={onBrandChange} />
+      <BrandInsightsTabsV2 brands={BRANDS} onBrandChange={onBrandChange} onViewAllCategories={onViewAllCategories} />
 
     </div>
   );

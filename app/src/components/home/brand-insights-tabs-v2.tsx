@@ -25,6 +25,8 @@ interface BrandInsightsTabsV2Props {
   brands: BrandData[];
   // Called with the brand name whenever the active tab changes
   onBrandChange?: (brandName: string) => void;
+  // Called when user clicks "View all categories" — opens alerts panel filtered by brand
+  onViewAllCategories?: (brandName: string) => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -71,7 +73,7 @@ function PropBar({ pct, active }: { pct: number; active: boolean }) {
 // units, achieved/target + progress bar). The active tab merges seamlessly
 // with the content panel below via the border-b-white + -mb-px CSS trick.
 
-export function BrandInsightsTabsV2({ brands, onBrandChange }: BrandInsightsTabsV2Props) {
+export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories }: BrandInsightsTabsV2Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
 
@@ -101,7 +103,7 @@ export function BrandInsightsTabsV2({ brands, onBrandChange }: BrandInsightsTabs
               // Browser tab trick: active tab uses white bottom border + -mb-px
               // to overlap the content panel's top border, creating a seamless merge.
               className={cn(
-                "relative flex flex-1 flex-col gap-3 rounded-t-[20px] border px-4 py-3 text-left transition-all",
+                "relative flex flex-1 flex-col gap-1.5 rounded-t-[20px] border px-4 py-2 text-left transition-all",
                 isActive
                   ? "-mb-px border-slate-200 border-b-white bg-white z-10"
                   : "border-transparent bg-slate-50 hover:bg-slate-100",
@@ -148,15 +150,23 @@ export function BrandInsightsTabsV2({ brands, onBrandChange }: BrandInsightsTabs
       {/* ── Content panel — merges with active tab above ──────────────────────── */}
       <div className="rounded-b-[20px] border border-slate-200 bg-white">
 
-        {/* Section label */}
-        <div className="border-b border-slate-100 px-4 py-3">
+        {/* Section label + view all link */}
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
           <span className="text-sm font-medium text-slate-500">
             Category performance
           </span>
+          {onViewAllCategories && (
+            <button
+              onClick={() => onViewAllCategories(active.name)}
+              className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline"
+            >
+              View all {active.name} alerts →
+            </button>
+          )}
         </div>
 
-        {/* Category rows — clickable, navigate to /alerts pre-filtered */}
-        <div className="px-2 py-2">
+        {/* Category rows */}
+        <div className="px-2 pt-2 pb-2">
           {active.categories.slice(0, 4).map((cat) => {
             const barPct = (Math.abs(cat.gapDollar) / maxGap) * 100;
             return (

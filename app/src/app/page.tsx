@@ -69,6 +69,13 @@ export default function HomePage() {
     setActiveBrandTab(null);
   }
 
+  // "View all categories" from the brand insights tab — apply brand filter + open filter bar
+  function handleViewAllCategories(brandName: string) {
+    setFilters((prev) => ({ ...prev, brand: brandName, category: null }));
+    setFilterBarExpanded(true);
+    setSelectedAlert(null);
+  }
+
   // Helper — true when the user is in a non-default state (filters applied, or view-all mode)
   function hasActiveState(f: typeof filters) {
     return !!(f.brand || f.category || f.sku || f.unreadOnly) || activeBrandTab === null;
@@ -146,12 +153,12 @@ export default function HomePage() {
                 <p className="text-xl text-muted-foreground">
                   Good Morning, Steve
                 </p>
-                <BusinessLevelInsights onBrandChange={setActiveBrandTab} />
+                <BusinessLevelInsights onBrandChange={setActiveBrandTab} onViewAllCategories={handleViewAllCategories} />
               </div>
 
               {/* Bottom: suggestion chips + chat input — max 800px, centered */}
               <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
