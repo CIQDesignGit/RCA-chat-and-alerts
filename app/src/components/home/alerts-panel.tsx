@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronRight, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AlertItem } from "@/components/alerts/types";
+import type { GroupBy } from "@/components/alerts/filter-bar";
 import { SkuAlertCard } from "@/components/alerts/sku-alert-card";
 import {
   ALERT_ITEMS,
@@ -57,6 +58,7 @@ type AlertsPanelProps = {
   onToggleFilters?: () => void;
   filtersExpanded?: boolean;
   brandFilter?: string | null;
+  groupBy?: GroupBy;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -70,34 +72,46 @@ export function AlertsPanel({
   onToggleFilters,
   filtersExpanded,
   brandFilter,
+  groupBy = "category",
 }: AlertsPanelProps) {
   const hasFilter = !!(filters?.brand || filters?.category);
 
-  // Expanded filter mode — show all items that match the active filter bar state
-  const filteredGroups = hasFilter
-    ? CATEGORY_GROUPS.map((g) => ({
-        ...g,
-        items: g.items.filter((item) => {
-          if (filters?.brand && item.brand !== filters.brand) return false;
-          if (filters?.category && item.category !== filters.category) return false;
-          return true;
-        }),
-      })).filter((g) => g.items.length > 0)
-    : CATEGORY_GROUPS;
-
-  // Compact mode — optionally scope to the brand selected in the brand tab strip
-  const compactGroups = brandFilter
-    ? CATEGORY_GROUPS.filter((g) => g.brand === brandFilter)
-    : CATEGORY_GROUPS;
+  // All items that pass the active filters (or brand scope)
+  const visibleItems = ALERT_ITEMS.filter((item) => {
+    if (filters?.brand && item.brand !== filters.brand) return false;
+    if (filters?.category && item.category !== filters.category) return false;
+    if (!hasFilter && brandFilter && item.brand !== brandFilter) return false;
+    return true;
+  });
 
   // Full list mode: no brand scope AND no filter bar filters applied
   const isFullList = !brandFilter && !hasFilter;
 
-  const activeGroups = hasFilter ? filteredGroups : compactGroups;
+  // Build groups based on groupBy setting
+  type Group = { key: string; label: string; totalGap: number; brand: string; items: AlertItem[] };
 
-  const displayCount = hasFilter
-    ? filteredGroups.reduce((n, g) => n + g.items.length, 0)
-    : compactGroups.reduce((n, g) => n + g.items.length, 0);
+  const activeGroups: Group[] = groupBy === "date"
+    ? // Group by date — collect unique dates preserving order of first appearance
+      Array.from(new Set(visibleItems.map((i) => i.date))).map((date) => {
+        const items = visibleItems.filter((i) => i.date === date);
+        return {
+          key: date,
+          label: date,
+          brand: "",
+          totalGap: items.reduce((sum, i) => sum + i.gapDollar, 0),
+          items,
+        };
+      })
+    : // Group by category — use canonical order from CATEGORY_GROUPS
+      CATEGORY_GROUPS.map((g) => ({
+        key: g.category,
+        label: g.category,
+        brand: g.brand,
+        totalGap: g.totalGap,
+        items: visibleItems.filter((i) => i.category === g.category),
+      })).filter((g) => g.items.length > 0);
+
+  const displayCount = visibleItems.length;
 
   return (
     <div className="flex shrink-0 flex-col">
@@ -106,7 +120,7 @@ export function AlertsPanel({
         {/* ── Panel header ── */}
         <div className="flex items-center justify-between px-4 py-3">
           <span className="text-sm font-semibold text-slate-800">
-            {brandFilter ? "Today\u2019s Alerts" : "All Alerts"}{" "}
+            {filters?.brand ?? brandFilter ?? "All"} Alerts{" "}
             <span className="text-slate-400">({displayCount})</span>
           </span>
 
@@ -119,7 +133,7 @@ export function AlertsPanel({
                 aria-label={filtersExpanded ? "Close filters" : "Open filters"}
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-                  filtersExpanded || hasFilter
+                  hasFilter || !!brandFilter
                     ? "bg-violet-100 text-violet-600"
                     : "text-slate-400 hover:bg-slate-100 hover:text-slate-700",
                 )}
@@ -134,21 +148,20 @@ export function AlertsPanel({
         {/* ── Scrollable category groups ── */}
         <div className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
           {activeGroups.map((group, groupIndex) => {
-            // Snapshot: cap to 3 per category. Full list + filtered: show everything.
-            const visibleItems = (hasFilter || isFullList)
+            // Snapshot mode: cap to 3 per group. Full list + filtered: show everything.
+            const shownItems = (hasFilter || isFullList)
               ? group.items
               : group.items.slice(0, HOME_SKU_LIMIT);
-            const hiddenCount = (hasFilter || isFullList) ? 0 : group.items.length - visibleItems.length;
 
             return (
               <div
-                key={group.category}
+                key={group.key}
                 className={groupIndex > 0 ? "border-t border-slate-100" : ""}
               >
-                {/* Category header */}
+                {/* Group header */}
                 <div className="flex items-center justify-between bg-slate-50 px-4 py-2">
                   <span className="text-xs font-semibold text-slate-800">
-                    {group.category}
+                    {group.label}
                   </span>
                   <span className="text-xs font-bold text-red-500">
                     {formatGap(group.totalGap)}
@@ -157,7 +170,7 @@ export function AlertsPanel({
 
                 {/* Alert cards */}
                 <div className="flex flex-col gap-2 p-3">
-                  {visibleItems.map((item) => (
+                  {shownItems.map((item) => (
                     <SkuAlertCard
                       key={item.id}
                       alert={item}
@@ -168,22 +181,22 @@ export function AlertsPanel({
                   ))}
                 </div>
 
-                {/* "View all X alerts" — snapshot mode only (not full list, not filtered) */}
-                {!hasFilter && !isFullList && (
+                {/* "View all X alerts" — snapshot + category mode only */}
+                {!hasFilter && !isFullList && groupBy === "category" && (
                   onViewAllCategory ? (
                     <button
-                      onClick={() => onViewAllCategory(group.brand, group.category)}
+                      onClick={() => onViewAllCategory(group.brand, group.label)}
                       className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
                     >
-                      {`View all ${group.category} alerts`}
+                      {`View all ${group.label} alerts`}
                       <ChevronRight className="h-3 w-3" />
                     </button>
                   ) : (
                     <Link
-                      href={`/alerts?brand=${encodeURIComponent(group.brand)}&category=${encodeURIComponent(group.category)}`}
+                      href={`/alerts?brand=${encodeURIComponent(group.brand)}&category=${encodeURIComponent(group.label)}`}
                       className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
                     >
-                      {`View all ${group.category} alerts`}
+                      {`View all ${group.label} alerts`}
                       <ChevronRight className="h-3 w-3" />
                     </Link>
                   )
@@ -193,14 +206,14 @@ export function AlertsPanel({
           })}
         </div>
 
-        {/* ── Footer — hidden when filters are active OR when already showing all brands ── */}
+        {/* ── Footer — only in snapshot mode (brand tab active, no filter applied) ── */}
         {!hasFilter && onViewAll && brandFilter && (
           <div className="border-t px-4 py-3">
             <button
               onClick={onViewAll}
               className="block w-full text-center text-sm font-medium text-violet-600 hover:underline"
             >
-              View All Alerts
+              View all {brandFilter} alerts
             </button>
           </div>
         )}

@@ -10,7 +10,7 @@ import {
 import { AlertsPanel } from "@/components/home/alerts-panel";
 import { BusinessLevelInsights } from "@/components/home/business-level-insights";
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
-import { FilterBar, type FilterState } from "@/components/alerts/filter-bar";
+import { FilterBar, type FilterState, type GroupBy } from "@/components/alerts/filter-bar";
 import type { AlertItem } from "@/components/alerts/types";
 
 // ─── Suggestion chips ────────────────────────────────────────────────────────
@@ -35,6 +35,9 @@ export default function HomePage() {
 
   // Filter bar visibility — hidden on landing, expands on alert select or "View all" click
   const [filterBarExpanded, setFilterBarExpanded] = useState(false);
+
+  // Group by — controls whether the alerts panel groups by category or date
+  const [groupBy, setGroupBy] = useState<GroupBy>("category");
 
   // Active filter state — drives the left panel's filtered/full view
   const [filters, setFilters] = useState<FilterState>({
@@ -62,11 +65,25 @@ export default function HomePage() {
     setFilterBarExpanded(false);
   }
 
-  // "View All Alerts" footer — clear brand scope so all categories show.
-  // Filter bar is deliberately NOT touched; user opens it themselves if needed.
-  // Does NOT touch selectedAlert so RCA panel stays visible if one is open.
+  // "View All Alerts" footer — expand snapshot into a full brand-scoped list.
+  // Applies the active brand tab as a brand filter so every card for that brand
+  // is visible (no 3-per-category truncation). Filter bar is NOT opened —
+  // it only opens when the user explicitly picks a filtered view.
   function handleViewAll() {
-    setActiveBrandTab(null);
+    if (activeBrandTab) {
+      setFilters((prev) => ({ ...prev, brand: activeBrandTab, category: null }));
+      setSelectedAlert(null);
+    }
+  }
+
+  // Brand tab click — update active tab.
+  // If the user is in "view all for brand" mode (brand filter applied, no category/sku),
+  // also update filters.brand so the left panel list stays in sync with the tab.
+  function handleBrandChange(brandName: string) {
+    setActiveBrandTab(brandName);
+    if (filters.brand && !filters.category && !filters.sku) {
+      setFilters((prev) => ({ ...prev, brand: brandName }));
+    }
   }
 
   // "View all categories" from the brand insights tab — apply brand filter + open filter bar
@@ -93,13 +110,15 @@ export default function HomePage() {
   }
 
   // Filters changed from FilterBar.
-  // Scenario 3 — when ALL filters are cleared → treat as landing reset.
+  // When ALL filters are cleared → enter "no brand selected" state:
+  //   - activeBrandTab = null so tabs component shows no active tab
+  //   - AlertsPanel shows all brands in full-list mode (isFullList = true)
+  //   - Filter bar stays open so user can see the cleared state
   function handleFiltersChange(f: typeof filters) {
     setFilters(f);
     const allClear = !f.brand && !f.category && !f.sku && !f.unreadOnly;
     if (allClear) {
-      setActiveBrandTab("Shark");
-      setFilterBarExpanded(false);
+      setActiveBrandTab(null);
     }
   }
 
@@ -116,9 +135,11 @@ export default function HomePage() {
       {/* ── Filter bar — always in DOM, height-animated open/closed ── */}
       <FilterBar
         isExpanded={filterBarExpanded}
-        initialFilters={{ brand: filters.brand, category: filters.category }}
+        initialFilters={{ brand: filters.brand ?? activeBrandTab, category: filters.category }}
         onFiltersChange={handleFiltersChange}
         onBack={handleCollapseFilterBar}
+        groupBy={groupBy}
+        onGroupByChange={setGroupBy}
       />
 
       {/* ── Two-panel body ── */}
@@ -134,6 +155,7 @@ export default function HomePage() {
           filtersExpanded={filterBarExpanded}
           onToggleFilters={() => setFilterBarExpanded((prev) => !prev)}
           brandFilter={activeBrandTab}
+          groupBy={groupBy}
         />
 
         {/* Right: landing overview OR selected alert detail */}
@@ -153,7 +175,7 @@ export default function HomePage() {
                 <p className="text-xl text-muted-foreground">
                   Good Morning, Steve
                 </p>
-                <BusinessLevelInsights onBrandChange={setActiveBrandTab} onViewAllCategories={handleViewAllCategories} />
+                <BusinessLevelInsights onBrandChange={handleBrandChange} onViewCategory={handleViewAllCategory} onViewAllCategories={handleViewAllCategories} activeBrandName={activeBrandTab} />
               </div>
 
               {/* Bottom: suggestion chips + chat input — max 800px, centered */}

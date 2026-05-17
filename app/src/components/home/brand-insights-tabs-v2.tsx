@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -25,8 +24,12 @@ interface BrandInsightsTabsV2Props {
   brands: BrandData[];
   // Called with the brand name whenever the active tab changes
   onBrandChange?: (brandName: string) => void;
-  // Called when user clicks "View all categories" — opens alerts panel filtered by brand
+  // Called when a category row is clicked — applies brand + category filter on the home page
+  onViewCategory?: (brandName: string, categoryName: string) => void;
+  // Called when user clicks "View all categories" — opens alerts panel filtered by brand only
   onViewAllCategories?: (brandName: string) => void;
+  // Controlled active brand — null means no tab selected (e.g. after clearing filters)
+  activeBrandName?: string | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -73,24 +76,42 @@ function PropBar({ pct, active }: { pct: number; active: boolean }) {
 // units, achieved/target + progress bar). The active tab merges seamlessly
 // with the content panel below via the border-b-white + -mb-px CSS trick.
 
-export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories }: BrandInsightsTabsV2Props) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const router = useRouter();
+export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onViewAllCategories, activeBrandName }: BrandInsightsTabsV2Props) {
+  // null = no tab active (cleared state); default to first tab if prop not provided
+  const [activeIndex, setActiveIndex] = useState<number | null>(
+    activeBrandName === null ? null : 0
+  );
+
+  // Sync when parent drives the active brand (e.g. tab switch or clear filters)
+  useEffect(() => {
+    if (activeBrandName === undefined) return;
+    if (activeBrandName === null) {
+      setActiveIndex(null);
+    } else {
+      const idx = brands.findIndex((b) => b.name === activeBrandName);
+      setActiveIndex(idx >= 0 ? idx : null);
+    }
+  }, [activeBrandName, brands]);
 
   function handleTabClick(index: number) {
     setActiveIndex(index);
     onBrandChange?.(brands[index].name);
   }
-  const active = brands[activeIndex];
-  const maxGap = Math.max(...active.categories.map((c) => Math.abs(c.gapDollar)));
+
+  const active = activeIndex !== null ? brands[activeIndex] : null;
+  const maxGap = active ? Math.max(...active.categories.map((c) => Math.abs(c.gapDollar))) : 0;
 
   return (
     <div className="flex flex-col">
 
       {/* ── Tab strip — sits on slate-100 tray, tabs have rounded tops ───────── */}
-      <div className="flex gap-1 rounded-t-[20px] bg-slate-100 px-1 pt-1">
+      <div className={cn(
+        "flex gap-1 px-1 pt-1 bg-slate-100",
+        active ? "rounded-t-[20px]" : "rounded-[20px] pb-1",
+      )}>
         {brands.map((brand, i) => {
           const isActive = i === activeIndex;
+          const noSelection = activeIndex === null;
           const pct = Math.min(
             Math.round((brand.achievedSales / brand.targetSales) * 100),
             100,
@@ -100,13 +121,16 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories
             <button
               key={brand.name}
               onClick={() => handleTabClick(i)}
-              // Browser tab trick: active tab uses white bottom border + -mb-px
-              // to overlap the content panel's top border, creating a seamless merge.
               className={cn(
-                "relative flex flex-1 flex-col gap-1.5 rounded-t-[20px] border px-4 py-2 text-left transition-all",
+                "relative flex flex-1 flex-col gap-1.5 border px-4 py-2 text-left transition-all",
+                // Both tabs fully rounded when none is selected
+                noSelection ? "rounded-[16px]" : "rounded-t-[20px]",
                 isActive
                   ? "-mb-px border-slate-200 border-b-white bg-white z-10"
-                  : "border-transparent bg-slate-50 hover:bg-slate-100",
+                  : noSelection
+                    // "no selection" state — both appear as equal white cards
+                    ? "border-slate-200 bg-white shadow-sm hover:bg-slate-50"
+                    : "border-transparent bg-slate-50 hover:bg-slate-100",
               )}
             >
               {/* Brand name */}
@@ -119,25 +143,25 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories
                 <span
                   className={cn(
                     "text-medium font-semibold leading-none",
-                    isActive ? "text-rose-500" : "text-slate-500",
+                    isActive || noSelection ? "text-rose-500" : "text-slate-500",
                   )}
                 >
                   {fmtDollar(brand.gapDollar)}
                 </span>
-                <span className={cn("text-sm", isActive ? "text-slate-500" : "text-slate-400")}>
+                <span className={cn("text-sm", isActive || noSelection ? "text-slate-500" : "text-slate-400")}>
                   {fmtUnits(brand.gapUnits)}
                 </span>
               </div>
 
               {/* Progress bar on top, achieved / target text below */}
               <div className="flex flex-col gap-1 pt-0.5">
-                <PropBar pct={pct} active={isActive} />
+                <PropBar pct={pct} active={isActive || noSelection} />
                 <div className="flex items-center gap-1">
-                  <span className={cn("text-sm font-medium", isActive ? "text-slate-700" : "text-slate-500")}>
+                  <span className={cn("text-sm font-medium", isActive || noSelection ? "text-slate-700" : "text-slate-500")}>
                     {fmtSales(brand.achievedSales)}
                   </span>
                   <span className="text-sm text-slate-400">/</span>
-                  <span className={cn("text-sm", isActive ? "text-slate-500" : "text-slate-500")}>
+                  <span className="text-sm text-slate-500">
                     {fmtSales(brand.targetSales)}
                   </span>
                 </div>
@@ -147,8 +171,8 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories
         })}
       </div>
 
-      {/* ── Content panel — merges with active tab above ──────────────────────── */}
-      <div className="rounded-b-[20px] border border-slate-200 bg-white">
+      {/* ── Content panel — only shown when a tab is active ──────────────────── */}
+      {active && <div className="rounded-b-[20px] border border-slate-200 bg-white">
 
         {/* Section label + view all link */}
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
@@ -172,13 +196,7 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories
             return (
               <button
                 key={cat.name}
-                onClick={() => {
-                  const params = new URLSearchParams({
-                    brand: active.name,
-                    category: cat.name,
-                  });
-                  router.push(`/alerts?${params.toString()}`);
-                }}
+                onClick={() => onViewCategory?.(active.name, cat.name)}
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-slate-50"
               >
                 <span className="flex-1 truncate text-sm font-medium text-slate-700">
@@ -202,7 +220,7 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewAllCategories
           })}
         </div>
 
-      </div>
+      </div>}
     </div>
   );
 }
