@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ExternalLink,
   ThumbsUp,
   ThumbsDown,
   Check,
   ArrowUp,
+  ArrowUpRight,
   X,
 } from "lucide-react";
 import {
@@ -14,6 +16,7 @@ import {
   PromptInputTextarea,
   PromptInputActions,
 } from "@/components/ui/prompt-input";
+import { MessageThread } from "@/components/chat/message-thread";
 import type { AlertItem, Issue } from "./types";
 import { GapBadge } from "./gap-badge";
 import { SkuRca, getFollowUpQuestions } from "@/components/sku/sku-rca";
@@ -22,6 +25,7 @@ import { StarRatingIssue } from "./issues/star-rating";
 import { SovDropIssue } from "./issues/sov-drop";
 import { PromoBadgeIssue } from "./issues/promo-badge";
 import { KeywordRankDropIssue } from "./issues/keyword-rank-drop";
+import { useChatStore } from "@/lib/chat-store";
 
 
 // ─── Issue body — renders the right visual per type ──────────────────────────
@@ -68,17 +72,13 @@ function IssueBody({ issue }: { issue: Issue }) {
         <PromoBadgeIssue
           promoDateRange="28 Apr to 10 May"
           checks={[
-            // Promo badge
             { label: "Is Promo Badge Visible?",            passed: false },
-            // List price group
             { label: "Is List Price Visible?",             passed: false },
             { label: "Is List Price Correct (MSRP)?",      passed: false },
             { label: "Does List Price Have Strikethrough?", passed: true  },
-            // Selling price + discount group
             { label: "Is Selling Price Correct?",          passed: true  },
             { label: "Is Discount % Visible?",             passed: false },
             { label: "Is Discount % Correct?",             passed: true  },
-            // Buy Box
             { label: "Are You the Buy Box Winner?",        passed: false },
           ]}
           currentOriginalPrice="$25.99"
@@ -109,10 +109,8 @@ function IssueThread({ issue }: { issue: Issue }) {
 
   return (
     <div className="flex flex-col gap-4 border-b border-slate-100 bg-white py-6 px-6 last:border-b-0">
-      {/* Thread header: avatar + analyst name + time + status */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          {/* Orange analyst avatar — matches screenshot */}
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700">
             SA
           </div>
@@ -124,7 +122,6 @@ function IssueThread({ issue }: { issue: Issue }) {
           </div>
         </div>
 
-        {/* Status badge */}
         {isResolved ? (
           <span className="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">
             <Check className="h-4 w-4" />
@@ -140,22 +137,19 @@ function IssueThread({ issue }: { issue: Issue }) {
         )}
       </div>
 
-      {/* Issue title + description */}
       <div className="flex flex-col gap-1">
         <h4 className="text-base font-bold text-slate-800">{issue.title}</h4>
         <p className="text-sm leading-relaxed text-slate-500">{issue.description}</p>
       </div>
 
-      {/* Issue-type-specific content */}
       <IssueBody issue={issue} />
 
-      {/* Helpful feedback row */}
       <div className="flex items-center justify-end gap-2">
         <span className="text-xs text-slate-400">Helpful</span>
-        <button className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+        <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
           <ThumbsUp className="h-4 w-4" />
         </button>
-        <button className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+        <button className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
           <ThumbsDown className="h-4 w-4" />
         </button>
       </div>
@@ -164,14 +158,13 @@ function IssueThread({ issue }: { issue: Issue }) {
 }
 
 // ─── Map issue type → SkuRca alertType string ────────────────────────────────
-// SkuRca uses string-switch on alertType; map our enum values to match.
 
 function issueTypeToAlertType(type: Issue["type"] | undefined): string {
   switch (type) {
-    case "lost-buy-box":  return "Lost Buy Box";
-    case "star-rating":   return "Sales Drop";
-    case "sov-drop":      return "Sales Drop";
-    case "promo-badge":   return "Sales Drop";
+    case "lost-buy-box":      return "Lost Buy Box";
+    case "star-rating":       return "Sales Drop";
+    case "sov-drop":          return "Sales Drop";
+    case "promo-badge":       return "Sales Drop";
     case "keyword-rank-drop": return "Sales Drop";
     default: return "";
   }
@@ -184,17 +177,96 @@ export function AlertDetailsPanel({
   onClose,
 }: {
   alert: AlertItem;
-  // Called when the X button is clicked — parent should deselect the alert
   onClose?: () => void;
 }) {
+  const router = useRouter();
+
+  // ── Store ──────────────────────────────────────────────────────────────────
+  const getSessionByAlertId = useChatStore((s) => s.getSessionByAlertId);
+  const createSession = useChatStore((s) => s.createSession);
+  const appendMessage = useChatStore((s) => s.appendMessage);
+  const setActiveSession = useChatStore((s) => s.setActiveSession);
+  const sessions = useChatStore((s) => s.sessions);
+
+  // Resolve the session for this specific SKU (create lazily on first send)
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    return getSessionByAlertId(alert.id)?.id ?? null;
+  });
+
+  // Derive messages from the store so they stay in sync
+  const sessionMessages =
+    sessions.find((s) => s.id === sessionId)?.messages ?? [];
+
+  // ── Local UI state ─────────────────────────────────────────────────────────
   const [chatInput, setChatInput] = useState("");
-  // True once the scroll container has been scrolled past the threshold
+  const [isLoading, setIsLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const skuShortName = alert.skuName.split(" ").slice(0, 4).join(" ");
 
   function handleScroll(e: React.UIEvent<HTMLDivElement>) {
     setScrolled(e.currentTarget.scrollTop > 24);
   }
+
+  // Auto-scroll when new messages arrive
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sessionMessages, isLoading]);
+
+  // ── Send a message in the SKU inline chat ──────────────────────────────────
+  async function handleSend(text?: string) {
+    const content = (text ?? chatInput).trim();
+    if (!content || isLoading) return;
+
+    // Create the session on first message
+    let sid = sessionId;
+    if (!sid) {
+      sid = createSession({
+        type: "sku",
+        alertId: alert.id,
+        skuName: alert.skuName,
+        asin: alert.asin,
+        category: alert.category,
+        brand: alert.brand,
+        gapDollar: alert.gapDollar,
+        gapUnits: alert.gapUnits,
+      });
+      setSessionId(sid);
+      setActiveSession(sid);
+    }
+
+    appendMessage(sid, { role: "user", content });
+    setChatInput("");
+    setIsLoading(true);
+
+    // Placeholder — replace with real API call
+    await new Promise((r) => setTimeout(r, 1500));
+
+    appendMessage(sid, {
+      role: "assistant",
+      content: `Placeholder response to: "${content}"\n\nWire up a real LLM in /src/app/api/chat/route.ts to get actual answers.`,
+      thinkingSteps: ["Fetched RCA use cases", "Matched question to SKU data"],
+    });
+    setIsLoading(false);
+  }
+
+  // ── "Continue in Chat" — open this conversation in the full chat page ──────
+  function handleContinueInChat() {
+    if (sessionId) {
+      router.push(`/chat?sessionId=${encodeURIComponent(sessionId)}`);
+    }
+  }
+
+  const hasMessages = sessionMessages.length > 0;
+  const alertType = issueTypeToAlertType(alert.issues[0]?.type);
+  const skuForRca = {
+    id: alert.id,
+    skuName: alert.skuName,
+    asin: alert.asin,
+    category: alert.category,
+    alertType,
+    gapValue: alert.gapDollar,
+  };
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
@@ -202,7 +274,6 @@ export function AlertDetailsPanel({
       {/* ── SKU header — collapses to compact strip on scroll ── */}
       <div className="border-b bg-white transition-all duration-200">
         {scrolled ? (
-          /* ── Compact (scrolled) state ── */
           <div className="flex items-center gap-3 px-6 py-2.5 pr-14">
             <img
               src={`https://placehold.co/32x32/f4f4f5/71717a?text=${alert.category[0]}`}
@@ -214,21 +285,16 @@ export function AlertDetailsPanel({
             </h2>
           </div>
         ) : (
-          /* ── Expanded (default) state ── */
           <div className="flex items-start gap-4 px-6 py-4 pr-14">
             <img
               src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
               alt={alert.skuName}
               className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
             />
-
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              {/* SKU name */}
               <h2 className="text-base font-bold leading-snug text-slate-900">
                 {alert.skuName}
               </h2>
-
-              {/* Breadcrumb */}
               <p className="text-xs text-slate-400">
                 {alert.accountId}
                 <span className="mx-1.5 text-slate-300">·</span>
@@ -238,8 +304,6 @@ export function AlertDetailsPanel({
                 <span className="mx-1.5 text-slate-300">·</span>
                 {alert.brand}
               </p>
-
-              {/* Stats row */}
               <div className="flex flex-wrap items-center gap-3">
                 <a
                   href={`https://www.amazon.com/dp/${alert.asin}`}
@@ -251,16 +315,14 @@ export function AlertDetailsPanel({
                   PDP Content
                   <ExternalLink className="h-3 w-3" />
                 </a>
-
                 <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
-
                 <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Close button — always top-right, overlays both header states ── */}
+        {/* Close button */}
         {onClose && (
           <button
             type="button"
@@ -273,59 +335,81 @@ export function AlertDetailsPanel({
         )}
       </div>
 
-      {/* ── SKU RCA + follow-up questions — extra pb clears the floating chat bar ── */}
-      <div className="flex-1 overflow-y-auto pb-32" onScroll={handleScroll}>
+      {/* ── Scrollable body — RCA + follow-up chips + chat messages ── */}
+      <div className="flex-1 overflow-y-auto pb-28" onScroll={handleScroll}>
 
-        {/* ── SKU RCA — always visible, no accordion ── */}
+        {/* Issue threads */}
+        {alert.issues.map((issue) => (
+          <IssueThread key={issue.id} issue={issue} />
+        ))}
+
+        {/* SKU RCA section */}
         <div className="border-t-2 border-brand-100 bg-brand-50/30 px-6 py-5">
           <p className="mb-4 text-sm font-semibold tracking-wide text-foreground">
             SKU Root Cause Analysis
           </p>
-          <SkuRca
-            sku={{
-              id: alert.id,
-              skuName: alert.skuName,
-              asin: alert.asin,
-              category: alert.category,
-              alertType: issueTypeToAlertType(alert.issues[0]?.type),
-              gapValue: alert.gapDollar,
-            }}
-          />
+          <SkuRca sku={skuForRca} />
         </div>
 
-        {/* ── Follow-up questions — outside the accordion, always visible ── */}
-        <div className="border-t border-slate-100 px-6 py-5 pb-10">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Follow-up questions
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {getFollowUpQuestions({
-              id: alert.id,
-              skuName: alert.skuName,
-              asin: alert.asin,
-              category: alert.category,
-              alertType: issueTypeToAlertType(alert.issues[0]?.type),
-              gapValue: alert.gapDollar,
-            }).slice(0, 3).map((q) => (
-              <button
-                key={q}
-                type="button"
-                className="rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
-              >
-                {q}
-              </button>
-            ))}
+        {/* Follow-up question chips — hidden once the user starts a conversation */}
+        {!hasMessages && (
+          <div className="border-t border-slate-100 px-6 py-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Follow-up questions
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {getFollowUpQuestions(skuForRca).slice(0, 3).map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => handleSend(q)}
+                  className="rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ── Inline chat messages — same layout as the full chat page ── */}
+        {hasMessages && sessionId && (() => {
+          const session = sessions.find((s) => s.id === sessionId);
+          return session ? (
+            <div className="border-t border-slate-100 px-6 pt-2 pb-4">
+              <MessageThread
+                session={session}
+                isLoading={isLoading}
+                hideContextAnchor
+                compact
+              />
+            </div>
+          ) : null;
+        })()}
+
+        <div ref={bottomRef} />
       </div>
 
       {/* ── Floating chat bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50 to-transparent px-6 pb-5 pt-3">
+        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-8">
+
+        {/* "Continue in Chat" escape hatch — appears after first message */}
+        {hasMessages && (
+          <button
+            type="button"
+            onClick={handleContinueInChat}
+            className="mb-2 flex w-full items-center justify-end gap-1 text-xs font-medium text-brand-600 hover:underline"
+          >
+            Continue this conversation in Chat
+            <ArrowUpRight className="h-3 w-3" />
+          </button>
+        )}
+
         <PromptInput
           value={chatInput}
           onValueChange={setChatInput}
-          isLoading={false}
-          onSubmit={() => {}}
+          isLoading={isLoading}
+          onSubmit={() => handleSend()}
           maxHeight={44}
           className="flex w-full items-center rounded-full border-slate-200 bg-white shadow-md"
         >
@@ -334,14 +418,18 @@ export function AlertDetailsPanel({
             rows={1}
             placeholder={`Ask AllyAI about ${skuShortName}…`}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) e.preventDefault();
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
             }}
             className="min-h-0 flex-1 py-1.5"
           />
           <PromptInputActions>
             <button
               type="button"
-              disabled={!chatInput.trim()}
+              onClick={() => handleSend()}
+              disabled={!chatInput.trim() || isLoading}
               aria-label="Send"
               className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
             >

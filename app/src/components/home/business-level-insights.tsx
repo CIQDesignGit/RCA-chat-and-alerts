@@ -1,6 +1,5 @@
 "use client";
 
-import { Pin } from "lucide-react";
 import { BrandInsightsTabsV2 } from "./brand-insights-tabs-v2";
 
 // ─── Data — mirrors the RCA Landing Page API shape (FR-002 / FR-003) ──────────
@@ -61,21 +60,12 @@ export function BusinessLevelInsights({ onBrandChange, onViewCategory, onViewAll
   return (
     <div className="flex flex-col gap-3">
 
-      {/* Summary sentence — unchanged */}
+      {/* Summary sentence */}
       <div className="flex items-start gap-2">
-        <Pin className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-        <p className="text-xl font-semibold leading-snug text-foreground">
-          The overall business is{" "}
-          <span className="font-semibold text-red-500">
-            {formatDollar(overallGap)} down
-          </span>{" "}
-          this week, driven by{" "}
-          <span className="font-semibold text-slate-800">{BRANDS.length} brands</span>.{" "}
-          Largest contributor — {" "}
-          <span className="font-semibold text-slate-800">{BRANDS[0].name}</span>{" "}
-          at{" "}
-          <span className="font-semibold text-red-500">
-            {formatDollar(BRANDS[0].gapDollar)}
+        <p className="text-2xl font-medium leading-snug text-secondary-700">
+          The overall business has a{" "}
+          <span className="font-medium text-red-600">
+            {formatDollar(overallGap)} gap
           </span>.
         </p>
       </div>

@@ -92,7 +92,7 @@ function PromptInput({
         <div
           onClick={handleClick}
           className={cn(
-            "border-input bg-background cursor-text rounded-3xl border p-2 shadow-xs",
+            "border-input bg-background cursor-text rounded-full border p-2 shadow-xs",
             disabled && "cursor-not-allowed opacity-60",
             className
           )}
@@ -136,7 +136,14 @@ function PromptInputTextarea({
   }
 
   useLayoutEffect(() => {
-    if (!textareaRef.current || disableAutosize) return
+    if (!textareaRef.current) return
+
+    if (disableAutosize) {
+      // Clear any inline height that was set by the auto-size logic so CSS
+      // (field-sizing, rows, min-h) can determine the natural single-row height.
+      textareaRef.current.style.height = ""
+      return
+    }
 
     const el = textareaRef.current
     el.style.height = "auto"

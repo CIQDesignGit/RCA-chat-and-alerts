@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { SendHorizontal } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { SendHorizontal, Pin } from "lucide-react";
 import {
   PromptInput,
   PromptInputTextarea,
@@ -12,6 +13,7 @@ import { BusinessLevelInsights } from "@/components/home/business-level-insights
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
 import { FilterBar, type FilterState, type GroupBy } from "@/components/alerts/filter-bar";
 import type { AlertItem } from "@/components/alerts/types";
+import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 
 // ─── Suggestion chips ────────────────────────────────────────────────────────
 
@@ -21,9 +23,11 @@ const SUGGESTIONS = [
   "How much of my total brand sales is driven by advertising?",
 ];
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Inner page — needs useSearchParams so wrapped in Suspense below ─────────
 
-export default function HomePage() {
+function HomePageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [input, setInput] = useState("");
 
   // Which alert card is selected — null = show landing overview on the right
@@ -46,6 +50,18 @@ export default function HomePage() {
     category: null,
     sku: null,
   });
+
+  // On mount — if ?alertId param is present (e.g. from "View Alert →" in chat page),
+  // auto-select that SKU so the RCA panel opens immediately.
+  useEffect(() => {
+    const alertId = searchParams.get("alertId");
+    if (alertId) {
+      const found = ALERT_ITEMS.find((a) => a.id === alertId);
+      if (found) setSelectedAlert(found);
+      router.replace("/");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Selecting an alert card: show detail panel only — filter bar is NOT affected
   function handleAlertSelect(alert: AlertItem) {
@@ -122,10 +138,17 @@ export default function HomePage() {
     }
   }
 
+  // Navigate to chat page with the prompt pre-loaded
+  function handleSendToChat(message?: string) {
+    const text = (message ?? input).trim();
+    if (!text) return;
+    router.push(`/chat?q=${encodeURIComponent(text)}`);
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      // TODO: navigate to /chat and send this message
+      handleSendToChat();
     }
   }
 
@@ -172,9 +195,12 @@ export default function HomePage() {
 
               {/* Top: greeting + business insights — max 800px, centered */}
               <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-                <p className="text-xl text-muted-foreground">
-                  Good Morning, Steve
-                </p>
+                <div className="flex items-center gap-2">
+                  <Pin className="h-4 w-4 shrink-0 text-slate-400" />
+                  <p className="text-lg text-muted-foreground">
+                    Good Morning, Steve!
+                  </p>
+                </div>
                 <BusinessLevelInsights onBrandChange={handleBrandChange} onViewCategory={handleViewAllCategory} onViewAllCategories={handleViewAllCategories} activeBrandName={activeBrandTab} />
               </div>
 
@@ -184,7 +210,7 @@ export default function HomePage() {
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
-                      onClick={() => setInput(s)}
+                      onClick={() => handleSendToChat(s)}
                       className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                     >
                       {s}
@@ -196,7 +222,7 @@ export default function HomePage() {
                   value={input}
                   onValueChange={setInput}
                   isLoading={false}
-                  onSubmit={() => {}}
+                  onSubmit={() => handleSendToChat()}
                   maxHeight={44}
                   className="flex w-full items-center rounded-full bg-background shadow-md"
                 >
@@ -210,7 +236,7 @@ export default function HomePage() {
                   <PromptInputActions>
                     <button
                       type="button"
-                      onClick={() => {}}
+                      onClick={() => handleSendToChat()}
                       disabled={!input.trim()}
                       aria-label="Send message"
                       className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
@@ -226,5 +252,15 @@ export default function HomePage() {
 
       </div>
     </div>
+  );
+}
+
+// ─── Page export — wraps inner in Suspense (required for useSearchParams) ─────
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageInner />
+    </Suspense>
   );
 }
