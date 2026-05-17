@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageSquare, Bell } from "lucide-react";
+import { Home, MessageSquare } from "lucide-react";
 
 // Each nav item maps a label to a URL and an icon
 const NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Chat", href: "/chat", icon: MessageSquare },
-  { label: "Alerts", href: "/alerts", icon: Bell },
 ];
 
 export function SidebarNav() {

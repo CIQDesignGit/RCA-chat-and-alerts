@@ -48,7 +48,11 @@ function formatDollar(value: number): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function BusinessLevelInsights() {
+interface BusinessLevelInsightsProps {
+  onBrandChange?: (brandName: string) => void;
+}
+
+export function BusinessLevelInsights({ onBrandChange }: BusinessLevelInsightsProps) {
   const overallGap = BRANDS.reduce((sum, b) => sum + b.gapDollar, 0);
 
   return (
@@ -74,7 +78,7 @@ export function BusinessLevelInsights() {
       </div>
 
       {/* Tabbed brand insights — one tab per brand, active brand shows full detail */}
-      <BrandInsightsTabsV2 brands={BRANDS} />
+      <BrandInsightsTabsV2 brands={BRANDS} onBrandChange={onBrandChange} />
 
     </div>
   );

@@ -6,9 +6,9 @@
 //  - Categories are BRAND-SPECIFIC — every category belongs to exactly one
 //    portfolio brand (Shark or Ninja), matching filter-mock-data.ts CATEGORY_DATA.
 //
-// Brand → Category mapping:
-//   Shark  → Kitchen Appliances, Home Essentials
-//   Ninja  → Kitchen, Appliances
+// Canonical Brand → Category mapping:
+//   Shark  → Kitchen Appliances, Home Care, Personal Care, Outdoor Living
+//   Ninja  → Air Fryers, Blenders, Coffee Makers, Indoor Grills
 
 import type { AlertItem } from "./types";
 
@@ -28,8 +28,8 @@ export const ALERT_ITEMS: AlertItem[] = [
     date: "Today",
     hasUnread: true,
     issues: [
-      { id: "i1",  type: "lost-buy-box",     title: "Buy Box Issue",     description: "Lost the Buy Box to a reseller undercutting by 8%.",             analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "resolved" },
-      { id: "i1b", type: "promo-badge",       title: "Promo Badge Issue", description: "Promo badge not rendering on search results despite active deal.", analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "open"     },
+      { id: "i1",  type: "lost-buy-box", title: "Buy Box Issue",     description: "Lost the Buy Box to a reseller undercutting by 8%.",             analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "resolved" },
+      { id: "i1b", type: "promo-badge",  title: "Promo Badge Issue", description: "Promo badge not rendering on search results despite active deal.", analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "open"     },
     ],
   },
   {
@@ -45,8 +45,8 @@ export const ALERT_ITEMS: AlertItem[] = [
     date: "Today",
     hasUnread: true,
     issues: [
-      { id: "i2a", type: "sov-drop",          title: "SoV Drop",          description: "Sales dropped after a competitor increased ad spend and captured share of voice on key blender terms.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
-      { id: "i2b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Blender keywords dropped 6 positions after a content update.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
+      { id: "i2a", type: "sov-drop",          title: "SoV Drop",          description: "Competitor increased ad spend and captured share of voice on key blender terms.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
+      { id: "i2b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Blender keywords dropped 6 positions after a content update.",                    analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
     ],
   },
   {
@@ -61,18 +61,18 @@ export const ALERT_ITEMS: AlertItem[] = [
     tags: ["Predictive OOS", "Star Rating"],
     date: "Today",
     issues: [
-      { id: "i3",  type: "keyword-rank-drop", title: "Keyword Rank Drop",  description: "Top search terms lost page-1 position.",                        analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "open"     },
-      { id: "i3b", type: "star-rating",       title: "Star Rating Drop",   description: "Rating fell to 3.9 after a batch of negative reviews.",          analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "resolved" },
+      { id: "i3",  type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Top search terms lost page-1 position.",              analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "open"     },
+      { id: "i3b", type: "star-rating",       title: "Star Rating Drop",  description: "Rating fell to 3.9 after a batch of negative reviews.", analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "resolved" },
     ],
   },
 
-  // ── Shark / Home Essentials ───────────────────────────────────────────────
+  // ── Shark / Home Care ─────────────────────────────────────────────────────
   {
     id: "sh1",
     skuName: "Shark IQ Robot Self-Empty XL R101AE - Wi-Fi Connected",
     asin: "B09XKT7FMR",
     accountId: "AF101",
-    category: "Home Essentials",
+    category: "Home Care",
     brand: "Shark",
     gapDollar: -52100,
     gapUnits: -180,
@@ -88,7 +88,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     skuName: "Shark Navigator Lift-Away Professional NV356E Vacuum",
     asin: "B009NU4E7G",
     accountId: "AF101",
-    category: "Home Essentials",
+    category: "Home Care",
     brand: "Shark",
     gapDollar: -31400,
     gapUnits: -98,
@@ -103,7 +103,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     skuName: "Shark Vertex DuoClean PowerFins Upright AZ2002WD",
     asin: "B09DEF5678",
     accountId: "AF101",
-    category: "Home Essentials",
+    category: "Home Care",
     brand: "Shark",
     gapDollar: -24600,
     gapUnits: -78,
@@ -115,13 +115,79 @@ export const ALERT_ITEMS: AlertItem[] = [
     ],
   },
 
-  // ── Ninja / Kitchen ───────────────────────────────────────────────────────
+  // ── Shark / Personal Care ─────────────────────────────────────────────────
   {
-    id: "nk1",
+    id: "sp1",
+    skuName: "Shark HyperAIR Fast-Drying Hair Dryer HD110",
+    asin: "B09PC1001A",
+    accountId: "AF101",
+    category: "Personal Care",
+    brand: "Shark",
+    gapDollar: -21000,
+    gapUnits: -66,
+    tags: ["Keyword Rank Drop"],
+    date: "Today",
+    hasUnread: true,
+    issues: [
+      { id: "i6a", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Main hair dryer keywords dropped to page 2.", analyst: "Sales Analyst", timeAgo: "5 hrs ago", status: "open" },
+    ],
+  },
+  {
+    id: "sp2",
+    skuName: "Shark FlexStyle 5-in-1 Air Styler & Hair Dryer",
+    asin: "B09PC1002B",
+    accountId: "AF101",
+    category: "Personal Care",
+    brand: "Shark",
+    gapDollar: -16500,
+    gapUnits: -52,
+    tags: ["Promo Badge"],
+    date: "Today",
+    issues: [
+      { id: "i6b", type: "promo-badge", title: "Promo Badge Issue", description: "Deal badge missing despite an active styling promotion.", analyst: "Sales Analyst", timeAgo: "7 hrs ago", status: "resolved" },
+    ],
+  },
+
+  // ── Shark / Outdoor Living ────────────────────────────────────────────────
+  {
+    id: "so1",
+    skuName: "Shark HydroVac Cordless Pro XL Floor Cleaner",
+    asin: "B09OL1001A",
+    accountId: "AF101",
+    category: "Outdoor Living",
+    brand: "Shark",
+    gapDollar: -18200,
+    gapUnits: -57,
+    tags: ["SoV Drop"],
+    date: "Today",
+    issues: [
+      { id: "i7a", type: "sov-drop", title: "SoV Drop", description: "Competitor gained share of voice on outdoor cleaning terms.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
+    ],
+  },
+  {
+    id: "so2",
+    skuName: "Shark WandVac Cordless Stick Vacuum WV201",
+    asin: "B09OL1002B",
+    accountId: "AF101",
+    category: "Outdoor Living",
+    brand: "Shark",
+    gapDollar: -12300,
+    gapUnits: -39,
+    tags: ["Content Change"],
+    date: "Today",
+    hasUnread: true,
+    issues: [
+      { id: "i7b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Outdoor vacuum keywords slipped off page 1.", analyst: "Sales Analyst", timeAgo: "9 hrs ago", status: "open" },
+    ],
+  },
+
+  // ── Ninja / Air Fryers ────────────────────────────────────────────────────
+  {
+    id: "naf1",
     skuName: "Ninja AF101 Air Fryer - 4 Qt, 1550-Watt, Programmable",
     asin: "B07FDJMC9Q",
     accountId: "AF102",
-    category: "Kitchen",
+    category: "Air Fryers",
     brand: "Ninja",
     gapDollar: -42000,
     gapUnits: -135,
@@ -129,47 +195,79 @@ export const ALERT_ITEMS: AlertItem[] = [
     date: "Today",
     hasUnread: true,
     issues: [
-      { id: "i6", type: "lost-buy-box", title: "Buy Box Issue", description: "Lost Buy Box on a top-selling air fryer SKU.", analyst: "Sales Analyst", timeAgo: "1 hr ago", status: "open" },
+      { id: "i8a", type: "lost-buy-box", title: "Buy Box Issue", description: "Lost Buy Box on a top-selling air fryer SKU.", analyst: "Sales Analyst", timeAgo: "1 hr ago", status: "open" },
     ],
   },
   {
-    id: "nk2",
+    id: "naf2",
+    skuName: "Ninja AF161 Max XL Air Fryer - 5.5 Qt, Max Crisp Technology",
+    asin: "B07XHBG334",
+    accountId: "AF102",
+    category: "Air Fryers",
+    brand: "Ninja",
+    gapDollar: -28700,
+    gapUnits: -92,
+    tags: ["Keyword Rank Drop"],
+    date: "Today",
+    issues: [
+      { id: "i8b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Air fryer keywords dropped after a competitor's new listing.", analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "open" },
+    ],
+  },
+  {
+    id: "naf3",
+    skuName: "Ninja DZ201 Foodi 8 Qt 6-in-1 DualZone Air Fryer",
+    asin: "B08N4LTML1",
+    accountId: "AF102",
+    category: "Air Fryers",
+    brand: "Ninja",
+    gapDollar: -19400,
+    gapUnits: -62,
+    tags: ["SoV Drop"],
+    date: "Today",
+    issues: [
+      { id: "i8c", type: "sov-drop", title: "SoV Drop", description: "Share of voice on dual-basket air fryer terms declined.", analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "open" },
+    ],
+  },
+
+  // ── Ninja / Blenders ──────────────────────────────────────────────────────
+  {
+    id: "nb1",
     skuName: "Ninja BL610 Professional 72 oz Countertop Blender",
     asin: "B00NGV4506",
     accountId: "AF102",
-    category: "Kitchen",
+    category: "Blenders",
     brand: "Ninja",
     gapDollar: -28500,
     gapUnits: -90,
     tags: ["Promo Badge", "Sales Drop"],
     date: "Today",
     issues: [
-      { id: "i7", type: "promo-badge", title: "Promo Badge Issue", description: "Deal badge not showing despite an active promotion.", analyst: "Sales Analyst", timeAgo: "5 hrs ago", status: "resolved" },
+      { id: "i9a", type: "promo-badge", title: "Promo Badge Issue", description: "Deal badge not showing despite an active promotion.", analyst: "Sales Analyst", timeAgo: "5 hrs ago", status: "resolved" },
     ],
   },
   {
-    id: "nk3",
+    id: "nb2",
     skuName: "Ninja QB1004 Master Prep Professional Blender & Food Chopper",
     asin: "B002WE2TXY",
     accountId: "AF102",
-    category: "Kitchen",
+    category: "Blenders",
     brand: "Ninja",
     gapDollar: -19800,
     gapUnits: -63,
     tags: ["Keyword Rank Drop"],
     date: "Today",
     issues: [
-      { id: "i8", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "3 target keywords slipped below page 1 this week.", analyst: "Sales Analyst", timeAgo: "7 hrs ago", status: "open" },
+      { id: "i9b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "3 target keywords slipped below page 1 this week.", analyst: "Sales Analyst", timeAgo: "7 hrs ago", status: "open" },
     ],
   },
 
-  // ── Ninja / Appliances ────────────────────────────────────────────────────
+  // ── Ninja / Coffee Makers ─────────────────────────────────────────────────
   {
-    id: "na1",
+    id: "nc1",
     skuName: "Ninja CP307 Hot & Cold Brewed System Coffee Bar",
     asin: "B079CDMJB3",
     accountId: "AF102",
-    category: "Appliances",
+    category: "Coffee Makers",
     brand: "Ninja",
     gapDollar: -35000,
     gapUnits: -112,
@@ -177,16 +275,33 @@ export const ALERT_ITEMS: AlertItem[] = [
     date: "Today",
     hasUnread: true,
     issues: [
-      { id: "i9",  type: "sov-drop",          title: "Share of Voice Drop", description: "SoV declined on coffee maker keywords following competitor spend increase.", analyst: "Sales Analyst", timeAgo: "3 hrs ago", status: "open"     },
-      { id: "i9b", type: "keyword-rank-drop", title: "Keyword Rank Drop",   description: "2 high-volume coffee terms dropped off page 1.",                          analyst: "Sales Analyst", timeAgo: "3 hrs ago", status: "open"     },
+      { id: "i10a", type: "sov-drop",          title: "Share of Voice Drop", description: "SoV declined on coffee maker keywords following competitor spend increase.", analyst: "Sales Analyst", timeAgo: "3 hrs ago", status: "open" },
+      { id: "i10b", type: "keyword-rank-drop", title: "Keyword Rank Drop",   description: "2 high-volume coffee terms dropped off page 1.",                          analyst: "Sales Analyst", timeAgo: "3 hrs ago", status: "open" },
     ],
   },
   {
-    id: "na2",
+    id: "nc2",
+    skuName: "Ninja CE251 Programmable Brewer - 12-Cup Coffee Maker",
+    asin: "B074VFZQDM",
+    accountId: "AF102",
+    category: "Coffee Makers",
+    brand: "Ninja",
+    gapDollar: -18600,
+    gapUnits: -59,
+    tags: ["Content Change"],
+    date: "Today",
+    issues: [
+      { id: "i10c", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Standard drip coffee keywords lost position after a content change.", analyst: "Sales Analyst", timeAgo: "11 hrs ago", status: "open" },
+    ],
+  },
+
+  // ── Ninja / Indoor Grills ─────────────────────────────────────────────────
+  {
+    id: "ng1",
     skuName: "Ninja FD401 Foodi 12-in-1 Deluxe XL Multi-Cooker",
     asin: "B07XFD7YGJ",
     accountId: "AF102",
-    category: "Appliances",
+    category: "Indoor Grills",
     brand: "Ninja",
     gapDollar: -22000,
     gapUnits: -71,
@@ -195,18 +310,18 @@ export const ALERT_ITEMS: AlertItem[] = [
     issues: [],
   },
   {
-    id: "na3",
+    id: "ng2",
     skuName: "Ninja IG651 Foodi Smart XL Pro 5-in-1 Indoor Grill",
     asin: "B08PH2DJZQ",
     accountId: "AF102",
-    category: "Appliances",
+    category: "Indoor Grills",
     brand: "Ninja",
     gapDollar: -14500,
     gapUnits: -46,
     tags: ["Promo Badge"],
     date: "Today",
     issues: [
-      { id: "i10", type: "promo-badge", title: "Promo Badge Issue", description: "Promo badge missing on product detail page.", analyst: "Sales Analyst", timeAgo: "9 hrs ago", status: "resolved" },
+      { id: "i11", type: "promo-badge", title: "Promo Badge Issue", description: "Promo badge missing on product detail page.", analyst: "Sales Analyst", timeAgo: "9 hrs ago", status: "resolved" },
     ],
   },
 ];

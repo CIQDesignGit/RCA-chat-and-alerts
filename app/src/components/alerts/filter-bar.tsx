@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { ArrowLeft, Search } from "lucide-react";
 import {
   ReadFilterGroup,
@@ -33,11 +34,17 @@ interface FilterBarProps {
   onFiltersChange: (filters: FilterState) => void;
   // Pre-populate filters from URL params (e.g. when navigating from the home page)
   initialFilters?: Partial<FilterState>;
+  // Override the back button action — defaults to router.push("/")
+  onBack?: () => void;
+  // Controls visibility — animates height so there's no layout jump
+  isExpanded?: boolean;
+  // Show the back button — hidden by default; enable only if explicit back-nav is needed
+  showBackButton?: boolean;
 }
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────
 
-export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
+export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded = true, showBackButton = false }: FilterBarProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
@@ -53,6 +60,19 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
   const brandsRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const skusRef = useRef<HTMLDivElement>(null);
+
+  // Sync brand/category when parent drives a filter change (e.g. "View all X" click).
+  // FilterBar is always in the DOM now, so useState initializer only runs once —
+  // we need this effect to pick up changes pushed from outside.
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      brand: initialFilters?.brand ?? null,
+      category: initialFilters?.category ?? null,
+      sku: null,
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFilters?.brand, initialFilters?.category]);
 
   // Close all dropdowns on click outside
   useEffect(() => {
@@ -83,16 +103,40 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
   const skuOptions = filters.category ? (SKU_DATA[filters.category] ?? []) : [];
   const selectedSku = skuOptions.find((s) => s.asin === filters.sku);
 
+  const hasActiveFilters = !!(filters.brand || filters.category || filters.sku || filters.unreadOnly);
+
+  function clearAllFilters() {
+    const cleared: FilterState = { unreadOnly: false, brand: null, category: null, sku: null };
+    setFilters(cleared);
+    onFiltersChange(cleared);
+    setIsBrandsOpen(false);
+    setIsCategoriesOpen(false);
+    setIsSkusOpen(false);
+  }
+
   return (
+    // Outer wrapper animates height so the bar slides in/out without a layout jump.
+    // max-h must exceed the bar's real height (~56px); 64px gives a safe margin.
+    <div
+      className={cn(
+        "transition-all duration-300 ease-in-out",
+        // overflow-hidden is required for the collapse animation to clip the height.
+        // Once fully open, switch to overflow-visible so dropdowns aren't clipped.
+        isExpanded ? "overflow-visible" : "overflow-hidden",
+      )}
+      style={{ maxHeight: isExpanded ? "64px" : "0px" }}
+    >
     <div className="flex items-center gap-2 border-b bg-white px-4 py-3">
-      {/* Back button — navigates to home page */}
-      <button
-        onClick={() => router.push("/")}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-        aria-label="Back to home"
-      >
-        <ArrowLeft className="h-4 w-4" />
-      </button>
+      {/* Back button — only shown when explicitly enabled (e.g. standalone /alerts page) */}
+      {showBackButton && (
+        <button
+          onClick={() => (onBack ? onBack() : router.push("/"))}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+          aria-label="Back"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+      )}
 
       {/* Search icon button */}
       <button className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50">
@@ -202,6 +246,17 @@ export function FilterBar({ onFiltersChange, initialFilters }: FilterBarProps) {
           )}
         </div>
       )}
+
+      {/* Clear filters — pushed to the far right, only visible when something is active */}
+      {hasActiveFilters && (
+        <button
+          onClick={clearAllFilters}
+          className="ml-auto shrink-0 text-xs font-medium text-slate-400 transition-colors hover:text-slate-700"
+        >
+          Clear filters
+        </button>
+      )}
+    </div>
     </div>
   );
 }

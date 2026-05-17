@@ -7,7 +7,7 @@ import {
   ThumbsDown,
   Check,
   ArrowUp,
-  ChevronDown,
+  X,
 } from "lucide-react";
 import {
   PromptInput,
@@ -179,115 +179,122 @@ function issueTypeToAlertType(type: Issue["type"] | undefined): string {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
+export function AlertDetailsPanel({
+  alert,
+  onClose,
+}: {
+  alert: AlertItem;
+  // Called when the X button is clicked — parent should deselect the alert
+  onClose?: () => void;
+}) {
   const [chatInput, setChatInput] = useState("");
-  const [rcaOpen, setRcaOpen] = useState(true); // open by default
+  // True once the scroll container has been scrolled past the threshold
+  const [scrolled, setScrolled] = useState(false);
   const skuShortName = alert.skuName.split(" ").slice(0, 4).join(" ");
+
+  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+    setScrolled(e.currentTarget.scrollTop > 24);
+  }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
 
-      {/* ── SKU header ── */}
-      <div className="border-b bg-white px-6 py-4">
-        <div className="flex items-start gap-4">
-          {/* Product image */}
-          <img
-            src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
-            alt={alert.skuName}
-            className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            {/* SKU name */}
-            <h2 className="text-base font-bold leading-snug text-slate-900">
+      {/* ── SKU header — collapses to compact strip on scroll ── */}
+      <div className="border-b bg-white transition-all duration-200">
+        {scrolled ? (
+          /* ── Compact (scrolled) state ── */
+          <div className="flex items-center gap-3 px-6 py-2.5 pr-14">
+            <img
+              src={`https://placehold.co/32x32/f4f4f5/71717a?text=${alert.category[0]}`}
+              alt={alert.skuName}
+              className="h-8 w-8 shrink-0 rounded-md border border-slate-200 object-cover"
+            />
+            <h2 className="truncate text-sm font-semibold text-slate-900">
               {alert.skuName}
             </h2>
+          </div>
+        ) : (
+          /* ── Expanded (default) state ── */
+          <div className="flex items-start gap-4 px-6 py-4 pr-14">
+            <img
+              src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
+              alt={alert.skuName}
+              className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
+            />
 
-            {/* Breadcrumb */}
-            <p className="text-xs text-slate-400">
-              {alert.accountId}
-              <span className="mx-1.5 text-slate-300">·</span>
-              <span className="font-mono">{alert.asin}</span>
-              <span className="mx-1.5 text-slate-300">·</span>
-              {alert.category}
-              <span className="mx-1.5 text-slate-300">·</span>
-              {alert.brand}
-            </p>
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              {/* SKU name */}
+              <h2 className="text-base font-bold leading-snug text-slate-900">
+                {alert.skuName}
+              </h2>
 
-            {/* Stats row */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Amazon PDP link */}
-              <a
-                href={`https://www.amazon.com/dp/${alert.asin}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
-              >
-                <span className="text-[10px] font-bold text-amber-600">a</span>
-                PDP Content
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              {/* Breadcrumb */}
+              <p className="text-xs text-slate-400">
+                {alert.accountId}
+                <span className="mx-1.5 text-slate-300">·</span>
+                <span className="font-mono">{alert.asin}</span>
+                <span className="mx-1.5 text-slate-300">·</span>
+                {alert.category}
+                <span className="mx-1.5 text-slate-300">·</span>
+                {alert.brand}
+              </p>
 
-              {/* Gap dollar + units */}
-              <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
+              {/* Stats row */}
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href={`https://www.amazon.com/dp/${alert.asin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                >
+                  <span className="text-[10px] font-bold text-amber-600">a</span>
+                  PDP Content
+                  <ExternalLink className="h-3 w-3" />
+                </a>
 
-              {/* Date — pushed to the right */}
-              <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
+                <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
+
+                <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ── Issues thread list + SKU RCA — extra pb clears the floating chat bar ── */}
-      <div className="flex-1 overflow-y-auto pb-32">
-        {/* Issue threads */}
-        {alert.issues.length === 0 ? (
-          <p className="py-12 text-center text-sm text-slate-400">
-            No issues found for this SKU.
-          </p>
-        ) : (
-          alert.issues.map((issue) => (
-            <IssueThread key={issue.id} issue={issue} />
-          ))
         )}
 
-        {/* ── SKU RCA accordion — open by default, collapsible ── */}
-        <div className="border-t-2 border-brand-100 bg-brand-50/30">
-          {/* Accordion header — click to toggle */}
+        {/* ── Close button — always top-right, overlays both header states ── */}
+        {onClose && (
           <button
             type="button"
-            onClick={() => setRcaOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-brand-100 transition-colors"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
           >
-            <span className="text-sm font-semibold tracking-wide text-foreground">
-              SKU Root Cause Analysis
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
-                rcaOpen ? "rotate-180" : ""
-              }`}
-            />
+            <X className="h-4 w-4" />
           </button>
+        )}
+      </div>
 
-          {/* Accordion body — shown/hidden */}
-          {rcaOpen && (
-            <div className="px-6 pb-6">
-              <SkuRca
-                sku={{
-                  id: alert.id,
-                  skuName: alert.skuName,
-                  asin: alert.asin,
-                  category: alert.category,
-                  alertType: issueTypeToAlertType(alert.issues[0]?.type),
-                  gapValue: alert.gapDollar,
-                }}
-              />
-            </div>
-          )}
+      {/* ── SKU RCA + follow-up questions — extra pb clears the floating chat bar ── */}
+      <div className="flex-1 overflow-y-auto pb-32" onScroll={handleScroll}>
+
+        {/* ── SKU RCA — always visible, no accordion ── */}
+        <div className="border-t-2 border-brand-100 bg-brand-50/30 px-6 py-5">
+          <p className="mb-4 text-sm font-semibold tracking-wide text-foreground">
+            SKU Root Cause Analysis
+          </p>
+          <SkuRca
+            sku={{
+              id: alert.id,
+              skuName: alert.skuName,
+              asin: alert.asin,
+              category: alert.category,
+              alertType: issueTypeToAlertType(alert.issues[0]?.type),
+              gapValue: alert.gapDollar,
+            }}
+          />
         </div>
 
         {/* ── Follow-up questions — outside the accordion, always visible ── */}
-        <div className="border-t border-slate-100 bg-white px-6 py-5 pb-10">
+        <div className="border-t border-slate-100 px-6 py-5 pb-10">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
             Follow-up questions
           </p>
@@ -299,7 +306,7 @@ export function AlertDetailsPanel({ alert }: { alert: AlertItem }) {
               category: alert.category,
               alertType: issueTypeToAlertType(alert.issues[0]?.type),
               gapValue: alert.gapDollar,
-            }).map((q) => (
+            }).slice(0, 3).map((q) => (
               <button
                 key={q}
                 type="button"

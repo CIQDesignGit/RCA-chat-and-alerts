@@ -7,100 +7,194 @@ import {
   PromptInputTextarea,
   PromptInputActions,
 } from "@/components/ui/prompt-input";
-import { AlertsPanel, type SkuAlert } from "@/components/home/alerts-panel";
+import { AlertsPanel } from "@/components/home/alerts-panel";
 import { BusinessLevelInsights } from "@/components/home/business-level-insights";
-import { SkuDetail } from "@/components/sku/sku-detail";
+import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
+import { FilterBar, type FilterState } from "@/components/alerts/filter-bar";
+import type { AlertItem } from "@/components/alerts/types";
 
-// Suggestion chips — real ecommerce questions an Ecommerce Manager would ask AllyAI
+// ─── Suggestion chips ────────────────────────────────────────────────────────
+
 const SUGGESTIONS = [
   "Conduct brand and category level performance breakdown for this week?",
   "How is my total business performing this week vs. last week across all channels?",
   "How much of my total brand sales is driven by advertising?",
 ];
 
+// ─── Page ────────────────────────────────────────────────────────────────────
+
 export default function HomePage() {
   const [input, setInput] = useState("");
-  // null = show home overview; SkuAlert = show SKU detail view
-  const [selectedSku, setSelectedSku] = useState<SkuAlert | null>(null);
 
-  // When the user clicks a suggestion chip, fill the input with that text
-  const handleSuggestion = (text: string) => setInput(text);
+  // Which alert card is selected — null = show landing overview on the right
+  const [selectedAlert, setSelectedAlert] = useState<AlertItem | null>(null);
 
-  // Pressing Enter submits (placeholder — wire to real API later)
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Which brand tab is active — drives the compact left-panel snapshot.
+  // null means "show all brands" (triggered by View All Alerts)
+  const [activeBrandTab, setActiveBrandTab] = useState<string | null>("Shark");
+
+  // Filter bar visibility — hidden on landing, expands on alert select or "View all" click
+  const [filterBarExpanded, setFilterBarExpanded] = useState(false);
+
+  // Active filter state — drives the left panel's filtered/full view
+  const [filters, setFilters] = useState<FilterState>({
+    unreadOnly: false,
+    brand: null,
+    category: null,
+    sku: null,
+  });
+
+  // Selecting an alert card: show detail panel only — filter bar is NOT affected
+  function handleAlertSelect(alert: AlertItem) {
+    setSelectedAlert(alert);
+  }
+
+  // Clicking "View all X alerts": apply brand/category filter + open filter bar
+  // Right panel returns to landing overview (no specific alert selected)
+  function handleViewAllCategory(brand: string, category: string) {
+    setFilters((prev) => ({ ...prev, brand, category }));
+    setFilterBarExpanded(true);
+    setSelectedAlert(null);
+  }
+
+  // Collapsing the filter bar hides it but KEEPS filter state and selected alert intact
+  function handleCollapseFilterBar() {
+    setFilterBarExpanded(false);
+  }
+
+  // "View All Alerts" footer — clear brand scope so all categories show.
+  // Filter bar is deliberately NOT touched; user opens it themselves if needed.
+  // Does NOT touch selectedAlert so RCA panel stays visible if one is open.
+  function handleViewAll() {
+    setActiveBrandTab(null);
+  }
+
+  // Helper — true when the user is in a non-default state (filters applied, or view-all mode)
+  function hasActiveState(f: typeof filters) {
+    return !!(f.brand || f.category || f.sku || f.unreadOnly) || activeBrandTab === null;
+  }
+
+  // Closing the RCA panel:
+  //   Scenario 1 — filters active → keep filters + filter bar, just deselect the alert
+  //   Scenario 2 — no active state → full landing reset
+  function handleCloseRca() {
+    setSelectedAlert(null);
+    if (!hasActiveState(filters)) {
+      setActiveBrandTab("Shark");
+      setFilterBarExpanded(false);
+    }
+  }
+
+  // Filters changed from FilterBar.
+  // Scenario 3 — when ALL filters are cleared → treat as landing reset.
+  function handleFiltersChange(f: typeof filters) {
+    setFilters(f);
+    const allClear = !f.brand && !f.category && !f.sku && !f.unreadOnly;
+    if (allClear) {
+      setActiveBrandTab("Shark");
+      setFilterBarExpanded(false);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       // TODO: navigate to /chat and send this message
     }
-  };
+  }
 
   return (
-    <div className="flex h-full">
-      {/* Left: Today's Alerts panel — always visible */}
-      <AlertsPanel onSkuSelect={setSelectedSku} selectedSkuId={selectedSku?.id} />
+    <div className="flex h-full flex-col overflow-hidden">
 
-      {/* Right: switches between home overview and SKU detail */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {selectedSku ? (
-          // ── SKU detail view ──────────────────────────────────────────────
-          <SkuDetail sku={selectedSku} onBack={() => setSelectedSku(null)} />
-        ) : (
-          // ── Home overview — no scroll, fits the viewport ─────────────────
-          <div className="flex h-full flex-col items-center justify-between py-5">
+      {/* ── Filter bar — always in DOM, height-animated open/closed ── */}
+      <FilterBar
+        isExpanded={filterBarExpanded}
+        initialFilters={{ brand: filters.brand, category: filters.category }}
+        onFiltersChange={handleFiltersChange}
+        onBack={handleCollapseFilterBar}
+      />
 
-            {/* Top: greeting + business insights — max 800px, centered */}
-            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-              <p className="text-xl text-muted-foreground">
-                Good Morning, Steve
-              </p>
-              <BusinessLevelInsights />
-            </div>
+      {/* ── Two-panel body ── */}
+      <div className="flex flex-1 overflow-hidden">
 
-            {/* Bottom: suggestion chips (row) + chat input — max 800px, centered */}
-            <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
-              {/* Chips wrap into a row so they use horizontal space */}
-              <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleSuggestion(s)}
-                    className="rounded-full border bg-background px-3 py-1.5 text-xs text-neutral-600 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
-                  >
-                    {s}
-                  </button>
-                ))}
+        {/* Left: alerts panel — compact by default, full when filter active */}
+        <AlertsPanel
+          selectedAlertId={selectedAlert?.id}
+          onAlertSelect={handleAlertSelect}
+          onViewAllCategory={handleViewAllCategory}
+          onViewAll={handleViewAll}
+          filters={{ brand: filters.brand, category: filters.category }}
+          filtersExpanded={filterBarExpanded}
+          onToggleFilters={() => setFilterBarExpanded((prev) => !prev)}
+          brandFilter={activeBrandTab}
+        />
+
+        {/* Right: landing overview OR selected alert detail */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {selectedAlert ? (
+            // ── Alert detail view ───────────────────────────────────────────
+            <AlertDetailsPanel
+              alert={selectedAlert}
+              onClose={handleCloseRca}
+            />
+          ) : (
+            // ── Landing overview — greeting + insights + chat input ─────────
+            <div className="flex h-full flex-col items-center justify-between py-5">
+
+              {/* Top: greeting + business insights — max 800px, centered */}
+              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
+                <p className="text-xl text-muted-foreground">
+                  Good Morning, Steve
+                </p>
+                <BusinessLevelInsights onBrandChange={setActiveBrandTab} />
               </div>
 
-              <PromptInput
-                value={input}
-                onValueChange={setInput}
-                isLoading={false}
-                onSubmit={() => {}}
-                maxHeight={44}
-                className="flex w-full items-center rounded-full bg-background shadow-md"
-              >
-                <PromptInputTextarea
-                  disableAutosize
-                  rows={1}
-                  placeholder="Ask AllyAI — e.g. What were my sales last week?"
-                  onKeyDown={handleKeyDown}
-                  className="min-h-0 flex-1 py-1.5"
-                />
-                <PromptInputActions>
-                  <button
-                    type="button"
-                    onClick={() => {}}
-                    disabled={!input.trim()}
-                    aria-label="Send message"
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
-                  >
-                    <SendHorizontal className="h-4 w-4" />
-                  </button>
-                </PromptInputActions>
-              </PromptInput>
+              {/* Bottom: suggestion chips + chat input — max 800px, centered */}
+              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
+                <div className="flex flex-wrap gap-2">
+                  {SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setInput(s)}
+                      className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+
+                <PromptInput
+                  value={input}
+                  onValueChange={setInput}
+                  isLoading={false}
+                  onSubmit={() => {}}
+                  maxHeight={44}
+                  className="flex w-full items-center rounded-full bg-background shadow-md"
+                >
+                  <PromptInputTextarea
+                    disableAutosize
+                    rows={1}
+                    placeholder="Ask AllyAI — e.g. What were my sales last week?"
+                    onKeyDown={handleKeyDown}
+                    className="min-h-0 flex-1 py-1.5"
+                  />
+                  <PromptInputActions>
+                    <button
+                      type="button"
+                      onClick={() => {}}
+                      disabled={!input.trim()}
+                      aria-label="Send message"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
+                    >
+                      <SendHorizontal className="h-4 w-4" />
+                    </button>
+                  </PromptInputActions>
+                </PromptInput>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
       </div>
     </div>
   );

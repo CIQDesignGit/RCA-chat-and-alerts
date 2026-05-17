@@ -23,6 +23,8 @@ interface BrandData {
 
 interface BrandInsightsTabsV2Props {
   brands: BrandData[];
+  // Called with the brand name whenever the active tab changes
+  onBrandChange?: (brandName: string) => void;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -52,7 +54,7 @@ function fmtSales(v: number): string {
 
 function PropBar({ pct, active }: { pct: number; active: boolean }) {
   return (
-    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
       <div
         className={cn(
           "h-full rounded-full transition-all duration-300",
@@ -69,9 +71,14 @@ function PropBar({ pct, active }: { pct: number; active: boolean }) {
 // units, achieved/target + progress bar). The active tab merges seamlessly
 // with the content panel below via the border-b-white + -mb-px CSS trick.
 
-export function BrandInsightsTabsV2({ brands }: BrandInsightsTabsV2Props) {
+export function BrandInsightsTabsV2({ brands, onBrandChange }: BrandInsightsTabsV2Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
+
+  function handleTabClick(index: number) {
+    setActiveIndex(index);
+    onBrandChange?.(brands[index].name);
+  }
   const active = brands[activeIndex];
   const maxGap = Math.max(...active.categories.map((c) => Math.abs(c.gapDollar)));
 
@@ -90,51 +97,48 @@ export function BrandInsightsTabsV2({ brands }: BrandInsightsTabsV2Props) {
           return (
             <button
               key={brand.name}
-              onClick={() => setActiveIndex(i)}
+              onClick={() => handleTabClick(i)}
               // Browser tab trick: active tab uses white bottom border + -mb-px
               // to overlap the content panel's top border, creating a seamless merge.
               className={cn(
-                "relative flex flex-1 flex-col gap-1 rounded-t-[20px] border px-4 py-3 text-left transition-all",
+                "relative flex flex-1 flex-col gap-3 rounded-t-[20px] border px-4 py-3 text-left transition-all",
                 isActive
                   ? "-mb-px border-slate-200 border-b-white bg-white z-10"
                   : "border-transparent bg-slate-50 hover:bg-slate-100",
               )}
             >
               {/* Brand name */}
-              <span
-                className={cn(
-                  "text-sm font-semibold",
-                  isActive ? "text-slate-800" : "text-slate-800",
-                )}
-              >
+              <span className="text-lg font-semibold text-slate-800">
                 {brand.name}
               </span>
 
-              {/* Gap dollar + units inline */}
+              {/* Gap dollar + units stacked below brand name */}
               <div className="flex items-baseline gap-2">
                 <span
                   className={cn(
-                    "text-lg font-bold leading-none",
+                    "text-medium font-semibold leading-none",
                     isActive ? "text-rose-500" : "text-slate-500",
                   )}
                 >
                   {fmtDollar(brand.gapDollar)}
                 </span>
-                <span className={cn("text-xs", isActive ? "text-slate-400" : "text-slate-300")}>
+                <span className={cn("text-sm", isActive ? "text-slate-500" : "text-slate-400")}>
                   {fmtUnits(brand.gapUnits)}
                 </span>
               </div>
 
-              {/* Achieved / Target + inline progress bar */}
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <span className={cn("text-xs font-medium", isActive ? "text-slate-600" : "text-slate-500")}>
-                  {fmtSales(brand.achievedSales)}
-                </span>
-                <span className="text-xs text-slate-300">/</span>
-                <span className={cn("text-xs", isActive ? "text-slate-400" : "text-slate-500")}>
-                  {fmtSales(brand.targetSales)}
-                </span>
+              {/* Progress bar on top, achieved / target text below */}
+              <div className="flex flex-col gap-1 pt-0.5">
                 <PropBar pct={pct} active={isActive} />
+                <div className="flex items-center gap-1">
+                  <span className={cn("text-sm font-medium", isActive ? "text-slate-700" : "text-slate-500")}>
+                    {fmtSales(brand.achievedSales)}
+                  </span>
+                  <span className="text-sm text-slate-400">/</span>
+                  <span className={cn("text-sm", isActive ? "text-slate-500" : "text-slate-500")}>
+                    {fmtSales(brand.targetSales)}
+                  </span>
+                </div>
               </div>
             </button>
           );
@@ -146,8 +150,8 @@ export function BrandInsightsTabsV2({ brands }: BrandInsightsTabsV2Props) {
 
         {/* Section label */}
         <div className="border-b border-slate-100 px-4 py-3">
-          <span className="text-xs font-semibold tracking-widest text-slate-400 uppercase">
-            Category Performance
+          <span className="text-sm font-medium text-slate-500">
+            Category performance
           </span>
         </div>
 
@@ -177,10 +181,10 @@ export function BrandInsightsTabsV2({ brands }: BrandInsightsTabsV2Props) {
                     style={{ width: `${barPct}%` }}
                   />
                 </div>
-                <span className="w-14 shrink-0 text-right text-sm font-normal text-rose-500">
+                <span className="w-14 shrink-0 text-right text-sm font-medium text-rose-500">
                   {fmtDollar(cat.gapDollar)}
                 </span>
-                <span className="w-20 shrink-0 text-right text-sm text-slate-500">
+                <span className="w-20 shrink-0 text-right text-sm font-normal text-slate-600">
                   {fmtUnits(cat.gapUnits)}
                 </span>
               </button>
