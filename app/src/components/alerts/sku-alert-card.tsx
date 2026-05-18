@@ -106,6 +106,11 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
           )}
 
         </div>
+
+        {/* Unread dot — bottom right corner */}
+        {alert.hasUnread && (
+          <span className="absolute bottom-3 right-3 h-2 w-2 rounded-full bg-brand-500" />
+        )}
       </button>
     );
   }

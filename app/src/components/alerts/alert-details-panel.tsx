@@ -362,7 +362,7 @@ export function AlertDetailsPanel({
                   key={q}
                   type="button"
                   onClick={() => handleSend(q)}
-                  className="rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
+                  className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                 >
                   {q}
                 </button>

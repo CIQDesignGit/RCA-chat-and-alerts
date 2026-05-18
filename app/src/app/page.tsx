@@ -191,7 +191,7 @@ function HomePageInner() {
           onAlertSelect={handleAlertSelect}
           onViewAllCategory={handleViewAllCategory}
           onViewAll={handleViewAll}
-          filters={{ brand: filters.brand, category: filters.category }}
+          filters={{ brand: filters.brand, category: filters.category, unreadOnly: filters.unreadOnly }}
           brandFilter={activeBrandTab}
           groupBy={groupBy}
         />

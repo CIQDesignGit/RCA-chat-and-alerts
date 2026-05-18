@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Filter } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AlertItem } from "@/components/alerts/types";
 import type { GroupBy } from "@/components/alerts/filter-bar";
@@ -45,7 +45,7 @@ function formatGap(value: number): string {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-type ActiveFilters = { brand: string | null; category: string | null };
+type ActiveFilters = { brand: string | null; category: string | null; unreadOnly?: boolean };
 
 type AlertsPanelProps = {
   onAlertSelect?: (alert: AlertItem) => void;
@@ -81,11 +81,17 @@ export function AlertsPanel({
     if (filters?.brand && item.brand !== filters.brand) return false;
     if (filters?.category && item.category !== filters.category) return false;
     if (!hasFilter && brandFilter && item.brand !== brandFilter) return false;
+    if (filters?.unreadOnly && !item.hasUnread) return false;
     return true;
   });
 
   // Full list mode: no brand scope AND no filter bar filters applied
   const isFullList = !brandFilter && !hasFilter;
+
+  // Category filter drives the "show all vs top-3" decision independently of brand filter.
+  // Brand-only filter (no category) → snapshot (top 3 + links).
+  // Category filter → show all SKUs in that category, hide links.
+  const categoryFiltered = !!filters?.category;
 
   // Build groups based on groupBy setting
   type Group = { key: string; label: string; totalGap: number; brand: string; items: AlertItem[] };
@@ -111,25 +117,22 @@ export function AlertsPanel({
         items: visibleItems.filter((i) => i.category === g.category),
       })).filter((g) => g.items.length > 0);
 
-  const displayCount = visibleItems.length;
 
   return (
     <div className="flex shrink-0 flex-col">
       <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-slate-200 bg-white/50">
 
-        {/* ── Panel header ── */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-sm font-semibold text-slate-800">
-            SKUs{" "}
-            <span className="text-slate-400">({displayCount})</span>
-          </span>
-        </div>
-
         {/* ── Scrollable category groups ── */}
         <div className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+
+          {/* Panel header — scrolls with the list */}
+          <div className="px-4 py-3">
+            <span className="text-sm font-semibold text-slate-800">Today's SKUs</span>
+          </div>
+
           {activeGroups.map((group, groupIndex) => {
-            // Snapshot mode: cap to 3 per group. Full list + filtered: show everything.
-            const shownItems = (hasFilter || isFullList)
+            // Category-filtered → show everything; snapshot/full-list → all too; default → top 3
+            const shownItems = (categoryFiltered || isFullList)
               ? group.items
               : group.items.slice(0, HOME_SKU_LIMIT);
 
@@ -154,14 +157,33 @@ export function AlertsPanel({
                     <SkuAlertCard
                       key={item.id}
                       alert={item}
-                      variant={(hasFilter || isFullList) ? "full" : "compact"}
+                      variant={(categoryFiltered || isFullList) ? "full" : "compact"}
                       isActive={item.id === selectedAlertId}
                       onClick={() => onAlertSelect?.(item)}
                     />
                   ))}
                 </div>
 
-                {/* "View all X SKUs" buttons removed — filter bar handles navigation */}
+                {/* "View all [category] SKUs" — snapshot + category mode only, top 3 shown */}
+                {!categoryFiltered && !isFullList && groupBy === "category" && (
+                  onViewAllCategory ? (
+                    <button
+                      onClick={() => onViewAllCategory(group.brand, group.label)}
+                      className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
+                    >
+                      {`View all ${group.label} SKUs`}
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                  ) : (
+                    <Link
+                      href={`/alerts?brand=${encodeURIComponent(group.brand)}&category=${encodeURIComponent(group.label)}`}
+                      className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
+                    >
+                      {`View all ${group.label} SKUs`}
+                      <ChevronRight className="h-3 w-3" />
+                    </Link>
+                  )
+                )}
               </div>
             );
           })}

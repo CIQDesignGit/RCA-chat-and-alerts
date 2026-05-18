@@ -174,19 +174,11 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
       {/* ── Content panel — only shown when a tab is active ──────────────────── */}
       {active && <div className="rounded-b-[20px] border border-slate-200 bg-white">
 
-        {/* Section label + view all link */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+        {/* Section label */}
+        <div className="px-4 py-2.5">
           <span className="text-sm font-medium text-slate-500">
             Category performance
           </span>
-          {onViewAllCategories && (
-            <button
-              onClick={() => onViewAllCategories(active.name)}
-              className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline"
-            >
-              View all {active.name} SKUs →
-            </button>
-          )}
         </div>
 
         {/* Category rows */}
