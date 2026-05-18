@@ -175,21 +175,21 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
       {active && <div className="rounded-b-[20px] border border-slate-200 bg-white">
 
         {/* Section label */}
-        <div className="px-4 py-2.5">
-          <span className="text-sm font-medium text-slate-500">
+        <div className="px-4 py-1.5">
+          <span className="text-sm font-regular text-slate-500">
             Category performance
           </span>
         </div>
 
         {/* Category rows */}
-        <div className="px-2 pt-2 pb-2">
+        <div className="px-2 pt-0.5 pb-2">
           {active.categories.slice(0, 4).map((cat) => {
             const barPct = (Math.abs(cat.gapDollar) / maxGap) * 100;
             return (
               <button
                 key={cat.name}
                 onClick={() => onViewCategory?.(active.name, cat.name)}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-slate-50"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-colors hover:bg-slate-50"
               >
                 <span className="flex-1 truncate text-sm font-medium text-slate-700">
                   {cat.name}
