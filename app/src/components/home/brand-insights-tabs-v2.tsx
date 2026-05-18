@@ -176,7 +176,7 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
 
         {/* Section label */}
         <div className="px-4 py-1.5">
-          <span className="text-sm font-regular text-slate-500">
+          <span className="text-xs font-semibold text-slate-400">
             Category performance
           </span>
         </div>
