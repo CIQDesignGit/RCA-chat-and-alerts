@@ -188,7 +188,7 @@ export function AlertsPanel({
                       onClick={() => onViewAllCategory(group.brand, group.label)}
                       className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
                     >
-                      {`View all ${group.label} alerts`}
+                      {`View all ${group.label} SKUs`}
                       <ChevronRight className="h-3 w-3" />
                     </button>
                   ) : (
@@ -196,7 +196,7 @@ export function AlertsPanel({
                       href={`/alerts?brand=${encodeURIComponent(group.brand)}&category=${encodeURIComponent(group.label)}`}
                       className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
                     >
-                      {`View all ${group.label} alerts`}
+                      {`View all ${group.label} SKUs`}
                       <ChevronRight className="h-3 w-3" />
                     </Link>
                   )
@@ -213,7 +213,7 @@ export function AlertsPanel({
               onClick={onViewAll}
               className="block w-full text-center text-sm font-medium text-violet-600 hover:underline"
             >
-              View all {brandFilter} alerts
+              View all {brandFilter} SKUs
             </button>
           </div>
         )}

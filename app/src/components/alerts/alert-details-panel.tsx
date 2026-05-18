@@ -208,10 +208,13 @@ export function AlertDetailsPanel({
     setScrolled(e.currentTarget.scrollTop > 24);
   }
 
-  // Auto-scroll when new messages arrive
+  const hasMessages = sessionMessages.length > 0;
+
+  // Auto-scroll when new messages arrive — skip on initial open (no messages yet)
   useEffect(() => {
+    if (!hasMessages && !isLoading) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [sessionMessages, isLoading]);
+  }, [sessionMessages, isLoading, hasMessages]);
 
   // ── Send a message in the SKU inline chat ──────────────────────────────────
   async function handleSend(text?: string) {
@@ -257,7 +260,6 @@ export function AlertDetailsPanel({
     }
   }
 
-  const hasMessages = sessionMessages.length > 0;
   const alertType = issueTypeToAlertType(alert.issues[0]?.type);
   const skuForRca = {
     id: alert.id,
@@ -338,10 +340,7 @@ export function AlertDetailsPanel({
       {/* ── Scrollable body — RCA + follow-up chips + chat messages ── */}
       <div className="flex-1 overflow-y-auto pb-28" onScroll={handleScroll}>
 
-        {/* Issue threads */}
-        {alert.issues.map((issue) => (
-          <IssueThread key={issue.id} issue={issue} />
-        ))}
+        {/* Issue threads hidden for now — component preserved in file */}
 
         {/* SKU RCA section */}
         <div className="border-t-2 border-brand-100 bg-brand-50/30 px-6 py-5">

@@ -184,7 +184,7 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
               onClick={() => onViewAllCategories(active.name)}
               className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline"
             >
-              View all {active.name} alerts →
+              View all {active.name} SKUs →
             </button>
           )}
         </div>
