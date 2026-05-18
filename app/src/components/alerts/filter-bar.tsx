@@ -131,7 +131,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
       )}
       style={{ maxHeight: isExpanded ? "64px" : "0px" }}
     >
-    <div className="flex items-center gap-2 border-b bg-white px-4 py-3">
+    <div className="flex items-center gap-2 border-b bg-white px-4 py-2">
       {/* Back button — only shown when explicitly enabled (e.g. standalone /alerts page) */}
       {showBackButton && (
         <button
@@ -258,7 +258,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
           onClick={clearAllFilters}
           className="shrink-0 text-xs font-medium text-slate-400 transition-colors hover:text-slate-700"
         >
-          Clear filters
+          Clear
         </button>
       )}
 

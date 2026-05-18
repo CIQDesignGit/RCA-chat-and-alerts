@@ -120,29 +120,9 @@ export function AlertsPanel({
         {/* ── Panel header ── */}
         <div className="flex items-center justify-between px-4 py-3">
           <span className="text-sm font-semibold text-slate-800">
-            {filters?.brand ?? brandFilter ?? "All"} Alerts{" "}
+            SKUs{" "}
             <span className="text-slate-400">({displayCount})</span>
           </span>
-
-          {/* Icon group — filter toggle + maximize */}
-          <div className="flex items-center gap-1">
-            {/* Filter toggle — highlights when filters are active or bar is open */}
-            {onToggleFilters && (
-              <button
-                onClick={onToggleFilters}
-                aria-label={filtersExpanded ? "Close filters" : "Open filters"}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-                  hasFilter || !!brandFilter
-                    ? "bg-violet-100 text-violet-600"
-                    : "text-slate-400 hover:bg-slate-100 hover:text-slate-700",
-                )}
-              >
-                <Filter className="h-3.5 w-3.5" />
-              </button>
-            )}
-
-          </div>
         </div>
 
         {/* ── Scrollable category groups ── */}
@@ -181,42 +161,12 @@ export function AlertsPanel({
                   ))}
                 </div>
 
-                {/* "View all X alerts" — snapshot + category mode only */}
-                {!hasFilter && !isFullList && groupBy === "category" && (
-                  onViewAllCategory ? (
-                    <button
-                      onClick={() => onViewAllCategory(group.brand, group.label)}
-                      className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
-                    >
-                      {`View all ${group.label} SKUs`}
-                      <ChevronRight className="h-3 w-3" />
-                    </button>
-                  ) : (
-                    <Link
-                      href={`/alerts?brand=${encodeURIComponent(group.brand)}&category=${encodeURIComponent(group.label)}`}
-                      className="flex w-full items-center justify-end gap-1 px-4 pb-2 text-[11px] font-medium text-violet-600 hover:underline"
-                    >
-                      {`View all ${group.label} SKUs`}
-                      <ChevronRight className="h-3 w-3" />
-                    </Link>
-                  )
-                )}
+                {/* "View all X SKUs" buttons removed — filter bar handles navigation */}
               </div>
             );
           })}
         </div>
 
-        {/* ── Footer — only in snapshot mode (brand tab active, no filter applied) ── */}
-        {!hasFilter && onViewAll && brandFilter && (
-          <div className="border-t px-4 py-3">
-            <button
-              onClick={onViewAll}
-              className="block w-full text-center text-sm font-medium text-violet-600 hover:underline"
-            >
-              View all {brandFilter} SKUs
-            </button>
-          </div>
-        )}
       </aside>
     </div>
   );

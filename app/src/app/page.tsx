@@ -2,16 +2,14 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SendHorizontal, Pin } from "lucide-react";
-import {
-  PromptInput,
-  PromptInputTextarea,
-  PromptInputActions,
-} from "@/components/ui/prompt-input";
+import { Pin, X } from "lucide-react";
 import { AlertsPanel } from "@/components/home/alerts-panel";
 import { BusinessLevelInsights } from "@/components/home/business-level-insights";
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
 import { FilterBar, type FilterState, type GroupBy } from "@/components/alerts/filter-bar";
+import { MessageThread } from "@/components/chat/message-thread";
+import { ChatInputBar } from "@/components/chat/chat-input-bar";
+import { useChatStore } from "@/lib/chat-store";
 import type { AlertItem } from "@/components/alerts/types";
 import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 
@@ -34,22 +32,29 @@ function HomePageInner() {
   const [selectedAlert, setSelectedAlert] = useState<AlertItem | null>(null);
 
   // Which brand tab is active — drives the compact left-panel snapshot.
-  // null means "show all brands" (triggered by View All Alerts)
   const [activeBrandTab, setActiveBrandTab] = useState<string | null>("Shark");
 
-  // Filter bar visibility — hidden on landing, expands on alert select or "View all" click
   const [filterBarExpanded, setFilterBarExpanded] = useState(false);
-
-  // Group by — controls whether the alerts panel groups by category or date
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
-
-  // Active filter state — drives the left panel's filtered/full view
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
     brand: null,
     category: null,
     sku: null,
   });
+
+  // ── Inline home-page chat ──────────────────────────────────────────────────
+  const [homeSessionId, setHomeSessionId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const sessions = useChatStore((s) => s.sessions);
+  const createSession = useChatStore((s) => s.createSession);
+  const appendMessage = useChatStore((s) => s.appendMessage);
+  const setActiveSession = useChatStore((s) => s.setActiveSession);
+
+  const homeSession = homeSessionId
+    ? (sessions.find((s) => s.id === homeSessionId) ?? null)
+    : null;
+  const hasChat = !!(homeSession && homeSession.messages.length > 0);
 
   // On mount — if ?alertId param is present (e.g. from "View Alert →" in chat page),
   // auto-select that SKU so the RCA panel opens immediately.
@@ -138,26 +143,38 @@ function HomePageInner() {
     }
   }
 
-  // Navigate to chat page with the prompt pre-loaded
-  function handleSendToChat(message?: string) {
+  // Send a message inline — creates a session on first send, replaces overview with thread
+  async function handleSend(message?: string) {
     const text = (message ?? input).trim();
-    if (!text) return;
-    router.push(`/chat?q=${encodeURIComponent(text)}`);
-  }
+    if (!text || isLoading) return;
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendToChat();
+    let sid = homeSessionId;
+    if (!sid) {
+      sid = createSession({ type: "standalone" });
+      setHomeSessionId(sid);
+      setActiveSession(sid);
     }
+
+    appendMessage(sid, { role: "user", content: text });
+    setInput("");
+    setIsLoading(true);
+
+    await new Promise((r) => setTimeout(r, 1500));
+
+    appendMessage(sid, {
+      role: "assistant",
+      content: `Placeholder response to: "${text}"\n\nWire up a real LLM in /src/app/api/chat/route.ts to get actual answers.`,
+      thinkingSteps: ["Fetched RCA use cases", "Matched question to Mode 1 flow"],
+    });
+    setIsLoading(false);
   }
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
 
-      {/* ── Filter bar — always in DOM, height-animated open/closed ── */}
+      {/* ── Filter bar — always visible, persistent ── */}
       <FilterBar
-        isExpanded={filterBarExpanded}
+        isExpanded={true}
         initialFilters={{ brand: filters.brand ?? activeBrandTab, category: filters.category }}
         onFiltersChange={handleFiltersChange}
         onBack={handleCollapseFilterBar}
@@ -175,8 +192,6 @@ function HomePageInner() {
           onViewAllCategory={handleViewAllCategory}
           onViewAll={handleViewAll}
           filters={{ brand: filters.brand, category: filters.category }}
-          filtersExpanded={filterBarExpanded}
-          onToggleFilters={() => setFilterBarExpanded((prev) => !prev)}
           brandFilter={activeBrandTab}
           groupBy={groupBy}
         />
@@ -184,16 +199,39 @@ function HomePageInner() {
         {/* Right: landing overview OR selected alert detail */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {selectedAlert ? (
-            // ── Alert detail view ───────────────────────────────────────────
+            // ── Alert detail view ─────────────────────────────────────────────
             <AlertDetailsPanel
               alert={selectedAlert}
               onClose={handleCloseRca}
             />
+          ) : hasChat && homeSession ? (
+            // ── Inline chat — replaces business overview after first message ──
+            <div className="flex h-full flex-col overflow-hidden">
+              {/* Header with close button */}
+              <div className="flex items-center justify-end px-6 pt-3 pb-1">
+                <button
+                  onClick={() => setHomeSessionId(null)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                  aria-label="Close chat"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <MessageThread session={homeSession} isLoading={isLoading} />
+              </div>
+              <ChatInputBar
+                value={input}
+                onChange={setInput}
+                onSubmit={() => handleSend()}
+                isLoading={isLoading}
+              />
+            </div>
           ) : (
-            // ── Landing overview — greeting + insights + chat input ─────────
+            // ── Landing overview — greeting + insights + chat input ───────────
             <div className="flex h-full flex-col items-center justify-between py-5">
 
-              {/* Top: greeting + business insights — max 800px, centered */}
+              {/* Top: greeting + business insights */}
               <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
                 <div className="flex items-center gap-2">
                   <Pin className="h-4 w-4 shrink-0 text-slate-400" />
@@ -201,16 +239,21 @@ function HomePageInner() {
                     Good Morning, Steve!
                   </p>
                 </div>
-                <BusinessLevelInsights onBrandChange={handleBrandChange} onViewCategory={handleViewAllCategory} onViewAllCategories={handleViewAllCategories} activeBrandName={activeBrandTab} />
+                <BusinessLevelInsights
+                  onBrandChange={handleBrandChange}
+                  onViewCategory={handleViewAllCategory}
+                  onViewAllCategories={handleViewAllCategories}
+                  activeBrandName={activeBrandTab}
+                />
               </div>
 
-              {/* Bottom: suggestion chips + chat input — max 800px, centered */}
+              {/* Bottom: suggestion chips + chat input */}
               <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
-                      onClick={() => handleSendToChat(s)}
+                      onClick={() => handleSend(s)}
                       className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                     >
                       {s}
@@ -218,33 +261,12 @@ function HomePageInner() {
                   ))}
                 </div>
 
-                <PromptInput
+                <ChatInputBar
                   value={input}
-                  onValueChange={setInput}
-                  isLoading={false}
-                  onSubmit={() => handleSendToChat()}
-                  maxHeight={44}
-                  className="flex w-full items-center rounded-full bg-background shadow-md"
-                >
-                  <PromptInputTextarea
-                    disableAutosize
-                    rows={1}
-                    placeholder="Ask AllyAI — e.g. What were my sales last week?"
-                    onKeyDown={handleKeyDown}
-                    className="min-h-0 flex-1 py-1.5"
-                  />
-                  <PromptInputActions>
-                    <button
-                      type="button"
-                      onClick={() => handleSendToChat()}
-                      disabled={!input.trim()}
-                      aria-label="Send message"
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-opacity disabled:opacity-40 hover:opacity-90"
-                    >
-                      <SendHorizontal className="h-4 w-4" />
-                    </button>
-                  </PromptInputActions>
-                </PromptInput>
+                  onChange={setInput}
+                  onSubmit={() => handleSend()}
+                  isLoading={isLoading}
+                />
               </div>
             </div>
           )}

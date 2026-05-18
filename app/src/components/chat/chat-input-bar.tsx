@@ -80,6 +80,10 @@ export function ChatInputBar({ value, onChange, onSubmit, isLoading }: ChatInput
 
         <p className="mt-2 text-center text-xs text-muted-foreground">
           AI responses are generated. Always verify critical findings.
+          View previous conversations in{" "}
+          <a href="/chat" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            chat history
+          </a>.
         </p>
       </div>
     </div>

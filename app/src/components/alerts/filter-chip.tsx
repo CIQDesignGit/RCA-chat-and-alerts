@@ -20,8 +20,7 @@ export function formatGapUnits(value: number): string {
   return `${sign}${abs} units`;
 }
 
-// ── ReadFilterGroup: "All" (dark-filled active) / "Unread" (outlined) ─────────
-// These work as a mutually exclusive tab toggle.
+// ── ReadFilterGroup: single "Unread" toggle — active = unread only, inactive = all ──
 
 interface ReadFilterGroupProps {
   showUnreadOnly: boolean;
@@ -30,31 +29,17 @@ interface ReadFilterGroupProps {
 
 export function ReadFilterGroup({ showUnreadOnly, onToggle }: ReadFilterGroupProps) {
   return (
-    <div className="flex items-center gap-1.5">
-      <button
-        onClick={() => onToggle(false)}
-        className={cn(
-          "rounded-md px-2.5 py-1 text-sm font-semibold transition-colors",
-          !showUnreadOnly
-            ? "bg-brand-50 text-brand-500"
-            : "text-slate-400 hover:text-slate-600",
-        )}
-      >
-        All
-      </button>
-
-      <button
-        onClick={() => onToggle(true)}
-        className={cn(
-          "rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors",
-          showUnreadOnly
-            ? "bg-brand-50 text-brand-500"
-            : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-        )}
-      >
-        Unread
-      </button>
-    </div>
+    <button
+      onClick={() => onToggle(!showUnreadOnly)}
+      className={cn(
+        "rounded-md px-2.5 py-1 text-sm font-medium transition-colors",
+        showUnreadOnly
+          ? "bg-brand-50 text-brand-500"
+          : "border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700",
+      )}
+    >
+      Unread
+    </button>
   );
 }
 
