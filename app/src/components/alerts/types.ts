@@ -30,4 +30,7 @@ export type AlertItem = {
   date: string;       // e.g. "Today, 12 Apr"
   hasUnread?: boolean;
   issues: Issue[];
+  // undefined or true = RCA is pre-computed and ready to show
+  // false = RCA needs to be generated on demand
+  rcaReady?: boolean;
 };

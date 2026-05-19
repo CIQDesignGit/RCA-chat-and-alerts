@@ -127,6 +127,8 @@ export const ALERT_ITEMS: AlertItem[] = [
     tags: ["Search Exit Pg 1", "Best Seller Rank"],
     date: "Today",
     hasUnread: true,
+    // RCA not yet computed for this SKU — triggers on-demand generation
+    rcaReady: false,
     issues: [
       { id: "i4", type: "sov-drop", title: "Share of Voice Drop", description: "SoV dropped significantly on floor care keywords.", analyst: "Sales Analyst", timeAgo: "2 hrs ago", status: "open" },
     ],

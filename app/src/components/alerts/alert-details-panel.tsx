@@ -10,7 +10,9 @@ import {
   ArrowUp,
   ArrowUpRight,
   X,
+  Circle,
 } from "lucide-react";
+import { CircularLoader } from "@/components/ui/loader";
 import {
   PromptInput,
   PromptInputTextarea,
@@ -157,6 +159,125 @@ function IssueThread({ issue }: { issue: Issue }) {
   );
 }
 
+// ─── RCA generation steps & skeleton ─────────────────────────────────────────
+
+const RCA_STEPS = [
+  "Fetching sales performance data",
+  "Analyzing revenue trends",
+  "Identifying root causes",
+  "Cross-referencing market signals",
+  "Generating recommendations",
+];
+
+// Shown while AllyAI generates the RCA on demand.
+// Displays sequential thinking steps + structural skeleton placeholders
+// so the user understands what's happening and sees where content will appear.
+function RcaGeneratingState({ currentStep }: { currentStep: number }) {
+  return (
+    <div className="flex flex-col gap-5 px-6 py-5">
+
+      {/* ── Header banner ── */}
+      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <CircularLoader size="sm" className="shrink-0 text-slate-500" />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-semibold text-slate-800">
+              RCA is being generated for this SKU...
+            </span>
+            <span className="text-xs text-slate-500">
+              This usually takes a few seconds
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sequential thinking steps ── */}
+      <div className="flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-white px-4 py-3">
+        {RCA_STEPS.map((step, i) => {
+          const isDone = i < currentStep;
+          const isCurrent = i === currentStep;
+          return (
+            <div key={step} className="flex items-center gap-3 py-1">
+              {/* Icon column — fixed width keeps text aligned */}
+              <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+                {isDone ? (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50">
+                    <Check className="h-3 w-3 text-emerald-500" />
+                  </div>
+                ) : isCurrent ? (
+                  <CircularLoader size="sm" className="text-slate-400" />
+                ) : (
+                  <Circle className="h-4 w-4 text-slate-200" />
+                )}
+              </div>
+              <span
+                className={
+                  isDone
+                    ? "text-sm text-slate-400 line-through decoration-slate-300"
+                    : isCurrent
+                      ? "text-sm font-medium text-slate-700"
+                      : "text-sm text-slate-300"
+                }
+              >
+                {step}
+                {isCurrent && (
+                  <span className="ml-0.5 animate-pulse text-slate-400">…</span>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Skeleton placeholders — mirrors the real RCA layout below ── */}
+
+      {/* KPI cards */}
+      <div className="grid grid-cols-3 gap-3">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="flex flex-col gap-2.5 rounded-lg border border-slate-100 bg-white p-3"
+          >
+            <div className="h-2.5 w-14 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-5 w-20 animate-pulse rounded bg-slate-100" />
+            <div className="h-2.5 w-10 animate-pulse rounded-full bg-slate-100" />
+          </div>
+        ))}
+      </div>
+
+      {/* Status pills */}
+      <div className="flex flex-wrap gap-2">
+        {(["w-20", "w-24", "w-20", "w-24"] as const).map((cls, i) => (
+          <div
+            key={i}
+            className={`h-7 animate-pulse rounded-full bg-slate-100 ${cls}`}
+          />
+        ))}
+      </div>
+
+      {/* Chart area */}
+      <div className="h-36 w-full animate-pulse rounded-lg bg-slate-100" />
+
+      {/* Root cause rows */}
+      <div className="flex flex-col gap-2">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-lg border border-slate-100 bg-white px-3 py-3"
+          >
+            <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-slate-100" />
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="h-2.5 w-28 animate-pulse rounded-full bg-slate-100" />
+              <div className="h-2.5 w-44 animate-pulse rounded-full bg-slate-100" />
+            </div>
+            <div className="h-5 w-14 animate-pulse rounded-full bg-slate-100" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Map issue type → SkuRca alertType string ────────────────────────────────
 
 function issueTypeToAlertType(type: Issue["type"] | undefined): string {
@@ -204,6 +325,15 @@ export function AlertDetailsPanel({
   const bottomRef = useRef<HTMLDivElement>(null);
   const skuShortName = alert.skuName.split(" ").slice(0, 4).join(" ");
 
+  // rcaStatus drives whether we show the skeleton/steps or the real RCA.
+  // If rcaReady is explicitly false, we start in "generating" mode and
+  // auto-advance through steps until done.
+  const [rcaStatus, setRcaStatus] = useState<"generating" | "ready">(
+    alert.rcaReady === false ? "generating" : "ready",
+  );
+  // currentStep tracks which step is "active" in the thinking steps list (0-based).
+  const [currentStep, setCurrentStep] = useState(0);
+
   function handleScroll(e: React.UIEvent<HTMLDivElement>) {
     setScrolled(e.currentTarget.scrollTop > 24);
   }
@@ -215,6 +345,27 @@ export function AlertDetailsPanel({
     if (!hasMessages && !isLoading) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sessionMessages, isLoading, hasMessages]);
+
+  // Step ticker — advances one step every 900ms while generating.
+  // After all steps complete, waits 300ms then switches to "ready".
+  useEffect(() => {
+    if (rcaStatus !== "generating") return;
+
+    const STEP_INTERVAL_MS = 900;
+    const FINISH_DELAY_MS = 300;
+
+    const timer = setTimeout(() => {
+      if (currentStep < RCA_STEPS.length - 1) {
+        // Advance to the next step
+        setCurrentStep((s) => s + 1);
+      } else {
+        // All steps done — brief pause then reveal the RCA
+        setTimeout(() => setRcaStatus("ready"), FINISH_DELAY_MS);
+      }
+    }, STEP_INTERVAL_MS);
+
+    return () => clearTimeout(timer);
+  }, [rcaStatus, currentStep]);
 
   // ── Send a message in the SKU inline chat ──────────────────────────────────
   async function handleSend(text?: string) {
@@ -330,7 +481,7 @@ export function AlertDetailsPanel({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-4 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700"
+            className="absolute right-4 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-900"
           >
             <X className="h-4 w-4" />
           </button>
@@ -342,16 +493,22 @@ export function AlertDetailsPanel({
 
         {/* Issue threads hidden for now — component preserved in file */}
 
-        {/* SKU RCA section */}
-        <div className="border-t-2 border-brand-100 bg-brand-50/30 px-6 py-5">
-          <p className="mb-4 text-sm font-semibold tracking-wide text-foreground">
-            SKU Root Cause Analysis
-          </p>
-          <SkuRca sku={skuForRca} />
+        {/* SKU RCA section — shows skeleton+steps while generating, real RCA when ready */}
+        <div className="border-t-2 border-brand-100 bg-brand-50/30">
+          {rcaStatus === "generating" ? (
+            <RcaGeneratingState currentStep={currentStep} />
+          ) : (
+            <div className="px-6 py-5">
+              <p className="mb-4 text-sm font-semibold tracking-wide text-foreground">
+                SKU Root Cause Analysis
+              </p>
+              <SkuRca sku={skuForRca} />
+            </div>
+          )}
         </div>
 
-        {/* Follow-up question chips — hidden once the user starts a conversation */}
-        {!hasMessages && (
+        {/* Follow-up question chips — hidden while generating or once the user starts a conversation */}
+        {rcaStatus === "ready" && !hasMessages && (
           <div className="border-t border-slate-100 px-6 py-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
               Follow-up questions
@@ -389,7 +546,8 @@ export function AlertDetailsPanel({
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Floating chat bar ── */}
+      {/* ── Floating chat bar — only shown once RCA is ready ── */}
+      {rcaStatus === "ready" && (
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-8">
 
         {/* "Continue in Chat" escape hatch — appears after first message */}
@@ -436,7 +594,8 @@ export function AlertDetailsPanel({
             </button>
           </PromptInputActions>
         </PromptInput>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
