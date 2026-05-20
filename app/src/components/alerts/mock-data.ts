@@ -144,6 +144,8 @@ export const ALERT_ITEMS: AlertItem[] = [
     gapUnits: -98,
     tags: ["Content Change"],
     date: "Today",
+    // Agent ran but RCA fetch failed — show issue-card fallback
+    rcaFetchFailed: true,
     issues: [
       { id: "i5", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Content update caused a ranking drop on 5 key terms.", analyst: "Sales Analyst", timeAgo: "10 hrs ago", status: "open" },
     ],

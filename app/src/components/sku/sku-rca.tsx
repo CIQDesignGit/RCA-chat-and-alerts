@@ -851,9 +851,70 @@ export function getFollowUpQuestions(sku: SkuAlert): string[] {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export function SkuRca({ sku }: { sku: SkuAlert }) {
+// Three render variants:
+//   "full"         — everything (default)
+//   "trimmed"      — SKU metadata card + KPI cards + alert banner; used as the
+//                    initial AI response while the full analysis (service B) loads
+//   "root-causes"  — root cause groups only (service A data shown before chat triggers)
+type SkuRcaVariant = "full" | "trimmed" | "root-causes";
+
+type SkuRcaProps = {
+  sku: SkuAlert;
+  variant?: SkuRcaVariant;
+};
+
+// ── Compact SKU metadata card — shown at the top of the trimmed variant ────────
+function SkuMetaCard({ sku }: { sku: SkuAlert }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-3">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <p className="truncate text-sm font-semibold text-slate-800">{sku.skuName}</p>
+          <p className="text-xs text-slate-400">
+            <span className="font-mono">{sku.asin}</span>
+            <span className="mx-1.5 text-slate-300">·</span>
+            {sku.category}
+            {sku.alertType && (
+              <>
+                <span className="mx-1.5 text-slate-300">·</span>
+                {sku.alertType}
+              </>
+            )}
+          </p>
+        </div>
+        {sku.gapValue && (
+          <span className="shrink-0 text-sm font-bold text-red-600">{sku.gapValue}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
   const data = getRcaData(sku);
 
+  // ── root-causes variant — service A data, shown before chat triggers ──────
+  if (variant === "root-causes") {
+    const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
+    return hasRootCauses ? (
+      <div className="flex flex-col gap-8">
+        <RootCauses groups={data.rootCauses} />
+      </div>
+    ) : null;
+  }
+
+  // ── trimmed variant — metadata + KPIs + alert banner ─────────────────────
+  if (variant === "trimmed") {
+    return (
+      <div className="flex flex-col gap-6">
+        <SkuMetaCard sku={sku} />
+        {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
+        {data.alertBanner && <AlertBanner message={data.alertBanner} />}
+      </div>
+    );
+  }
+
+  // ── full variant (default) ────────────────────────────────────────────────
   const hasContent =
     data.kpis.length > 0 ||
     data.statusPills.length > 0 ||

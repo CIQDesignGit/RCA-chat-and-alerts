@@ -10,15 +10,14 @@ import {
   ArrowUp,
   ArrowUpRight,
   X,
-  Circle,
 } from "lucide-react";
-import { CircularLoader } from "@/components/ui/loader";
 import {
   PromptInput,
   PromptInputTextarea,
   PromptInputActions,
 } from "@/components/ui/prompt-input";
 import { MessageThread } from "@/components/chat/message-thread";
+import { ThinkingState } from "@/components/chat/thinking-state";
 import type { AlertItem, Issue } from "./types";
 import { GapBadge } from "./gap-badge";
 import { SkuRca, getFollowUpQuestions } from "@/components/sku/sku-rca";
@@ -159,118 +158,113 @@ function IssueThread({ issue }: { issue: Issue }) {
   );
 }
 
-// ─── RCA generation steps & skeleton ─────────────────────────────────────────
+// Delay in ms before the trimmed RCA is revealed after landing on a not-ready SKU.
+const RCA_SIMULATE_MS = 5000;
 
-const RCA_STEPS = [
-  "Fetching sales performance data",
-  "Analyzing revenue trends",
-  "Identifying root causes",
-  "Cross-referencing market signals",
-  "Generating recommendations",
-];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Shown while AllyAI generates the RCA on demand.
-// Displays sequential thinking steps + structural skeleton placeholders
-// so the user understands what's happening and sees where content will appear.
-function RcaGeneratingState({ currentStep }: { currentStep: number }) {
+function formatGap(val: number): string {
+  const abs = Math.abs(val);
+  const formatted = abs >= 1000 ? `$${(abs / 1000).toFixed(1)}K` : `$${abs}`;
+  return val < 0 ? `-${formatted}` : formatted;
+}
+
+
+// ─── Issue-type → logical group label ────────────────────────────────────────
+
+const ISSUE_GROUP: Record<Issue["type"], string> = {
+  "lost-buy-box":       "PDP & Promos",
+  "promo-badge":        "PDP & Promos",
+  "star-rating":        "Product Reputation",
+  "keyword-rank-drop":  "Search & Traffic",
+  "sov-drop":           "Search & Traffic",
+};
+
+const GROUP_ORDER = ["PDP & Promos", "Product Reputation", "Search & Traffic", "Fulfilment"];
+
+// ─── Partial-data state — agent ran but RCA fetch failed ──────────────────────
+// Shows an AllyAI apology message + available issue cards grouped by category.
+
+function RcaPartialState({ alert }: { alert: AlertItem }) {
+  // Group alert.issues into logical buckets
+  const grouped: Record<string, Issue[]> = {};
+  for (const issue of alert.issues) {
+    const label = ISSUE_GROUP[issue.type] ?? "Other";
+    (grouped[label] ??= []).push(issue);
+  }
+  const activeGroups = GROUP_ORDER.filter((g) => grouped[g]?.length);
+
   return (
     <div className="flex flex-col gap-5 px-6 py-5">
-
-      {/* ── Header banner ── */}
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <CircularLoader size="sm" className="shrink-0 text-slate-500" />
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-semibold text-slate-800">
-              RCA is being generated for this SKU...
-            </span>
-            <span className="text-xs text-slate-500">
-              This usually takes a few seconds
-            </span>
+      {/* AllyAI message */}
+      <div className="flex items-start gap-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
+          AI
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-700">AllyAI</span>
+            <span className="text-[10px] text-slate-400">just now</span>
+          </div>
+          <div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 shadow-xs ring-1 ring-slate-100">
+            <p className="text-sm leading-relaxed text-slate-700">
+              I ran the root cause analysis for{" "}
+              <span className="font-semibold text-slate-800">{alert.skuName}</span>,
+              but couldn't retrieve the full report right now. I'm showing the
+              available issue signals below — you can ask me follow-up questions
+              or try refreshing the analysis.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* ── Sequential thinking steps ── */}
-      <div className="flex flex-col gap-1.5 rounded-lg border border-slate-100 bg-white px-4 py-3">
-        {RCA_STEPS.map((step, i) => {
-          const isDone = i < currentStep;
-          const isCurrent = i === currentStep;
-          return (
-            <div key={step} className="flex items-center gap-3 py-1">
-              {/* Icon column — fixed width keeps text aligned */}
-              <div className="flex h-5 w-5 shrink-0 items-center justify-center">
-                {isDone ? (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50">
-                    <Check className="h-3 w-3 text-emerald-500" />
-                  </div>
-                ) : isCurrent ? (
-                  <CircularLoader size="sm" className="text-slate-400" />
-                ) : (
-                  <Circle className="h-4 w-4 text-slate-200" />
-                )}
-              </div>
-              <span
-                className={
-                  isDone
-                    ? "text-sm text-slate-400 line-through decoration-slate-300"
-                    : isCurrent
-                      ? "text-sm font-medium text-slate-700"
-                      : "text-sm text-slate-300"
-                }
-              >
-                {step}
-                {isCurrent && (
-                  <span className="ml-0.5 animate-pulse text-slate-400">…</span>
-                )}
-              </span>
-            </div>
-          );
-        })}
+      {/* Warning banner */}
+      <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+        <span className="mt-0.5 shrink-0 text-amber-500">⚠</span>
+        <p className="text-sm font-medium text-amber-800">
+          Full analysis unavailable — showing available issue signals only.
+        </p>
       </div>
 
-      {/* ── Skeleton placeholders — mirrors the real RCA layout below ── */}
-
-      {/* KPI cards */}
-      <div className="grid grid-cols-3 gap-3">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="flex flex-col gap-2.5 rounded-lg border border-slate-100 bg-white p-3"
-          >
-            <div className="h-2.5 w-14 animate-pulse rounded-full bg-slate-100" />
-            <div className="h-5 w-20 animate-pulse rounded bg-slate-100" />
-            <div className="h-2.5 w-10 animate-pulse rounded-full bg-slate-100" />
+      {/* Issue cards in logical groups */}
+      <div className="flex flex-col gap-3">
+        <div className="mb-1 flex items-center justify-between">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            Issue Signals
+          </h3>
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+            Live now
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Status pills */}
-      <div className="flex flex-wrap gap-2">
-        {(["w-20", "w-24", "w-20", "w-24"] as const).map((cls, i) => (
-          <div
-            key={i}
-            className={`h-7 animate-pulse rounded-full bg-slate-100 ${cls}`}
-          />
-        ))}
-      </div>
-
-      {/* Chart area */}
-      <div className="h-36 w-full animate-pulse rounded-lg bg-slate-100" />
-
-      {/* Root cause rows */}
-      <div className="flex flex-col gap-2">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-lg border border-slate-100 bg-white px-3 py-3"
-          >
-            <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-slate-100" />
-            <div className="flex flex-1 flex-col gap-2">
-              <div className="h-2.5 w-28 animate-pulse rounded-full bg-slate-100" />
-              <div className="h-2.5 w-44 animate-pulse rounded-full bg-slate-100" />
+        {activeGroups.map((groupLabel) => (
+          <div key={groupLabel}>
+            <p className="mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              {groupLabel}
+            </p>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              {grouped[groupLabel]!.map((issue, i) => (
+                <div
+                  key={issue.id}
+                  className={
+                    i < grouped[groupLabel]!.length - 1
+                      ? "border-b border-slate-100"
+                      : ""
+                  }
+                >
+                  <div className="px-4 pb-4 pt-3">
+                    <p className="mb-0.5 text-sm font-semibold text-slate-700">
+                      {issue.title}
+                    </p>
+                    <p className="mb-3 text-sm leading-relaxed text-slate-500">
+                      {issue.description}
+                    </p>
+                    <IssueBody issue={issue} />
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="h-5 w-14 animate-pulse rounded-full bg-slate-100" />
           </div>
         ))}
       </div>
@@ -325,14 +319,15 @@ export function AlertDetailsPanel({
   const bottomRef = useRef<HTMLDivElement>(null);
   const skuShortName = alert.skuName.split(" ").slice(0, 4).join(" ");
 
-  // rcaStatus drives whether we show the skeleton/steps or the real RCA.
-  // If rcaReady is explicitly false, we start in "generating" mode and
-  // auto-advance through steps until done.
-  const [rcaStatus, setRcaStatus] = useState<"generating" | "ready">(
-    alert.rcaReady === false ? "generating" : "ready",
-  );
-  // currentStep tracks which step is "active" in the thinking steps list (0-based).
-  const [currentStep, setCurrentStep] = useState(0);
+  // rcaStatus drives what we render in the main panel body.
+  //  "generating" — on-demand RCA triggered (rcaReady=false); shows intro msg + steps
+  //  "ready"      — full RCA available; shows SkuRca component
+  //  "failed"     — agent ran but couldn't fetch RCA (rcaFetchFailed=true); shows issue-card fallback
+  const [rcaStatus, setRcaStatus] = useState<"generating" | "ready" | "failed">(() => {
+    if (alert.rcaFetchFailed === true) return "failed";
+    if (alert.rcaReady === false) return "generating";
+    return "ready";
+  });
 
   function handleScroll(e: React.UIEvent<HTMLDivElement>) {
     setScrolled(e.currentTarget.scrollTop > 24);
@@ -346,26 +341,12 @@ export function AlertDetailsPanel({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sessionMessages, isLoading, hasMessages]);
 
-  // Step ticker — advances one step every 900ms while generating.
-  // After all steps complete, waits 300ms then switches to "ready".
+  // After RCA_SIMULATE_MS, flip from "generating" to "ready" to reveal the trimmed RCA.
   useEffect(() => {
     if (rcaStatus !== "generating") return;
-
-    const STEP_INTERVAL_MS = 900;
-    const FINISH_DELAY_MS = 300;
-
-    const timer = setTimeout(() => {
-      if (currentStep < RCA_STEPS.length - 1) {
-        // Advance to the next step
-        setCurrentStep((s) => s + 1);
-      } else {
-        // All steps done — brief pause then reveal the RCA
-        setTimeout(() => setRcaStatus("ready"), FINISH_DELAY_MS);
-      }
-    }, STEP_INTERVAL_MS);
-
+    const timer = setTimeout(() => setRcaStatus("ready"), RCA_SIMULATE_MS);
     return () => clearTimeout(timer);
-  }, [rcaStatus, currentStep]);
+  }, [rcaStatus]);
 
   // ── Send a message in the SKU inline chat ──────────────────────────────────
   async function handleSend(text?: string) {
@@ -493,22 +474,46 @@ export function AlertDetailsPanel({
 
         {/* Issue threads hidden for now — component preserved in file */}
 
-        {/* SKU RCA section — shows skeleton+steps while generating, real RCA when ready */}
-        <div className="border-t-2 border-brand-100 bg-brand-50/30">
+        {/* Root causes — shown immediately before chat is triggered (service A data) */}
+        {alert.rcaReady === false && (
+          <div className="px-6 py-5">
+            <SkuRca sku={skuForRca} variant="root-causes" />
+          </div>
+        )}
+
+        {/* User message — only for on-demand RCA SKUs (rcaReady=false) */}
+        {alert.rcaReady === false && (
+          <div className="border-b border-slate-100 px-6 py-4">
+            <div className="flex justify-end">
+              <div className="rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-[2px] bg-violet-50 px-4 py-2.5 text-sm text-slate-600">
+                Do RCA for {alert.asin}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* RCA section */}
+        <div className="bg-brand-50/30">
           {rcaStatus === "generating" ? (
-            <RcaGeneratingState currentStep={currentStep} />
+            /* ThinkingState while waiting (~5s), then flips to trimmed RCA */
+            <div className="px-6 py-5">
+              <ThinkingState />
+            </div>
+          ) : rcaStatus === "failed" ? (
+            <RcaPartialState alert={alert} />
           ) : (
             <div className="px-6 py-5">
-              <p className="mb-4 text-sm font-semibold tracking-wide text-foreground">
-                SKU Root Cause Analysis
-              </p>
-              <SkuRca sku={skuForRca} />
+              {/* trimmed for on-demand SKUs, full for pre-computed ones */}
+              <SkuRca
+                sku={skuForRca}
+                variant={alert.rcaReady === false ? "trimmed" : "full"}
+              />
             </div>
           )}
         </div>
 
         {/* Follow-up question chips — hidden while generating or once the user starts a conversation */}
-        {rcaStatus === "ready" && !hasMessages && (
+        {rcaStatus !== "generating" && !hasMessages && (
           <div className="border-t border-slate-100 px-6 py-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
               Follow-up questions
@@ -546,8 +551,8 @@ export function AlertDetailsPanel({
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Floating chat bar — only shown once RCA is ready ── */}
-      {rcaStatus === "ready" && (
+      {/* ── Floating chat bar — shown once RCA is ready or in failed/partial state ── */}
+      {rcaStatus !== "generating" && (
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-8">
 
         {/* "Continue in Chat" escape hatch — appears after first message */}

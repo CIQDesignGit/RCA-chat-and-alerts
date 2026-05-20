@@ -31,6 +31,8 @@ export type AlertItem = {
   hasUnread?: boolean;
   issues: Issue[];
   // undefined or true = RCA is pre-computed and ready to show
-  // false = RCA needs to be generated on demand
+  // false = RCA needs to be generated on demand (triggers live generation UX)
   rcaReady?: boolean;
+  // true = agent ran but could not fetch RCA data; show issue-card fallback
+  rcaFetchFailed?: boolean;
 };
