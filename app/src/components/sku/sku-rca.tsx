@@ -689,14 +689,14 @@ function RootCauseRow({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${isOpen ? "bg-white hover:bg-white" : "hover:bg-slate-50"}`}
       >
         {/* live dot — leftmost, before the icon */}
         <span
           className={`h-2 w-2 shrink-0 rounded-full ${LIVE_DOT_CLASS[cause.liveStatus]}`}
           title={`Live: ${cause.liveStatus}`}
         />
-        <span className="text-slate-400">{cause.icon}</span>
+        <span className="text-slate-500">{cause.icon}</span>
         {/* title, impact, and badge all grouped left — hug content */}
         <span className="text-sm font-medium text-slate-700">{cause.label}</span>
         <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
@@ -709,7 +709,7 @@ function RootCauseRow({
         />
       </button>
       {isOpen && (
-        <div className="border-t border-slate-100 bg-slate-50 px-4 pb-4 pt-2.5">
+        <div className="border-t-2 border-slate-200 bg-slate-50 px-4 pb-4 pt-2.5">
           <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
             {cause.description}
           </p>
@@ -760,15 +760,15 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
       <div className="flex flex-col gap-3">
         {activeGroups.map((group) => (
           <div key={group.label}>
-            {/* Group label */}
-            <p className="mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            {/* Group label — more prominent: darker, slightly larger */}
+            <p className="mb-1.5 px-1 text-xs font-bold tracking-wide text-slate-600">
               {group.label}
             </p>
             <div className="overflow-hidden rounded-xl border border-slate-200">
               {group.causes.map((cause, i) => (
                 <div
                   key={cause.id}
-                  className={i < group.causes.length - 1 ? "border-b border-slate-100" : ""}
+                  className={i < group.causes.length - 1 ? "border-b border-slate-200" : ""}
                 >
                   <RootCauseRow
                     cause={cause}
