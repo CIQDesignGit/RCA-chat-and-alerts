@@ -27,11 +27,13 @@ import {
   Tooltip,
 } from "recharts";
 import type { SkuAlert } from "@/components/home/alerts-panel";
-import { LostBuyBoxIssue }      from "@/components/alerts/issues/lost-buy-box";
-import { PromoBadgeIssue }      from "@/components/alerts/issues/promo-badge";
-import { SovDropIssue }         from "@/components/alerts/issues/sov-drop";
-import { KeywordRankDropIssue } from "@/components/alerts/issues/keyword-rank-drop";
-import { StarRatingIssue }      from "@/components/alerts/issues/star-rating";
+import { LostBuyBoxIssue }           from "@/components/alerts/issues/lost-buy-box";
+import { PromoBadgeIssue }           from "@/components/alerts/issues/promo-badge";
+import { SovDropIssue }              from "@/components/alerts/issues/sov-drop";
+import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-rank-drop";
+import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
+import { LastWeekPerformanceLBB }    from "@/components/alerts/issues/last-week-lbb";
+import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,6 +77,8 @@ type RootCause = {
   liveStatus: LiveStatus;
   // When set, renders the matching issue card inside the expanded row
   issueCardType?: IssueCardType;
+  // When set, renders a last-week performance summary below the issue card
+  lastWeekSummaryType?: "lbb" | "promo-badge";
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -175,6 +179,7 @@ const CAUSE_LBB: RootCause = {
   description:
     "amazon.com lost the buy box 100% of the time every day from May 3–9 after the SAS price spiked to $529.99, while 3P sellers won at $344–$379 — the single largest driver of the $227.7K weekly gap.",
   issueCardType: "lost-buy-box",
+  lastWeekSummaryType: "lbb",
 };
 
 // 2. Missing promo badge
@@ -189,6 +194,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   description:
     "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
   issueCardType: "promo-badge",
+  lastWeekSummaryType: "promo-badge",
 };
 
 // 3. Product not on deals page
@@ -484,6 +490,33 @@ function RootCauseIssueCard({ type }: { type: IssueCardType }) {
   }
 }
 
+// Renders the last-week performance summary card for a given cause type.
+// Hardcoded mock data matching the design images.
+function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
+  if (type === "lbb") {
+    return (
+      <LastWeekPerformanceLBB
+        buyBoxWinner="amazon.com"
+        lbbDays="0 / 7"
+        revenueLost="$0"
+        avgSellingPrice="$219.96"
+        status="clean"
+      />
+    );
+  }
+  return (
+    <LastWeekPerformancePromoBadge
+      period="May 10–16"
+      badgeMissingDays="7 / 7 days"
+      expectedPromoPrice="$299.99"
+      avgDealPriceShown="$283.64"
+      listPriceShown="$349.99"
+      priceCheckStatus="PRICE_MISMATCH"
+      badgeShowing={false}
+    />
+  );
+}
+
 // ─── Section heading ──────────────────────────────────────────────────────────
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -682,6 +715,11 @@ function RootCauseRow({
           {cause.issueCardType && (
             <div className="mt-3">
               <RootCauseIssueCard type={cause.issueCardType} />
+            </div>
+          )}
+          {cause.lastWeekSummaryType && (
+            <div className="mt-3">
+              <LastWeekSummaryCard type={cause.lastWeekSummaryType} />
             </div>
           )}
         </div>

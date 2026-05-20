@@ -24,7 +24,7 @@ export function PromoBadgeIssue({
   return (
     <div className="flex flex-col gap-4">
       {/* Checklist card */}
-      <div className="w-[370px] overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+      <div className="w-[370px] overflow-hidden rounded-xl border border-slate-200 bg-white">
         {checks.map((item, i) => (
           <div
             key={item.label}
@@ -60,7 +60,7 @@ export function PromoBadgeIssue({
         </div>
 
         {/* Expected Price — neutral white */}
-        <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
           <p className="text-xs font-semibold text-slate-600">Expected Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">

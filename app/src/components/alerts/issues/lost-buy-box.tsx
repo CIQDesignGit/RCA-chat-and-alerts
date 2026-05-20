@@ -41,7 +41,7 @@ export type LostBuyBoxProps = {
 
 export function LostBuyBoxIssue(p: LostBuyBoxProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Column headers */}
       <div className="grid grid-cols-3 border-b border-slate-200">
         <div className="px-4 py-3" />
