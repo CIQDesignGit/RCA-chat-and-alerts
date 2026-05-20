@@ -691,18 +691,19 @@ function RootCauseRow({
         onClick={onToggle}
         className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
       >
-        <span className="text-slate-400">{cause.icon}</span>
-        <span className="flex-1 text-sm font-medium text-slate-700">{cause.label}</span>
-        {cause.impact && (
-          <span className="text-sm font-semibold text-red-500">{cause.impact}</span>
-        )}
-        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
-          {cause.statusLabel}
-        </span>
+        {/* live dot — leftmost, before the icon */}
         <span
           className={`h-2 w-2 shrink-0 rounded-full ${LIVE_DOT_CLASS[cause.liveStatus]}`}
           title={`Live: ${cause.liveStatus}`}
         />
+        <span className="text-slate-400">{cause.icon}</span>
+        {/* title, impact, and badge all grouped left — hug content */}
+        <span className="text-sm font-medium text-slate-700">{cause.label}</span>
+        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
+          {cause.statusLabel}
+        </span>
+        {/* spacer pushes chevron to the far right */}
+        <span className="flex-1" />
         <ChevronDown
           className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
         />
