@@ -61,6 +61,8 @@ type StatusPill = {
   status: "ok" | "warning" | "info";
 };
 
+type LiveStatus = "ok" | "warning" | "bad";
+
 type RootCause = {
   id: string;
   icon: React.ReactNode;
@@ -69,6 +71,8 @@ type RootCause = {
   statusLabel: string;
   statusStyle: string;
   description: string;
+  // Current live health of this issue — drives the dot colour in the row header
+  liveStatus: LiveStatus;
   // When set, renders the matching issue card inside the expanded row
   issueCardType?: IssueCardType;
 };
@@ -77,19 +81,34 @@ type AnalysisBlock = { heading: string; body: string };
 
 type Recommendation = { action: string; detail: string };
 
+// A named group of root causes rendered as its own card with a label
+type RootCauseGroup = { label: string; causes: RootCause[] };
+
 type RcaData = {
   kpis: KpiStat[];
   statusPills: StatusPill[];
   alertBanner: string | null;
   chartData: { week: string; plan: number; actual: number | null }[];
   chartCaption: string;
-  rootCauses: RootCause[];
+  rootCauses: RootCauseGroup[];
   analysisBlocks: AnalysisBlock[];
   recommendations: Recommendation[];
   followUpQuestions: string[];
 };
 
 // ─── Text-only root causes (no issue card designed) ───────────────────────────
+
+const CAUSE_BSR: RootCause = {
+  id: "bsr",
+  icon: <TrendingDown className="h-4 w-4" />,
+  label: "Best Seller Rank",
+  impact: null,
+  statusLabel: "Dropped",
+  statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
+  description:
+    "BSR dropped from #12 to #31 in the Vacuum Cleaners category over the past two weeks, reducing organic discoverability on category browse pages and suppressing new-to-brand traffic during the recovery window.",
+};
 
 const CAUSE_MEDIA: RootCause = {
   id: "media",
@@ -98,6 +117,7 @@ const CAUSE_MEDIA: RootCause = {
   impact: null,
   statusLabel: "Spend Cuts",
   statusStyle: "bg-orange-100 text-orange-700",
+  liveStatus: "warning",
   description:
     "Ad spend was cut on all top-10 keywords last week, with the largest reduction on 'vacuum cleaners for home' (SFR 6,346, −$1,715 spend, −$37.3K sales WoW), compounding the traffic collapse.",
 };
@@ -109,6 +129,7 @@ const CAUSE_OOS: RootCause = {
   impact: null,
   statusLabel: "OK",
   statusStyle: "bg-slate-100 text-slate-500",
+  liveStatus: "ok",
   description:
     "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
 };
@@ -120,6 +141,7 @@ const CAUSE_SHIP: RootCause = {
   impact: null,
   statusLabel: "OK",
   statusStyle: "bg-slate-100 text-slate-500",
+  liveStatus: "ok",
   description:
     "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
 };
@@ -131,6 +153,7 @@ const CAUSE_REVIEW_SENTIMENT: RootCause = {
   impact: null,
   statusLabel: "OK",
   statusStyle: "bg-slate-100 text-slate-500",
+  liveStatus: "ok",
   description:
     "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
 };
@@ -148,6 +171,7 @@ const CAUSE_LBB: RootCause = {
   impact: "−$119.7K",
   statusLabel: "Resolved",
   statusStyle: "bg-emerald-100 text-emerald-700",
+  liveStatus: "ok",
   description:
     "amazon.com lost the buy box 100% of the time every day from May 3–9 after the SAS price spiked to $529.99, while 3P sellers won at $344–$379 — the single largest driver of the $227.7K weekly gap.",
   issueCardType: "lost-buy-box",
@@ -161,6 +185,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   impact: null,
   statusLabel: "Badge Missing",
   statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
   description:
     "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
   issueCardType: "promo-badge",
@@ -174,6 +199,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   impact: null,
   statusLabel: "Missing",
   statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
   description:
     "This SKU is running an active Lightning Deal but is not appearing on the Amazon Deals page. Missing placement removes a high-intent discovery surface and suppresses incremental traffic during the deal window.",
   issueCardType: "deals-page",
@@ -187,6 +213,7 @@ const CAUSE_STAR_RATING: RootCause = {
   impact: "−$22.4K",
   statusLabel: "Open",
   statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "Average rating fell from 4.3 to 3.2 over the past 3 weeks after a batch of negative reviews citing product defects. Lower ratings suppress conversion rate and can trigger Amazon search rank demotion.",
   issueCardType: "star-rating",
@@ -200,6 +227,7 @@ const CAUSE_KRD: RootCause = {
   impact: null,
   statusLabel: "Open",
   statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "Top search keywords dropped 6–8 positions after a recent content update, pushing the SKU off page 1 for high-volume terms and reducing organic traffic contribution.",
   issueCardType: "keyword-rank-drop",
@@ -213,6 +241,7 @@ const CAUSE_SOV: RootCause = {
   impact: "−$38.2K",
   statusLabel: "Open",
   statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "Competitor increased ad spend and captured share of voice on key terms. Sponsored Product SoV dropped from 5.0% to 4.0% while the leading competitor holds 6%, widening the gap across all high-volume search terms.",
   issueCardType: "sov-drop",
@@ -226,6 +255,7 @@ const CAUSE_ORGANIC: RootCause = {
   impact: null,
   statusLabel: "Open",
   statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "Organic search rank on 3 high-volume terms has deteriorated following a recent A+ content change that removed keyword-rich body copy. Organic impressions are down 34% WoW.",
   issueCardType: "organic-keyword",
@@ -241,18 +271,44 @@ const CAUSE_ORGANIC: RootCause = {
 // sk4  B0BJZW4CLC  Cooker         : Not on Deals Page + SoV Drop         + common
 // default                         : Lost Buy Box + Missing Promo Badge   + common
 
-function getRcaData(sku: SkuAlert): RcaData {
-  let primaryCauses: RootCause[];
-
+function buildGroups(sku: SkuAlert): RootCauseGroup[] {
+  // Each branch defines which causes appear per group for that SKU.
+  // Groups with zero causes are filtered out before rendering.
   if (sku.asin === "B08H8JZKDF") {
-    primaryCauses = [CAUSE_SOV, CAUSE_KRD];
-  } else if (sku.asin === "B000BVFYU8") {
-    primaryCauses = [CAUSE_STAR_RATING, CAUSE_ORGANIC];
-  } else if (sku.asin === "B0BJZW4CLC") {
-    primaryCauses = [CAUSE_DEALS_PAGE, CAUSE_SOV];
-  } else {
-    primaryCauses = [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_SOV, CAUSE_STAR_RATING, CAUSE_KRD];
+    // Blender — traffic & SoV problems
+    return [
+      { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_KRD, CAUSE_MEDIA] },
+      { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
+      { label: "Product Reputation", causes: [CAUSE_REVIEW_SENTIMENT] },
+    ];
   }
+  if (sku.asin === "B000BVFYU8") {
+    // Kettle — reputation & organic issues
+    return [
+      { label: "Product Reputation", causes: [CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
+      { label: "Search & Traffic",   causes: [CAUSE_ORGANIC, CAUSE_MEDIA] },
+      { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
+    ];
+  }
+  if (sku.asin === "B0BJZW4CLC") {
+    // Cooker — deals page + SoV
+    return [
+      { label: "PDP & Promos",       causes: [CAUSE_DEALS_PAGE] },
+      { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_MEDIA] },
+      { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
+      { label: "Product Reputation", causes: [CAUSE_REVIEW_SENTIMENT] },
+    ];
+  }
+  // Default (Food Processor) — full set across all groups
+  return [
+    { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE] },
+    { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
+    { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
+    { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_KRD, CAUSE_MEDIA] },
+  ];
+}
+
+function getRcaData(sku: SkuAlert): RcaData {
 
   return {
     kpis: [
@@ -298,8 +354,7 @@ function getRcaData(sku: SkuAlert): RcaData {
     ],
     chartCaption:
       "Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.",
-    // Primary (card-backed) causes first, then text-only common causes
-    rootCauses: [...primaryCauses, ...COMMON_CAUSES],
+    rootCauses: buildGroups(sku),
     analysisBlocks: [
       {
         heading: "Primary cause — 100% Lost Buy Box all 7 days (May 3–9)",
@@ -580,7 +635,62 @@ function RevenueChart({ data, caption }: { data: RcaData["chartData"]; caption: 
 
 // ─── 5. Root causes accordion ─────────────────────────────────────────────────
 
-function RootCauses({ causes }: { causes: RootCause[] }) {
+// Colour map for the live-status dot
+const LIVE_DOT_CLASS: Record<LiveStatus, string> = {
+  ok:      "bg-emerald-500",
+  warning: "bg-amber-400",
+  bad:     "bg-red-500",
+};
+
+function RootCauseRow({
+  cause,
+  isOpen,
+  onToggle,
+}: {
+  cause: RootCause;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+      >
+        <span className="text-slate-400">{cause.icon}</span>
+        <span className="flex-1 text-sm font-medium text-slate-700">{cause.label}</span>
+        {cause.impact && (
+          <span className="text-sm font-semibold text-red-500">{cause.impact}</span>
+        )}
+        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
+          {cause.statusLabel}
+        </span>
+        <span
+          className={`h-2 w-2 shrink-0 rounded-full ${LIVE_DOT_CLASS[cause.liveStatus]}`}
+          title={`Live: ${cause.liveStatus}`}
+        />
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="border-t border-slate-100 bg-slate-50 px-4 pb-4 pt-2.5">
+          <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
+            {cause.description}
+          </p>
+          {cause.issueCardType && (
+            <div className="mt-3">
+              <RootCauseIssueCard type={cause.issueCardType} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   function toggle(id: string) {
@@ -591,54 +701,46 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
     });
   }
 
+  // Drop groups that have no causes
+  const activeGroups = groups.filter((g) => g.causes.length > 0);
+
   return (
     <div className="flex flex-col gap-1">
-      <SectionHeading>
-        Root causes · last week{" "}
-        <span className="normal-case font-normal tracking-normal text-slate-300">
-          · ordered by $ impact
-        </span>
-      </SectionHeading>
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        {causes.map((cause, i) => {
-          const isOpen = openIds.has(cause.id);
-          return (
-            <div key={cause.id} className={i < causes.length - 1 ? "border-b border-slate-100" : ""}>
-              {/* Row header */}
-              <button
-                type="button"
-                onClick={() => toggle(cause.id)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
-              >
-                <span className="text-slate-400">{cause.icon}</span>
-                <span className="flex-1 text-sm font-medium text-slate-700">{cause.label}</span>
-                {cause.impact && (
-                  <span className="text-sm font-semibold text-red-500">{cause.impact}</span>
-                )}
-                <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
-                  {cause.statusLabel}
-                </span>
-                <ChevronDown
-                  className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
-                />
-              </button>
+      {/* Section heading row */}
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          Root causes · last week
+        </h3>
+        <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+          Live now
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        </div>
+      </div>
 
-              {/* Expanded panel — description always shown; issue card below when available */}
-              {isOpen && (
-                <div className="border-t border-slate-100 bg-slate-50 px-4 pb-4 pt-2.5">
-                  <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
-                    {cause.description}
-                  </p>
-                  {cause.issueCardType && (
-                    <div className="mt-3">
-                      <RootCauseIssueCard type={cause.issueCardType} />
-                    </div>
-                  )}
+      {/* One rounded card per group */}
+      <div className="flex flex-col gap-3">
+        {activeGroups.map((group) => (
+          <div key={group.label}>
+            {/* Group label */}
+            <p className="mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              {group.label}
+            </p>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              {group.causes.map((cause, i) => (
+                <div
+                  key={cause.id}
+                  className={i < group.causes.length - 1 ? "border-b border-slate-100" : ""}
+                >
+                  <RootCauseRow
+                    cause={cause}
+                    isOpen={openIds.has(cause.id)}
+                    onToggle={() => toggle(cause.id)}
+                  />
                 </div>
-              )}
+              ))}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -719,7 +821,7 @@ export function SkuRca({ sku }: { sku: SkuAlert }) {
     data.statusPills.length > 0 ||
     !!data.alertBanner ||
     data.chartData.length > 0 ||
-    data.rootCauses.length > 0 ||
+    data.rootCauses.some((g) => g.causes.length > 0) ||
     data.analysisBlocks.length > 0 ||
     data.recommendations.length > 0;
 
@@ -730,9 +832,10 @@ export function SkuRca({ sku }: { sku: SkuAlert }) {
       ) : (
         <>
           {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
-          {data.statusPills.length > 0 && <StatusPillsRow pills={data.statusPills} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
-          {data.rootCauses.length > 0 && <RootCauses causes={data.rootCauses} />}
+          {data.rootCauses.some((g) => g.causes.length > 0) && (
+            <RootCauses groups={data.rootCauses} />
+          )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />
           )}
