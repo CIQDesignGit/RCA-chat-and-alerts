@@ -747,7 +747,7 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
       {/* Section heading row */}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Root causes · last week
+          Root causes
         </h3>
         <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
           Live now
