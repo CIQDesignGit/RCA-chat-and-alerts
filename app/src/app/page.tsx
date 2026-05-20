@@ -201,6 +201,7 @@ function HomePageInner() {
           {selectedAlert ? (
             // ── Alert detail view ─────────────────────────────────────────────
             <AlertDetailsPanel
+              key={selectedAlert.id}
               alert={selectedAlert}
               onClose={handleCloseRca}
             />

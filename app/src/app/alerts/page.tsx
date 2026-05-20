@@ -152,7 +152,7 @@ function AlertsContent() {
       {/* Right: alert details panel — white canvas so inner slate-50 cards contrast */}
       <div className="flex flex-1 flex-col overflow-hidden bg-white">
         {selectedAlert ? (
-          <AlertDetailsPanel alert={selectedAlert} />
+          <AlertDetailsPanel key={selectedAlert.id} alert={selectedAlert} />
         ) : (
           <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
             No alerts match the current filters.
