@@ -163,114 +163,6 @@ const RCA_SIMULATE_MS = 5000;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function formatGap(val: number): string {
-  const abs = Math.abs(val);
-  const formatted = abs >= 1000 ? `$${(abs / 1000).toFixed(1)}K` : `$${abs}`;
-  return val < 0 ? `-${formatted}` : formatted;
-}
-
-
-// ─── Issue-type → logical group label ────────────────────────────────────────
-
-const ISSUE_GROUP: Record<Issue["type"], string> = {
-  "lost-buy-box":       "PDP & Promos",
-  "promo-badge":        "PDP & Promos",
-  "star-rating":        "Product Reputation",
-  "keyword-rank-drop":  "Search & Traffic",
-  "sov-drop":           "Search & Traffic",
-};
-
-const GROUP_ORDER = ["PDP & Promos", "Product Reputation", "Search & Traffic", "Fulfilment"];
-
-// ─── Partial-data state — agent ran but RCA fetch failed ──────────────────────
-// Shows an AllyAI apology message + available issue cards grouped by category.
-
-function RcaPartialState({ alert }: { alert: AlertItem }) {
-  // Group alert.issues into logical buckets
-  const grouped: Record<string, Issue[]> = {};
-  for (const issue of alert.issues) {
-    const label = ISSUE_GROUP[issue.type] ?? "Other";
-    (grouped[label] ??= []).push(issue);
-  }
-  const activeGroups = GROUP_ORDER.filter((g) => grouped[g]?.length);
-
-  return (
-    <div className="flex flex-col gap-5 px-6 py-5">
-      {/* AllyAI message */}
-      <div className="flex items-start gap-3">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[10px] font-bold text-white">
-          AI
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-700">AllyAI</span>
-            <span className="text-[10px] text-slate-400">just now</span>
-          </div>
-          <div className="rounded-2xl rounded-tl-sm bg-white px-4 py-3 shadow-xs ring-1 ring-slate-100">
-            <p className="text-sm leading-relaxed text-slate-700">
-              I ran the root cause analysis for{" "}
-              <span className="font-semibold text-slate-800">{alert.skuName}</span>,
-              but couldn't retrieve the full report right now. I'm showing the
-              available issue signals below — you can ask me follow-up questions
-              or try refreshing the analysis.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Warning banner */}
-      <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-        <span className="mt-0.5 shrink-0 text-amber-500">⚠</span>
-        <p className="text-sm font-medium text-amber-800">
-          Full analysis unavailable — showing available issue signals only.
-        </p>
-      </div>
-
-      {/* Issue cards in logical groups */}
-      <div className="flex flex-col gap-3">
-        <div className="mb-1 flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Issue Signals
-          </h3>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-            Live now
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          </div>
-        </div>
-
-        {activeGroups.map((groupLabel) => (
-          <div key={groupLabel}>
-            <p className="mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              {groupLabel}
-            </p>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
-              {grouped[groupLabel]!.map((issue, i) => (
-                <div
-                  key={issue.id}
-                  className={
-                    i < grouped[groupLabel]!.length - 1
-                      ? "border-b border-slate-100"
-                      : ""
-                  }
-                >
-                  <div className="px-4 pb-4 pt-3">
-                    <p className="mb-0.5 text-sm font-semibold text-slate-700">
-                      {issue.title}
-                    </p>
-                    <p className="mb-3 text-sm leading-relaxed text-slate-500">
-                      {issue.description}
-                    </p>
-                    <IssueBody issue={issue} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ─── Map issue type → SkuRca alertType string ────────────────────────────────
 
@@ -323,9 +215,11 @@ export function AlertDetailsPanel({
   //  "generating" — on-demand RCA triggered (rcaReady=false); shows intro msg + steps
   //  "ready"      — full RCA available; shows SkuRca component
   //  "failed"     — agent ran but couldn't fetch RCA (rcaFetchFailed=true); shows issue-card fallback
+  // Both on-demand (rcaReady=false) and failed-fetch (rcaFetchFailed=true) SKUs
+  // start in "generating" — they share the same user message + ThinkingState flow.
+  // The timeout then resolves to "ready" or "failed" depending on the SKU flag.
   const [rcaStatus, setRcaStatus] = useState<"generating" | "ready" | "failed">(() => {
-    if (alert.rcaFetchFailed === true) return "failed";
-    if (alert.rcaReady === false) return "generating";
+    if (alert.rcaFetchFailed === true || alert.rcaReady === false) return "generating";
     return "ready";
   });
 
@@ -341,12 +235,15 @@ export function AlertDetailsPanel({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sessionMessages, isLoading, hasMessages]);
 
-  // After RCA_SIMULATE_MS, flip from "generating" to "ready" to reveal the trimmed RCA.
+  // After RCA_SIMULATE_MS: resolve to "failed" for fetch-failed SKUs, "ready" otherwise.
   useEffect(() => {
     if (rcaStatus !== "generating") return;
-    const timer = setTimeout(() => setRcaStatus("ready"), RCA_SIMULATE_MS);
+    const timer = setTimeout(
+      () => setRcaStatus(alert.rcaFetchFailed === true ? "failed" : "ready"),
+      RCA_SIMULATE_MS,
+    );
     return () => clearTimeout(timer);
-  }, [rcaStatus]);
+  }, [rcaStatus, alert.rcaFetchFailed]);
 
   // ── Send a message in the SKU inline chat ──────────────────────────────────
   async function handleSend(text?: string) {
@@ -474,15 +371,16 @@ export function AlertDetailsPanel({
 
         {/* Issue threads hidden for now — component preserved in file */}
 
-        {/* Root causes — shown immediately before chat is triggered (service A data) */}
-        {alert.rcaReady === false && (
+        {/* Root causes — shown immediately before chat, for both on-demand and
+            fetch-failed SKUs. Service A data is always available up front. */}
+        {(alert.rcaReady === false || alert.rcaFetchFailed === true) && (
           <div className="px-6 py-5">
             <SkuRca sku={skuForRca} variant="root-causes" />
           </div>
         )}
 
-        {/* User message — only for on-demand RCA SKUs (rcaReady=false) */}
-        {alert.rcaReady === false && (
+        {/* User message bubble — mirrors the user typing "Do RCA for <ASIN>" */}
+        {(alert.rcaReady === false || alert.rcaFetchFailed === true) && (
           <div className="border-b border-slate-100 px-6 py-4">
             <div className="flex justify-end">
               <div className="rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-[2px] bg-violet-50 px-4 py-2.5 text-sm text-slate-600">
@@ -492,15 +390,20 @@ export function AlertDetailsPanel({
           </div>
         )}
 
-        {/* RCA section */}
+        {/* RCA response section */}
         <div className="bg-brand-50/30">
           {rcaStatus === "generating" ? (
-            /* ThinkingState while waiting (~5s), then flips to trimmed RCA */
             <div className="px-6 py-5">
               <ThinkingState />
             </div>
           ) : rcaStatus === "failed" ? (
-            <RcaPartialState alert={alert} />
+            /* Agent ran but couldn't fetch RCA — plain message response */
+            <div className="px-6 py-5">
+              <p className="text-sm leading-relaxed text-slate-500">
+                We couldn't fetch the root cause analysis for this SKU right now.
+                Please try again in some time.
+              </p>
+            </div>
           ) : (
             <div className="px-6 py-5">
               {/* trimmed for on-demand SKUs, full for pre-computed ones */}
