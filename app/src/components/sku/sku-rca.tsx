@@ -13,6 +13,9 @@ import {
   ChevronDown,
   ThumbsUp,
   ThumbsDown,
+  SearchX,
+  MessageSquareWarning,
+  ShoppingBag,
 } from "lucide-react";
 import {
   LineChart,
@@ -24,8 +27,25 @@ import {
   Tooltip,
 } from "recharts";
 import type { SkuAlert } from "@/components/home/alerts-panel";
+import { LostBuyBoxIssue }      from "@/components/alerts/issues/lost-buy-box";
+import { PromoBadgeIssue }      from "@/components/alerts/issues/promo-badge";
+import { SovDropIssue }         from "@/components/alerts/issues/sov-drop";
+import { KeywordRankDropIssue } from "@/components/alerts/issues/keyword-rank-drop";
+import { StarRatingIssue }      from "@/components/alerts/issues/star-rating";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+// All 7 issue types that have a designed card.
+// "deals-page" and "organic-keyword" share a renderer with "promo-badge"
+// and "keyword-rank-drop" respectively until dedicated components are built.
+type IssueCardType =
+  | "lost-buy-box"       // LostBuyBoxIssue
+  | "promo-badge"        // PromoBadgeIssue
+  | "deals-page"         // PromoBadgeIssue (reused)
+  | "star-rating"        // StarRatingIssue
+  | "keyword-rank-drop"  // KeywordRankDropIssue
+  | "sov-drop"           // SovDropIssue
+  | "organic-keyword";   // KeywordRankDropIssue (reused)
 
 type KpiStat = {
   label: string;
@@ -49,6 +69,8 @@ type RootCause = {
   statusLabel: string;
   statusStyle: string;
   description: string;
+  // When set, renders the matching issue card inside the expanded row
+  issueCardType?: IssueCardType;
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -67,9 +89,171 @@ type RcaData = {
   followUpQuestions: string[];
 };
 
-// ─── Mock data (one rich dataset — wire to API in production) ─────────────────
+// ─── Text-only root causes (no issue card designed) ───────────────────────────
+
+const CAUSE_MEDIA: RootCause = {
+  id: "media",
+  icon: <BarChart2 className="h-4 w-4" />,
+  label: "Media Spend",
+  impact: null,
+  statusLabel: "Spend Cuts",
+  statusStyle: "bg-orange-100 text-orange-700",
+  description:
+    "Ad spend was cut on all top-10 keywords last week, with the largest reduction on 'vacuum cleaners for home' (SFR 6,346, −$1,715 spend, −$37.3K sales WoW), compounding the traffic collapse.",
+};
+
+const CAUSE_OOS: RootCause = {
+  id: "oos",
+  icon: <Package className="h-4 w-4" />,
+  label: "Unavailability",
+  impact: null,
+  statusLabel: "OK",
+  statusStyle: "bg-slate-100 text-slate-500",
+  description:
+    "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
+};
+
+const CAUSE_SHIP: RootCause = {
+  id: "ship",
+  icon: <Truck className="h-4 w-4" />,
+  label: "Shipping",
+  impact: null,
+  statusLabel: "OK",
+  statusStyle: "bg-slate-100 text-slate-500",
+  description:
+    "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
+};
+
+const CAUSE_REVIEW_SENTIMENT: RootCause = {
+  id: "review",
+  icon: <MessageSquareWarning className="h-4 w-4" />,
+  label: "Review Sentiment",
+  impact: null,
+  statusLabel: "OK",
+  statusStyle: "bg-slate-100 text-slate-500",
+  description:
+    "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
+};
+
+// Convenience bundle — attached to every SKU alongside its specific causes
+const COMMON_CAUSES: RootCause[] = [CAUSE_MEDIA, CAUSE_OOS, CAUSE_SHIP, CAUSE_REVIEW_SENTIMENT];
+
+// ─── Root causes with designed issue cards ────────────────────────────────────
+
+// 1. Lost Buy Box
+const CAUSE_LBB: RootCause = {
+  id: "lbb",
+  icon: <ShoppingCart className="h-4 w-4" />,
+  label: "Lost Buy Box",
+  impact: "−$119.7K",
+  statusLabel: "Resolved",
+  statusStyle: "bg-emerald-100 text-emerald-700",
+  description:
+    "amazon.com lost the buy box 100% of the time every day from May 3–9 after the SAS price spiked to $529.99, while 3P sellers won at $344–$379 — the single largest driver of the $227.7K weekly gap.",
+  issueCardType: "lost-buy-box",
+};
+
+// 2. Missing promo badge
+const CAUSE_PROMO_BADGE: RootCause = {
+  id: "deal",
+  icon: <Tag className="h-4 w-4" />,
+  label: "Missing Promo Badge",
+  impact: null,
+  statusLabel: "Badge Missing",
+  statusStyle: "bg-amber-100 text-amber-700",
+  description:
+    "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
+  issueCardType: "promo-badge",
+};
+
+// 3. Product not on deals page
+const CAUSE_DEALS_PAGE: RootCause = {
+  id: "deals",
+  icon: <ShoppingBag className="h-4 w-4" />,
+  label: "Product Not on Deals Page",
+  impact: null,
+  statusLabel: "Missing",
+  statusStyle: "bg-amber-100 text-amber-700",
+  description:
+    "This SKU is running an active Lightning Deal but is not appearing on the Amazon Deals page. Missing placement removes a high-intent discovery surface and suppresses incremental traffic during the deal window.",
+  issueCardType: "deals-page",
+};
+
+// 4. Review rating dropped
+const CAUSE_STAR_RATING: RootCause = {
+  id: "star",
+  icon: <Star className="h-4 w-4" />,
+  label: "Review Rating Dropped",
+  impact: "−$22.4K",
+  statusLabel: "Open",
+  statusStyle: "bg-rose-100 text-rose-700",
+  description:
+    "Average rating fell from 4.3 to 3.2 over the past 3 weeks after a batch of negative reviews citing product defects. Lower ratings suppress conversion rate and can trigger Amazon search rank demotion.",
+  issueCardType: "star-rating",
+};
+
+// 5. Rank Dropped (paid / blended)
+const CAUSE_KRD: RootCause = {
+  id: "krd",
+  icon: <TrendingDown className="h-4 w-4" />,
+  label: "Keyword Rank Drop",
+  impact: null,
+  statusLabel: "Open",
+  statusStyle: "bg-rose-100 text-rose-700",
+  description:
+    "Top search keywords dropped 6–8 positions after a recent content update, pushing the SKU off page 1 for high-volume terms and reducing organic traffic contribution.",
+  issueCardType: "keyword-rank-drop",
+};
+
+// 6. SoV dropped
+const CAUSE_SOV: RootCause = {
+  id: "sov",
+  icon: <BarChart2 className="h-4 w-4" />,
+  label: "Share of Voice Drop",
+  impact: "−$38.2K",
+  statusLabel: "Open",
+  statusStyle: "bg-rose-100 text-rose-700",
+  description:
+    "Competitor increased ad spend and captured share of voice on key terms. Sponsored Product SoV dropped from 5.0% to 4.0% while the leading competitor holds 6%, widening the gap across all high-volume search terms.",
+  issueCardType: "sov-drop",
+};
+
+// 7. Organic keyword issue
+const CAUSE_ORGANIC: RootCause = {
+  id: "organic",
+  icon: <TrendingDown className="h-4 w-4" />,
+  label: "Organic Keyword Issue",
+  impact: null,
+  statusLabel: "Open",
+  statusStyle: "bg-rose-100 text-rose-700",
+  description:
+    "Organic search rank on 3 high-volume terms has deteriorated following a recent A+ content change that removed keyword-rich body copy. Organic impressions are down 34% WoW.",
+  issueCardType: "organic-keyword",
+};
+
+// ─── SKU-specific root cause sets ─────────────────────────────────────────────
+// Each SKU gets a mix of card-backed issues AND text-only issues so both
+// types are always visible in the RCA panel.
+//
+// sk1  B00I0DI0Z6  Food Processor : Lost Buy Box + Missing Promo Badge   + common
+// sk2  B08H8JZKDF  Blender        : SoV Drop + Keyword Rank Drop         + common
+// sk3  B000BVFYU8  Kettle         : Review Rating Dropped + Organic KW   + common
+// sk4  B0BJZW4CLC  Cooker         : Not on Deals Page + SoV Drop         + common
+// default                         : Lost Buy Box + Missing Promo Badge   + common
 
 function getRcaData(sku: SkuAlert): RcaData {
+  let primaryCauses: RootCause[];
+
+  if (sku.asin === "B08H8JZKDF") {
+    primaryCauses = [CAUSE_SOV, CAUSE_KRD];
+  } else if (sku.asin === "B000BVFYU8") {
+    primaryCauses = [CAUSE_STAR_RATING, CAUSE_ORGANIC];
+  } else if (sku.asin === "B0BJZW4CLC") {
+    primaryCauses = [CAUSE_DEALS_PAGE, CAUSE_SOV];
+  } else {
+    primaryCauses = [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_SOV, CAUSE_STAR_RATING, CAUSE_KRD];
+  }
+
   return {
     kpis: [
       {
@@ -95,103 +279,43 @@ function getRcaData(sku: SkuAlert): RcaData {
       },
     ],
     statusPills: [
-      { label: "Buy Box", value: "Buy Box Won (amazon.com)", status: "ok" },
-      { label: "Stock", value: "In Stock", status: "ok" },
-      { label: "Deal Visibility", value: "Badge Missing", status: "warning" },
-      { label: "Shipping Speed", value: "Thu May 14 (Prime)", status: "info" },
+      { label: "Buy Box",         value: "Buy Box Won (amazon.com)", status: "ok"      },
+      { label: "Stock",           value: "In Stock",                 status: "ok"      },
+      { label: "Deal Visibility", value: "Badge Missing",            status: "warning" },
+      { label: "Shipping Speed",  value: "Thu May 14 (Prime)",       status: "info"    },
     ],
     alertBanner:
       "Unresolved today: Active promo badge missing on PDP — Matching event at $349.99 (May 10–30) launched without badge visibility. No badge detected on any scrape from May 10–13.",
     chartData: [
-      { week: "Mar 24", plan: 285, actual: 272 },
-      { week: "Mar 31", plan: 288, actual: 295 },
-      { week: "Apr 7",  plan: 291, actual: 318 },
-      { week: "Apr 14", plan: 293, actual: 325 },
-      { week: "Apr 21", plan: 295, actual: 302 },
-      { week: "Apr 28", plan: 295, actual: 88  },
-      { week: "May 5",  plan: 298, actual: 126 },
+      { week: "Mar 24", plan: 285, actual: 272  },
+      { week: "Mar 31", plan: 288, actual: 295  },
+      { week: "Apr 7",  plan: 291, actual: 318  },
+      { week: "Apr 14", plan: 293, actual: 325  },
+      { week: "Apr 21", plan: 295, actual: 302  },
+      { week: "Apr 28", plan: 295, actual: 88   },
+      { week: "May 5",  plan: 298, actual: 126  },
       { week: "May 12", plan: 300, actual: null },
     ],
     chartCaption:
-      `Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.`,
-    rootCauses: [
-      {
-        id: "lbb",
-        icon: <ShoppingCart className="h-4 w-4" />,
-        label: "Lost Buy Box",
-        impact: "−$119.7K",
-        statusLabel: "Resolved",
-        statusStyle: "bg-emerald-100 text-emerald-700",
-        description:
-          "amazon.com lost the buy box 100% of the time every day from May 3–9 after the SAS price spiked to $529.99, while 3P sellers won at $344–$379 — the single largest driver of the $227.7K weekly gap.",
-      },
-      {
-        id: "deal",
-        icon: <Tag className="h-4 w-4" />,
-        label: "Deal Visibility",
-        impact: null,
-        statusLabel: "Badge Missing",
-        statusStyle: "bg-amber-100 text-amber-700",
-        description:
-          "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
-      },
-      {
-        id: "media",
-        icon: <BarChart2 className="h-4 w-4" />,
-        label: "Media Spend",
-        impact: null,
-        statusLabel: "Spend Cuts",
-        statusStyle: "bg-orange-100 text-orange-700",
-        description:
-          "Ad spend was cut on all top-10 keywords last week, with the largest reduction on 'vacuum cleaners for home' (SFR 6,346, −$1,715 spend, −$37.3K sales WoW), compounding the LBB-driven traffic collapse.",
-      },
-      {
-        id: "oos",
-        icon: <Package className="h-4 w-4" />,
-        label: "Unavailability",
-        impact: null,
-        statusLabel: "OK",
-        statusStyle: "bg-slate-100 text-slate-500",
-        description:
-          "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
-      },
-      {
-        id: "ship",
-        icon: <Truck className="h-4 w-4" />,
-        label: "Shipping",
-        impact: null,
-        statusLabel: "OK",
-        statusStyle: "bg-slate-100 text-slate-500",
-        description:
-          "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
-      },
-      {
-        id: "review",
-        icon: <Star className="h-4 w-4" />,
-        label: "Review Sentiment",
-        impact: null,
-        statusLabel: "OK",
-        statusStyle: "bg-slate-100 text-slate-500",
-        description:
-          "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
-      },
-    ],
+      "Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.",
+    // Primary (card-backed) causes first, then text-only common causes
+    rootCauses: [...primaryCauses, ...COMMON_CAUSES],
     analysisBlocks: [
       {
-        heading: `Primary cause — 100% Lost Buy Box all 7 days (May 3–9)`,
-        body: `The SAS price was raised sharply to $529.99 on May 3 (from ~$300 the prior weeks), opening a $150–$170 gap vs. 3P sellers offering $344–$379. amazon.com lost every buy box impression for the entire week. The estimated revenue captured by 3P sellers is $119,708 — approximately 53% of the $227.7K plan-vs-actual gap by deterministic SQI attribution. Only 2 units ($846) were sold through the first-party channel for the entire week.`,
+        heading: "Primary cause — 100% Lost Buy Box all 7 days (May 3–9)",
+        body: "The SAS price was raised sharply to $529.99 on May 3 (from ~$300 the prior weeks), opening a $150–$170 gap vs. 3P sellers offering $344–$379. amazon.com lost every buy box impression for the entire week. The estimated revenue captured by 3P sellers is $119,708 — approximately 53% of the $227.7K plan-vs-actual gap by deterministic SQI attribution. Only 2 units ($846) were sold through the first-party channel for the entire week.",
       },
       {
         heading: "Price trajectory context",
-        body: `Prior weeks (Apr 5–19) show ASP around $299,999, consistent with a lower promotional price, and units of 1,100–1,200/week. The Apr 26 week also showed LBB (avg winning 3P price $376.94 vs. SAS $529.99), with 231 units at $303.98 ASP — suggesting 3P pressure was already building before the full collapse in May 3.`,
+        body: "Prior weeks (Apr 5–19) show ASP around $299,999, consistent with a lower promotional price, and units of 1,100–1,200/week. The Apr 26 week also showed LBB (avg winning 3P price $376.94 vs. SAS $529.99), with 231 units at $303.98 ASP — suggesting 3P pressure was already building before the full collapse in May 3.",
       },
       {
         heading: "Secondary cause — media spend cuts amplified the traffic loss",
-        body: `Every top-10 keyword by ad spend saw a WoW cut. The highest-volume term 'vacuum cleaners for home' (SFR 6,346) lost $1,715 in spend and $37.3K in ad-attributed sales WoW. Organic rank on 'shark lift away' worsened by 8 positions. With the buy box already lost, reduced paid visibility removed any recovery path.`,
+        body: "Every top-10 keyword by ad spend saw a WoW cut. The highest-volume term 'vacuum cleaners for home' (SFR 6,346) lost $1,715 in spend and $37.3K in ad-attributed sales WoW. Organic rank on 'shark lift away' worsened by 8 positions. With the buy box already lost, reduced paid visibility removed any recovery path.",
       },
       {
         heading: "Current week recovery context",
-        body: `amazon.com has reclaimed the buy box at $349.99 and the current-week RTS projects $258.3K (+12.9% above plan). However, a Matching event badge has not appeared on the PDP on any day from May 10–13, constituting a live promo visibility failure that is suppressing the conversion benefit of the $180 price reduction vs. list.`,
+        body: "amazon.com has reclaimed the buy box at $349.99 and the current-week RTS projects $258.3K (+12.9% above plan). However, a Matching event badge has not appeared on the PDP on any day from May 10–13, constituting a live promo visibility failure that is suppressing the conversion benefit of the $180 price reduction vs. list.",
       },
     ],
     recommendations: [
@@ -225,6 +349,86 @@ function getRcaData(sku: SkuAlert): RcaData {
   };
 }
 
+// ─── Issue card renderer ───────────────────────────────────────────────────────
+// "deals-page" reuses PromoBadgeIssue and "organic-keyword" reuses
+// KeywordRankDropIssue until dedicated components are built.
+
+function RootCauseIssueCard({ type }: { type: IssueCardType }) {
+  switch (type) {
+    case "lost-buy-box":
+      return (
+        <LostBuyBoxIssue
+          yourBrand="Shark"
+          winnerBrand="dyson"
+          yourPrice="$18.99"
+          winnerPrice="$17.49"
+          yourAvailability="In Stock"
+          winnerAvailability="In Stock"
+          yourRating={3.2}
+          winnerRating={4.3}
+          yourLbbRate="1/4"
+          winnerLbbRate="2/4"
+        />
+      );
+
+    case "promo-badge":
+    case "deals-page":
+      return (
+        <PromoBadgeIssue
+          promoDateRange="28 Apr to 10 May"
+          checks={[
+            { label: "Is Promo Badge Visible?",             passed: false },
+            { label: "Is List Price Visible?",              passed: false },
+            { label: "Is List Price Correct (MSRP)?",       passed: false },
+            { label: "Does List Price Have Strikethrough?",  passed: true  },
+            { label: "Is Selling Price Correct?",           passed: true  },
+            { label: "Is Discount % Visible?",              passed: false },
+            { label: "Is Discount % Correct?",              passed: true  },
+            { label: "Are You the Buy Box Winner?",         passed: false },
+          ]}
+          currentOriginalPrice="$25.99"
+          currentSellingPrice="$25.99"
+          expectedOriginalPrice="$18.99"
+          expectedSellingPrice="$19.99"
+        />
+      );
+
+    case "star-rating":
+      return <StarRatingIssue oldRating={4.3} newRating={3.2} />;
+
+    case "keyword-rank-drop":
+    case "organic-keyword":
+      return (
+        <KeywordRankDropIssue
+          keywords={[
+            { keyword: "food processor 8 cup",   previousRank: 3, currentRank: 9,  searchVolume: "180K / mo" },
+            { keyword: "digital food processor", previousRank: 5, currentRank: 12, searchVolume: "74K / mo"  },
+            { keyword: "food chopper electric",  previousRank: 7, currentRank: 15, searchVolume: "52K / mo"  },
+          ]}
+        />
+      );
+
+    case "sov-drop":
+      return (
+        <SovDropIssue
+          spPrev={5.0}
+          spCurr={4.0}
+          spCompetitor={6}
+          sbPrev={2.5}
+          sbCurr={2.0}
+          sbCompetitor={6}
+          keywords={[
+            { keyword: '"Shark Cordless Vacuum"',           spFrom: 11.4, spTo: 9.5,  sbFrom: 11.4, sbTo: 9.5  },
+            { keyword: '"Shark Vacuum"',                    spFrom: 16.3, spTo: 11.5, sbFrom: 16.3, sbTo: 11.5 },
+            { keyword: '"Shark Stick Vacuum"',              spFrom: 15.2, spTo: 11.3, sbFrom: 15.2, sbTo: 11.3 },
+            { keyword: '"Shark Pro cordless stick Vacuum"', spFrom: 11.0, spTo: 7.8,  sbFrom: 11.0, sbTo: 7.8  },
+            { keyword: '"Shark NX23 Vacuum"',               spFrom: 9.0,  spTo: 6.4,  sbFrom: 9.0,  sbTo: 6.4  },
+          ]}
+        />
+      );
+  }
+}
+
 // ─── Section heading ──────────────────────────────────────────────────────────
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -232,6 +436,20 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
       {children}
     </h3>
+  );
+}
+
+// ─── 0. Empty state — shown when ALL sections have no data ────────────────────
+
+function EmptyRcaState() {
+  return (
+    <div className="flex flex-col items-center gap-3 py-10 text-center">
+      <SearchX className="h-8 w-8 text-slate-300" />
+      <p className="text-sm font-medium text-slate-500">Analysis not yet available</p>
+      <p className="text-xs text-slate-400">
+        Root cause data will appear here once the investigation completes.
+      </p>
+    </div>
   );
 }
 
@@ -276,7 +494,9 @@ const STATUS_DOT: Record<StatusPill["status"], string> = {
 function StatusPillsRow({ pills }: { pills: StatusPill[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mr-1">Live Now</span>
+      <span className="mr-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        Live Now
+      </span>
       {pills.map((p) => (
         <span
           key={p.label}
@@ -284,7 +504,9 @@ function StatusPillsRow({ pills }: { pills: StatusPill[] }) {
         >
           <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[p.status]}`} />
           <span className="font-medium text-slate-400">{p.label}:</span>
-          <span className={p.status === "warning" ? "font-semibold text-amber-600" : ""}>{p.value}</span>
+          <span className={p.status === "warning" ? "font-semibold text-amber-600" : ""}>
+            {p.value}
+          </span>
         </span>
       ))}
     </div>
@@ -304,14 +526,7 @@ function AlertBanner({ message }: { message: string }) {
 
 // ─── 4. Revenue trend chart ───────────────────────────────────────────────────
 
-function RevenueChart({
-  data,
-  caption,
-}: {
-  data: RcaData["chartData"];
-  caption: string;
-}) {
-  // Format tooltip values as $K
+function RevenueChart({ data, caption }: { data: RcaData["chartData"]; caption: string }) {
   const fmtK = (v: number) => `$${v}K`;
 
   return (
@@ -327,12 +542,18 @@ function RevenueChart({
             tickLine={false}
           />
           <Tooltip
-            formatter={(value, name) => [typeof value === "number" ? fmtK(value) : value, name === "plan" ? "Plan" : "Actual"]}
+            formatter={(value, name) => [
+              typeof value === "number" ? fmtK(value) : value,
+              name === "plan" ? "Plan" : "Actual",
+            ]}
             contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e4e4e7" }}
           />
-          {/* Highlight the collapse week */}
-          <ReferenceLine x="Apr 28" stroke="#fca5a5" strokeDasharray="3 3" label={{ value: "LBB", position: "top", fontSize: 9, fill: "#f87171" }} />
-          {/* Plan line — dashed slate */}
+          <ReferenceLine
+            x="Apr 28"
+            stroke="#fca5a5"
+            strokeDasharray="3 3"
+            label={{ value: "LBB", position: "top", fontSize: 9, fill: "#f87171" }}
+          />
           <Line
             type="monotone"
             dataKey="plan"
@@ -342,7 +563,6 @@ function RevenueChart({
             dot={false}
             connectNulls
           />
-          {/* Actual line — violet, bolder */}
           <Line
             type="monotone"
             dataKey="actual"
@@ -373,7 +593,12 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <SectionHeading>Root causes · last week <span className="normal-case font-normal text-slate-300 tracking-normal">· ordered by $ impact</span></SectionHeading>
+      <SectionHeading>
+        Root causes · last week{" "}
+        <span className="normal-case font-normal tracking-normal text-slate-300">
+          · ordered by $ impact
+        </span>
+      </SectionHeading>
       <div className="overflow-hidden rounded-xl border border-slate-200">
         {causes.map((cause, i) => {
           const isOpen = openIds.has(cause.id);
@@ -383,7 +608,7 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
               <button
                 type="button"
                 onClick={() => toggle(cause.id)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
                 <span className="text-slate-400">{cause.icon}</span>
                 <span className="flex-1 text-sm font-medium text-slate-700">{cause.label}</span>
@@ -398,12 +623,17 @@ function RootCauses({ causes }: { causes: RootCause[] }) {
                 />
               </button>
 
-              {/* Expanded description */}
+              {/* Expanded panel — description always shown; issue card below when available */}
               {isOpen && (
-                <div className="border-t border-slate-100 bg-slate-50 px-4 pb-3 pt-2.5">
+                <div className="border-t border-slate-100 bg-slate-50 px-4 pb-4 pt-2.5">
                   <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
                     {cause.description}
                   </p>
+                  {cause.issueCardType && (
+                    <div className="mt-3">
+                      <RootCauseIssueCard type={cause.issueCardType} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -438,7 +668,7 @@ function RecommendationsSection({ recs }: { recs: Recommendation[] }) {
       <SectionHeading>Recommendations</SectionHeading>
       <ol className="flex flex-col gap-3">
         {recs.map((r, i) => (
-          <li key={r.action} className="flex gap-3 max-w-[750px]">
+          <li key={r.action} className="flex max-w-[750px] gap-3">
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 text-[11px] font-bold text-violet-700">
               {i + 1}
             </span>
@@ -453,7 +683,7 @@ function RecommendationsSection({ recs }: { recs: Recommendation[] }) {
   );
 }
 
-// ─── 8. Feedback row ──────────────────────────────────────────────────────────
+// ─── 8. Feedback row — always rendered as a visual anchor ─────────────────────
 
 function FeedbackRow() {
   return (
@@ -484,30 +714,34 @@ export function getFollowUpQuestions(sku: SkuAlert): string[] {
 export function SkuRca({ sku }: { sku: SkuAlert }) {
   const data = getRcaData(sku);
 
+  const hasContent =
+    data.kpis.length > 0 ||
+    data.statusPills.length > 0 ||
+    !!data.alertBanner ||
+    data.chartData.length > 0 ||
+    data.rootCauses.length > 0 ||
+    data.analysisBlocks.length > 0 ||
+    data.recommendations.length > 0;
+
   return (
     <div className="flex flex-col gap-8">
-      {/* 1 — KPI stats */}
-      <KpiRow kpis={data.kpis} />
-
-      {/* 2 — Live status pills */}
-      <StatusPillsRow pills={data.statusPills} />
-
-      {/* 3 — Alert banner (only when unresolved issue present) */}
-      {data.alertBanner && <AlertBanner message={data.alertBanner} />}
-
-      {/* 4 — 8-week revenue trend chart */}
-      <RevenueChart data={data.chartData} caption={data.chartCaption} />
-
-      {/* 5 — Root causes accordion */}
-      <RootCauses causes={data.rootCauses} />
-
-      {/* 6 — Analysis */}
-      <AnalysisSection blocks={data.analysisBlocks} />
-
-      {/* 7 — Recommendations */}
-      <RecommendationsSection recs={data.recommendations} />
-
-      {/* 8 — Feedback */}
+      {!hasContent ? (
+        <EmptyRcaState />
+      ) : (
+        <>
+          {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
+          {data.statusPills.length > 0 && <StatusPillsRow pills={data.statusPills} />}
+          {data.alertBanner && <AlertBanner message={data.alertBanner} />}
+          {data.rootCauses.length > 0 && <RootCauses causes={data.rootCauses} />}
+          {data.chartData.length > 0 && (
+            <RevenueChart data={data.chartData} caption={data.chartCaption} />
+          )}
+          {data.analysisBlocks.length > 0 && <AnalysisSection blocks={data.analysisBlocks} />}
+          {data.recommendations.length > 0 && (
+            <RecommendationsSection recs={data.recommendations} />
+          )}
+        </>
+      )}
       <FeedbackRow />
     </div>
   );
