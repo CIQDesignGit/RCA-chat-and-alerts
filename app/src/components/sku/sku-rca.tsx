@@ -5,6 +5,7 @@ import {
   TrendingDown,
   ShoppingCart,
   Tag,
+  Percent,
   BarChart2,
   Package,
   Truck,
@@ -34,6 +35,7 @@ import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-ra
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
 import { LastWeekPerformanceLBB }    from "@/components/alerts/issues/last-week-lbb";
 import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
+import { CouponIssue }               from "@/components/alerts/issues/coupon";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +49,8 @@ type IssueCardType =
   | "star-rating"        // StarRatingIssue
   | "keyword-rank-drop"  // KeywordRankDropIssue
   | "sov-drop"           // SovDropIssue
-  | "organic-keyword";   // KeywordRankDropIssue (reused)
+  | "organic-keyword"    // KeywordRankDropIssue (reused)
+  | "coupon";            // CouponIssue
 
 type KpiStat = {
   label: string;
@@ -185,7 +188,7 @@ const CAUSE_LBB: RootCause = {
 // 2. Missing promo badge
 const CAUSE_PROMO_BADGE: RootCause = {
   id: "deal",
-  icon: <Tag className="h-4 w-4" />,
+  icon: <Percent className="h-4 w-4" />,
   label: "Missing Promo Badge",
   impact: null,
   statusLabel: "Badge Missing",
@@ -211,7 +214,20 @@ const CAUSE_DEALS_PAGE: RootCause = {
   issueCardType: "deals-page",
 };
 
-// 4. Review rating dropped
+// 4. Coupon detected on PDP
+const CAUSE_COUPON: RootCause = {
+  id: "coupon",
+  icon: <Tag className="h-4 w-4" />,
+  label: "Coupon Detected",
+  impact: null,
+  statusLabel: "Active",
+  statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
+  description: "",
+  issueCardType: "coupon",
+};
+
+// 5. Review rating dropped
 const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
@@ -307,7 +323,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   }
   // Default (Food Processor) — full set across all groups
   return [
-    { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE] },
+    { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE, CAUSE_COUPON] },
     { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
     { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
     { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_KRD, CAUSE_MEDIA] },
@@ -469,6 +485,18 @@ function RootCauseIssueCard({ type }: { type: IssueCardType }) {
         />
       );
 
+    case "coupon":
+      return (
+        <CouponIssue
+          scrapes={[
+            { timestamp: "May 21 · 9:15 AM",  detected: true,  value: "$2.95", couponType: "off purchase" },
+            { timestamp: "May 20 · 6:30 PM",  detected: true,  value: "$2.95", couponType: "off purchase" },
+            { timestamp: "May 20 · 11:00 AM", detected: false },
+            { timestamp: "May 19 · 8:45 PM",  detected: true,  value: "$3.50", couponType: "off purchase" },
+          ]}
+        />
+      );
+
     case "sov-drop":
       return (
         <SovDropIssue
@@ -521,7 +549,7 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
       {children}
     </h3>
   );
@@ -710,11 +738,13 @@ function RootCauseRow({
       </button>
       {isOpen && (
         <div className="border-t-2 border-slate-200 bg-slate-50 px-4 pb-4 pt-2.5">
-          <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
-            {cause.description}
-          </p>
+          {cause.description && (
+            <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
+              {cause.description}
+            </p>
+          )}
           {cause.issueCardType && (
-            <div className="mt-3">
+            <div className={cause.description ? "mt-3" : ""}>
               <RootCauseIssueCard type={cause.issueCardType} />
             </div>
           )}
@@ -746,13 +776,27 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
   return (
     <div className="flex flex-col gap-1">
       {/* Section heading row */}
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <div className="mb-2 flex items-start justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
           Root causes
         </h3>
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-          Live now
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        {/* Live status legend */}
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-rose-500" />
+              Active
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-amber-400" />
+              Warning
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              Resolved
+            </span>
+          </div>
+          <span className="text-xs text-slate-400">status as of last run</span>
         </div>
       </div>
 
