@@ -115,7 +115,7 @@ const CAUSE_BSR: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "BSR dropped from #12 to #31 in the Vacuum Cleaners category over the past two weeks, reducing organic discoverability on category browse pages and suppressing new-to-brand traffic during the recovery window.",
+    "BSR dropped from #12 → #31 in Vacuum Cleaners over the past two weeks, reducing category browse visibility.",
 };
 
 const CAUSE_MEDIA: RootCause = {
@@ -127,7 +127,7 @@ const CAUSE_MEDIA: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "Ad spend was cut on all top-10 keywords last week, with the largest reduction on 'vacuum cleaners for home' (SFR 6,346, −$1,715 spend, −$37.3K sales WoW), compounding the traffic collapse.",
+    "Spend cut on all top-10 keywords last week. Largest reduction on 'vacuum cleaners for home' (−$1,715 spend, −$37.3K sales WoW).",
 
 };
 
@@ -139,8 +139,7 @@ const CAUSE_OOS: RootCause = {
   statusLabel: "At Risk",
   statusStyle: "bg-amber-100 text-amber-700",
   liveStatus: "warning",
-  description:
-    "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
+  description: "No stock issues last week — 0% rep OOS and 0% unavailability.",
 };
 
 const CAUSE_SHIP: RootCause = {
@@ -151,8 +150,7 @@ const CAUSE_SHIP: RootCause = {
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
-  description:
-    "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
+  description: "Prime delivery available tomorrow (May 14). No extended delay risk detected.",
 };
 
 const CAUSE_REVIEW_SENTIMENT: RootCause = {
@@ -163,8 +161,7 @@ const CAUSE_REVIEW_SENTIMENT: RootCause = {
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
-  description:
-    "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
+  description: "4.2-star average across 2,298 reviews. 1-star rate at 11% — within benchmark.",
 };
 
 // Convenience bundle — attached to every SKU alongside its specific causes
@@ -182,7 +179,7 @@ const CAUSE_LBB: RootCause = {
   statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
   description:
-    "amazon.com lost the buy box 100% of the time every day from May 3–9 after the SAS price spiked to $529.99, while 3P sellers won at $344–$379 — the single largest driver of the $227.7K weekly gap.",
+    "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
   lastWeekSummaryType: "lbb",
 };
@@ -197,7 +194,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
+    "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
   issueCardType: "promo-badge",
   lastWeekSummaryType: "promo-badge",
 };
@@ -212,7 +209,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "This SKU is running an active Lightning Deal but is not appearing on the Amazon Deals page. Missing placement removes a high-intent discovery surface and suppresses incremental traffic during the deal window.",
+    "Active Lightning Deal is not surfacing on the Amazon Deals page, removing a high-intent discovery placement.",
   issueCardType: "deals-page",
 };
 
@@ -239,7 +236,7 @@ const CAUSE_STAR_RATING: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "Average rating fell from 4.3 to 3.2 over the past 3 weeks after a batch of negative reviews citing product defects. Lower ratings suppress conversion rate and can trigger Amazon search rank demotion.",
+    "Rating fell from 4.3 → 3.2 over 3 weeks following a batch of defect-related negative reviews.",
   issueCardType: "star-rating",
 };
 
@@ -253,7 +250,7 @@ const CAUSE_KRD: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "Top search keywords dropped 6–8 positions after a recent content update, pushing the SKU off page 1 for high-volume terms and reducing organic traffic contribution.",
+    "Top keywords dropped 6–8 positions after a content update, pushing off page 1 for high-volume terms.",
   issueCardType: "keyword-rank-drop",
 };
 
@@ -267,7 +264,7 @@ const CAUSE_SOV: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "Competitor increased ad spend and captured share of voice on key terms. Sponsored Product SoV dropped from 5.0% to 4.0% while the leading competitor holds 6%, widening the gap across all high-volume search terms.",
+    "SP SoV dropped from 5.0% → 4.0% as the leading competitor holds 6% across all tracked terms.",
   issueCardType: "sov-drop",
 };
 
@@ -281,7 +278,7 @@ const CAUSE_ORGANIC: RootCause = {
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
-    "Organic search rank on 3 high-volume terms has deteriorated following a recent A+ content change that removed keyword-rich body copy. Organic impressions are down 34% WoW.",
+    "Organic rank declined on 3 high-volume terms after an A+ content change removed keyword-rich copy. Impressions down 34% WoW.",
   issueCardType: "organic-keyword",
 };
 
@@ -740,11 +737,20 @@ function RootCauseRow({
       </button>
       {isOpen && (
         <div className="border-t-2 border-slate-200 bg-slate-50 px-4 pb-4 pt-2.5">
-          {cause.description && (
-            <p className="max-w-[750px] text-sm leading-relaxed text-slate-500">
-              {cause.description}
-            </p>
-          )}
+          {/* Description + action row */}
+          <div className="flex items-start gap-10">
+            {cause.description && (
+              <p className="flex-1 text-sm leading-relaxed text-slate-500">
+                {cause.description}
+              </p>
+            )}
+            <button
+              type="button"
+              className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"
+            >
+              Mark as resolved
+            </button>
+          </div>
           {cause.issueCardType && (
             <div className={cause.description ? "mt-3" : ""}>
               <RootCauseIssueCard type={cause.issueCardType} />

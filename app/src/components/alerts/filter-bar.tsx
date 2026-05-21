@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, Search, X } from "lucide-react";
 import {
   ReadFilterGroup,
   BrandSummaryChip,
@@ -47,6 +47,24 @@ interface FilterBarProps {
   onGroupByChange?: (groupBy: GroupBy) => void;
 }
 
+// ── Issue type options ────────────────────────────────────────────────────────
+
+const ISSUE_TYPE_OPTIONS: { id: string | null; label: string }[] = [
+  { id: null,          label: "All Issues" },
+  { id: "lbb",         label: "Lost Buy Box" },
+  { id: "promo",       label: "Missing Promo Badge" },
+  { id: "deals",       label: "Missing Deals Placement" },
+  { id: "coupon",      label: "Unplanned Coupon" },
+  { id: "bsr",         label: "Best Seller Rank Change" },
+  { id: "rating",      label: "Rating Dropped" },
+  { id: "sentiment",   label: "Review Sentiment Declined" },
+  { id: "oos",         label: "Out of Stock" },
+  { id: "shipping",    label: "Shipping Speed Delayed" },
+  { id: "sov",         label: "Share of Voice Drop" },
+  { id: "krd",         label: "Keyword Rank Drop" },
+  { id: "media",       label: "Media Spend Breached" },
+];
+
 // ── FilterBar ─────────────────────────────────────────────────────────────────
 
 export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded = true, showBackButton = false, groupBy = "category", onGroupByChange }: FilterBarProps) {
@@ -61,10 +79,13 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isSkusOpen, setIsSkusOpen] = useState(false);
+  const [isIssueTypeOpen, setIsIssueTypeOpen] = useState(false);
+  const [selectedIssueType, setSelectedIssueType] = useState<string | null>(null);
 
   const brandsRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const skusRef = useRef<HTMLDivElement>(null);
+  const issueTypeRef = useRef<HTMLDivElement>(null);
 
   // Sync brand/category when parent drives a filter change (e.g. "View all X" click).
   // FilterBar is always in the DOM now, so useState initializer only runs once —
@@ -86,6 +107,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
         [brandsRef, setIsBrandsOpen],
         [categoriesRef, setIsCategoriesOpen],
         [skusRef, setIsSkusOpen],
+        [issueTypeRef, setIsIssueTypeOpen],
       ];
       pairs.forEach(([ref, setter]) => {
         if (ref.current && !ref.current.contains(e.target as Node)) setter(false);
@@ -153,6 +175,60 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
         showUnreadOnly={filters.unreadOnly}
         onToggle={(unreadOnly) => applyFilters({ unreadOnly })}
       />
+
+      {/* ── Issue type filter ─────────────────────────────────────────────── */}
+      <div className="relative" ref={issueTypeRef}>
+        {selectedIssueType ? (
+          /* Selected state — matches SelectedFilterChip style */
+          <button
+            onClick={() => setSelectedIssueType(null)}
+            className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-100"
+          >
+            {ISSUE_TYPE_OPTIONS.find((o) => o.id === selectedIssueType)?.label}
+            <X className="h-3.5 w-3.5 text-brand-400" />
+          </button>
+        ) : (
+          /* Default state — "All Issues" trigger chip — matches DropdownTriggerChip style */
+          <button
+            onClick={() => setIsIssueTypeOpen((p) => !p)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-md border px-3.5 py-1.5 text-sm font-medium transition-colors",
+              isIssueTypeOpen
+                ? "border-brand-300 bg-brand-50 text-brand-700"
+                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+            )}
+          >
+            All Issues
+            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isIssueTypeOpen && "rotate-180")} />
+          </button>
+        )}
+
+        {/* Dropdown panel */}
+        {isIssueTypeOpen && (
+          <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+            {ISSUE_TYPE_OPTIONS.map((option, i) => (
+              <button
+                key={option.id ?? "all"}
+                type="button"
+                onClick={() => {
+                  setSelectedIssueType(option.id);
+                  setIsIssueTypeOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-slate-50",
+                  i === 0 && selectedIssueType === null ? "text-brand-600" : "text-slate-700",
+                  i > 0 && "border-t border-slate-100",
+                )}
+              >
+                {option.label}
+                {(option.id === selectedIssueType || (option.id === null && selectedIssueType === null)) && (
+                  <Check className="h-4 w-4 text-brand-500" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* ── Brand filter ──────────────────────────────────────────────────── */}
       <div className="relative" ref={brandsRef}>
