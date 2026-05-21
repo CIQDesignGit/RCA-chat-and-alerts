@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Tag } from "lucide-react";
 
 // One scrape record — timestamp + detection result
 export type CouponScrape = {
@@ -17,13 +17,13 @@ export function CouponIssue({ scrapes }: CouponIssueProps) {
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Column headers */}
       <div className="grid grid-cols-3 gap-0 border-b border-slate-100 px-4 py-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Scraped At
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          Time
         </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           Coupon Detected
         </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           Coupon Value
         </span>
       </div>
@@ -37,17 +37,17 @@ export function CouponIssue({ scrapes }: CouponIssueProps) {
           } ${i === 0 ? "bg-slate-50/60" : ""}`}
         >
           {/* Timestamp */}
-          <span className="text-xs text-slate-500">{s.timestamp}</span>
+          <span className="text-sm text-slate-500">{s.timestamp}</span>
 
           {/* Detected */}
           {s.detected ? (
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-              <CheckCircle2 className="h-3.5 w-3.5" />
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+              <CheckCircle2 className="h-4 w-4" />
               Yes
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-              <XCircle className="h-3.5 w-3.5" />
+            <span className="flex items-center gap-1.5 text-sm font-medium text-slate-400">
+              <XCircle className="h-4 w-4" />
               No
             </span>
           )}
@@ -55,15 +55,15 @@ export function CouponIssue({ scrapes }: CouponIssueProps) {
           {/* Coupon value */}
           {s.detected && s.value ? (
             <span className="flex items-center gap-1.5">
-              <span className="rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
-                Coupon
+              <span className="flex items-center justify-center rounded bg-amber-100 p-1">
+                <Tag className="h-3.5 w-3.5 text-amber-600" />
               </span>
-              <span className="text-xs font-semibold text-slate-700">
+              <span className="text-sm font-semibold text-slate-700">
                 {s.value} {s.couponType ?? "off"}
               </span>
             </span>
           ) : (
-            <span className="text-xs text-slate-300">—</span>
+            <span className="text-sm text-slate-300">—</span>
           )}
         </div>
       ))}

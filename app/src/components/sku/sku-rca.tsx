@@ -5,8 +5,9 @@ import {
   TrendingDown,
   ShoppingCart,
   Tag,
-  Percent,
+  Megaphone,
   BarChart2,
+  DollarSign,
   Package,
   Truck,
   Star,
@@ -108,35 +109,36 @@ type RcaData = {
 const CAUSE_BSR: RootCause = {
   id: "bsr",
   icon: <TrendingDown className="h-4 w-4" />,
-  label: "Best Seller Rank",
+  label: "Best Seller Rank Drop",
   impact: null,
-  statusLabel: "Dropped",
-  statusStyle: "bg-amber-100 text-amber-700",
-  liveStatus: "warning",
+  statusLabel: "Dropped #",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "BSR dropped from #12 to #31 in the Vacuum Cleaners category over the past two weeks, reducing organic discoverability on category browse pages and suppressing new-to-brand traffic during the recovery window.",
 };
 
 const CAUSE_MEDIA: RootCause = {
   id: "media",
-  icon: <BarChart2 className="h-4 w-4" />,
-  label: "Media Spend",
+  icon: <DollarSign className="h-4 w-4" />,
+  label: "Media Spend Threshold Breached",
   impact: null,
-  statusLabel: "Spend Cuts",
-  statusStyle: "bg-orange-100 text-orange-700",
-  liveStatus: "warning",
+  statusLabel: "Breached",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "Ad spend was cut on all top-10 keywords last week, with the largest reduction on 'vacuum cleaners for home' (SFR 6,346, −$1,715 spend, −$37.3K sales WoW), compounding the traffic collapse.",
+
 };
 
 const CAUSE_OOS: RootCause = {
   id: "oos",
   icon: <Package className="h-4 w-4" />,
-  label: "Unavailability",
+  label: "Out of Stock",
   impact: null,
-  statusLabel: "OK",
-  statusStyle: "bg-slate-100 text-slate-500",
-  liveStatus: "ok",
+  statusLabel: "At Risk",
+  statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
   description:
     "No stock or availability issues last week — 0% rep OOS and 0% unavailability, ruling out inventory as a contributing factor.",
 };
@@ -144,10 +146,10 @@ const CAUSE_OOS: RootCause = {
 const CAUSE_SHIP: RootCause = {
   id: "ship",
   icon: <Truck className="h-4 w-4" />,
-  label: "Shipping",
+  label: "Shipping Speed Delayed",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "bg-slate-100 text-slate-500",
+  statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
   description:
     "Shipping speed is healthy — Prime customers receive delivery tomorrow (May 14) and standard customers by May 17, with no extended delay risk detected.",
@@ -156,10 +158,10 @@ const CAUSE_SHIP: RootCause = {
 const CAUSE_REVIEW_SENTIMENT: RootCause = {
   id: "review",
   icon: <MessageSquareWarning className="h-4 w-4" />,
-  label: "Review Sentiment",
+  label: "Review Sentiment Declined",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "bg-slate-100 text-slate-500",
+  statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
   description:
     "Review health is strong — 4.2-star average across 2,298 reviews, with 1-star (11%) and 2-star (3%) rates at benchmark; no low-star flag triggered.",
@@ -176,7 +178,7 @@ const CAUSE_LBB: RootCause = {
   icon: <ShoppingCart className="h-4 w-4" />,
   label: "Lost Buy Box",
   impact: "−$119.7K",
-  statusLabel: "Resolved",
+  statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
   description:
@@ -188,12 +190,12 @@ const CAUSE_LBB: RootCause = {
 // 2. Missing promo badge
 const CAUSE_PROMO_BADGE: RootCause = {
   id: "deal",
-  icon: <Percent className="h-4 w-4" />,
+  icon: <Megaphone className="h-4 w-4" />,
   label: "Missing Promo Badge",
   impact: null,
-  statusLabel: "Badge Missing",
-  statusStyle: "bg-amber-100 text-amber-700",
-  liveStatus: "warning",
+  statusLabel: "Missing",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "A Matching event at $349.99 vs. $529.99 list is active May 10–30 with the correct price showing, but the deal badge has failed to appear on the PDP every day since launch — this is an active promo visibility failure.",
   issueCardType: "promo-badge",
@@ -204,11 +206,11 @@ const CAUSE_PROMO_BADGE: RootCause = {
 const CAUSE_DEALS_PAGE: RootCause = {
   id: "deals",
   icon: <ShoppingBag className="h-4 w-4" />,
-  label: "Product Not on Deals Page",
+  label: "Deal Page Visibility",
   impact: null,
-  statusLabel: "Missing",
-  statusStyle: "bg-amber-100 text-amber-700",
-  liveStatus: "warning",
+  statusLabel: "Not Visible",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description:
     "This SKU is running an active Lightning Deal but is not appearing on the Amazon Deals page. Missing placement removes a high-intent discovery surface and suppresses incremental traffic during the deal window.",
   issueCardType: "deals-page",
@@ -218,11 +220,11 @@ const CAUSE_DEALS_PAGE: RootCause = {
 const CAUSE_COUPON: RootCause = {
   id: "coupon",
   icon: <Tag className="h-4 w-4" />,
-  label: "Coupon Detected",
+  label: "Unplanned Coupon",
   impact: null,
-  statusLabel: "Active",
-  statusStyle: "bg-amber-100 text-amber-700",
-  liveStatus: "warning",
+  statusLabel: "Detected",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
   description: "",
   issueCardType: "coupon",
 };
@@ -231,9 +233,9 @@ const CAUSE_COUPON: RootCause = {
 const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
-  label: "Review Rating Dropped",
+  label: "Rating Drop",
   impact: "−$22.4K",
-  statusLabel: "Open",
+  statusLabel: "Dropped #",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
@@ -247,7 +249,7 @@ const CAUSE_KRD: RootCause = {
   icon: <TrendingDown className="h-4 w-4" />,
   label: "Keyword Rank Drop",
   impact: null,
-  statusLabel: "Open",
+  statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
@@ -261,7 +263,7 @@ const CAUSE_SOV: RootCause = {
   icon: <BarChart2 className="h-4 w-4" />,
   label: "Share of Voice Drop",
   impact: "−$38.2K",
-  statusLabel: "Open",
+  statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
@@ -275,7 +277,7 @@ const CAUSE_ORGANIC: RootCause = {
   icon: <TrendingDown className="h-4 w-4" />,
   label: "Organic Keyword Issue",
   impact: null,
-  statusLabel: "Open",
+  statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
