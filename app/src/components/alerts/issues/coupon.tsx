@@ -2,11 +2,21 @@ import { CheckCircle2, XCircle, Tag } from "lucide-react";
 
 // One scrape record — timestamp + detection result
 export type CouponScrape = {
-  timestamp: string;   // e.g. "May 20 · 10:42 AM"
+  timestamp: number;   // Unix ms — displayed as relative time ("2 hrs ago")
   detected: boolean;
   value?: string;      // e.g. "$2.95" — only present when detected
   couponType?: string; // e.g. "off purchase"
 };
+
+function formatTimeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  const mins = Math.floor(diff / 60_000);
+  const hrs = Math.floor(diff / 3_600_000);
+  const days = Math.floor(diff / 86_400_000);
+  if (mins < 60) return `${mins} min ago`;
+  if (hrs < 24) return `${hrs} hr${hrs !== 1 ? "s" : ""} ago`;
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
 
 export type CouponIssueProps = {
   scrapes: CouponScrape[]; // last 4 scrapes, most recent first
@@ -36,8 +46,8 @@ export function CouponIssue({ scrapes }: CouponIssueProps) {
             i < scrapes.length - 1 ? "border-b border-slate-100" : ""
           } ${i === 0 ? "bg-slate-50/60" : ""}`}
         >
-          {/* Timestamp */}
-          <span className="text-sm text-slate-500">{s.timestamp}</span>
+          {/* Timestamp — shown as relative time */}
+          <span className="text-sm text-slate-500">{formatTimeAgo(s.timestamp)}</span>
 
           {/* Detected */}
           {s.detected ? (

@@ -217,12 +217,12 @@ const CAUSE_DEALS_PAGE: RootCause = {
 const CAUSE_COUPON: RootCause = {
   id: "coupon",
   icon: <Tag className="h-4 w-4" />,
-  label: "Unplanned Coupon",
+  label: "Coupon",
   impact: null,
   statusLabel: "Detected",
-  statusStyle: "bg-rose-100 text-rose-700",
-  liveStatus: "bad",
-  description: "",
+  statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
+  description: "Coupon history for this SKU's PDP is available below, detailing status changes and applied values.",
   issueCardType: "coupon",
 };
 
@@ -484,17 +484,20 @@ function RootCauseIssueCard({ type }: { type: IssueCardType }) {
         />
       );
 
-    case "coupon":
+    case "coupon": {
+      const now = Date.now();
+      const hr = 3_600_000;
       return (
         <CouponIssue
           scrapes={[
-            { timestamp: "May 21 · 9:15 AM",  detected: true,  value: "$2.95", couponType: "off purchase" },
-            { timestamp: "May 20 · 6:30 PM",  detected: true,  value: "$2.95", couponType: "off purchase" },
-            { timestamp: "May 20 · 11:00 AM", detected: false },
-            { timestamp: "May 19 · 8:45 PM",  detected: true,  value: "$3.50", couponType: "off purchase" },
+            { timestamp: now - 3  * hr, detected: true,  value: "$2.95", couponType: "off purchase" },
+            { timestamp: now - 6  * hr, detected: true,  value: "$2.95", couponType: "off purchase" },
+            { timestamp: now - 9  * hr, detected: false },
+            { timestamp: now - 12 * hr, detected: true,  value: "$3.50", couponType: "off purchase" },
           ]}
         />
       );
+    }
 
     case "sov-drop":
       return (
@@ -737,13 +740,11 @@ function RootCauseRow({
       </button>
       {isOpen && (
         <div className="border-t-2 border-slate-200 bg-slate-50 px-4 pb-4 pt-2.5">
-          {/* Description + action row */}
+          {/* Description + action row — description always present to keep layout stable */}
           <div className="flex items-start gap-10">
-            {cause.description && (
-              <p className="flex-1 text-sm leading-relaxed text-slate-500">
-                {cause.description}
-              </p>
-            )}
+            <p className="flex-1 text-sm leading-relaxed text-slate-500">
+              {cause.description || "No additional context available for this issue."}
+            </p>
             <button
               type="button"
               className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"

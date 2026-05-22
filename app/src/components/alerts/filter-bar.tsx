@@ -54,7 +54,7 @@ const ISSUE_TYPE_OPTIONS: { id: string | null; label: string }[] = [
   { id: "lbb",         label: "Lost Buy Box" },
   { id: "promo",       label: "Missing Promo Badge" },
   { id: "deals",       label: "Missing Deals Placement" },
-  { id: "coupon",      label: "Unplanned Coupon" },
+  { id: "coupon",      label: "Coupon" },
   { id: "bsr",         label: "Best Seller Rank Change" },
   { id: "rating",      label: "Rating Dropped" },
   { id: "sentiment",   label: "Review Sentiment Declined" },
