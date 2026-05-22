@@ -51,18 +51,18 @@ interface FilterBarProps {
 
 const ISSUE_TYPE_OPTIONS: { id: string | null; label: string }[] = [
   { id: null,          label: "All Issues" },
-  { id: "lbb",         label: "Lost Buy Box" },
-  { id: "promo",       label: "Missing Promo Badge" },
-  { id: "deals",       label: "Missing Deals Placement" },
+  { id: "lbb",         label: "Buy Box" },
+  { id: "promo",       label: "Promo Badge" },
+  { id: "deals",       label: "Deal Page Visibility" },
   { id: "coupon",      label: "Coupon" },
-  { id: "bsr",         label: "Best Seller Rank Change" },
-  { id: "rating",      label: "Rating Dropped" },
-  { id: "sentiment",   label: "Review Sentiment Declined" },
+  { id: "bsr",         label: "Best Seller Rank" },
+  { id: "rating",      label: "Rating" },
+  { id: "sentiment",   label: "Review Sentiment" },
   { id: "oos",         label: "Out of Stock" },
-  { id: "shipping",    label: "Shipping Speed Delayed" },
-  { id: "sov",         label: "Share of Voice Drop" },
-  { id: "krd",         label: "Keyword Rank Drop" },
-  { id: "media",       label: "Media Spend Breached" },
+  { id: "shipping",    label: "Shipping Speed" },
+  { id: "sov",         label: "Share of Voice" },
+  { id: "krd",         label: "Keyword Rank" },
+  { id: "media",       label: "Media Spend" },
 ];
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────

@@ -109,7 +109,7 @@ type RcaData = {
 const CAUSE_BSR: RootCause = {
   id: "bsr",
   icon: <TrendingDown className="h-4 w-4" />,
-  label: "Best Seller Rank Drop",
+  label: "Best Seller Rank",
   impact: null,
   statusLabel: "Dropped #",
   statusStyle: "bg-rose-100 text-rose-700",
@@ -121,9 +121,9 @@ const CAUSE_BSR: RootCause = {
 const CAUSE_MEDIA: RootCause = {
   id: "media",
   icon: <DollarSign className="h-4 w-4" />,
-  label: "Media Spend Threshold Breached",
+  label: "Media Spend",
   impact: null,
-  statusLabel: "Breached",
+  statusLabel: "Threshold Breached",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
@@ -145,7 +145,7 @@ const CAUSE_OOS: RootCause = {
 const CAUSE_SHIP: RootCause = {
   id: "ship",
   icon: <Truck className="h-4 w-4" />,
-  label: "Shipping Speed Delayed",
+  label: "Shipping Speed",
   impact: null,
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
@@ -156,7 +156,7 @@ const CAUSE_SHIP: RootCause = {
 const CAUSE_REVIEW_SENTIMENT: RootCause = {
   id: "review",
   icon: <MessageSquareWarning className="h-4 w-4" />,
-  label: "Review Sentiment Declined",
+  label: "Review Sentiment",
   impact: null,
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
@@ -173,7 +173,7 @@ const COMMON_CAUSES: RootCause[] = [CAUSE_MEDIA, CAUSE_OOS, CAUSE_SHIP, CAUSE_RE
 const CAUSE_LBB: RootCause = {
   id: "lbb",
   icon: <ShoppingCart className="h-4 w-4" />,
-  label: "Lost Buy Box",
+  label: "Buy Box",
   impact: "−$119.7K",
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
@@ -188,7 +188,7 @@ const CAUSE_LBB: RootCause = {
 const CAUSE_PROMO_BADGE: RootCause = {
   id: "deal",
   icon: <Megaphone className="h-4 w-4" />,
-  label: "Missing Promo Badge",
+  label: "Promo Badge",
   impact: null,
   statusLabel: "Missing",
   statusStyle: "bg-rose-100 text-rose-700",
@@ -205,7 +205,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   icon: <ShoppingBag className="h-4 w-4" />,
   label: "Deal Page Visibility",
   impact: null,
-  statusLabel: "Not Visible",
+  statusLabel: "Missing",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
   description:
@@ -222,7 +222,7 @@ const CAUSE_COUPON: RootCause = {
   statusLabel: "Detected",
   statusStyle: "bg-amber-100 text-amber-700",
   liveStatus: "warning",
-  description: "Coupon history for this SKU's PDP is available below, detailing status changes and applied values.",
+  description: "Coupon history for this SKU's PDP is available below, detailing status changes and coupon values.",
   issueCardType: "coupon",
 };
 
@@ -230,7 +230,7 @@ const CAUSE_COUPON: RootCause = {
 const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
-  label: "Rating Drop",
+  label: "Rating",
   impact: "−$22.4K",
   statusLabel: "Dropped #",
   statusStyle: "bg-rose-100 text-rose-700",
@@ -244,7 +244,7 @@ const CAUSE_STAR_RATING: RootCause = {
 const CAUSE_KRD: RootCause = {
   id: "krd",
   icon: <TrendingDown className="h-4 w-4" />,
-  label: "Keyword Rank Drop",
+  label: "Keyword Rank",
   impact: null,
   statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
@@ -258,7 +258,7 @@ const CAUSE_KRD: RootCause = {
 const CAUSE_SOV: RootCause = {
   id: "sov",
   icon: <BarChart2 className="h-4 w-4" />,
-  label: "Share of Voice Drop",
+  label: "Share of Voice",
   impact: "−$38.2K",
   statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
@@ -786,15 +786,18 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
     <div className="flex flex-col gap-1">
       {/* Section heading row */}
       <div className="mb-2 flex items-start justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-          Root causes
-        </h3>
+        <div className="flex flex-col gap-0.5">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+            Root causes
+          </h3>
+          <span className="text-xs text-slate-500">From previous 24 hours</span>
+        </div>
         {/* Live status legend */}
         <div className="flex flex-col items-end gap-0.5">
-          <div className="flex items-center gap-3 text-xs text-slate-500">
+          <div className="flex items-center gap-3 text-xs text-slate-600">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-rose-500" />
-              Active
+              Issue Ongoing
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-amber-400" />
@@ -802,10 +805,10 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Resolved
+              OK
             </span>
           </div>
-          <span className="text-xs text-slate-400">status as of last run</span>
+          <span className="text-xs text-slate-500">status as of last check</span>
         </div>
       </div>
 
