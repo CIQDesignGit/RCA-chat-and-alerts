@@ -3,10 +3,31 @@
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Check, ChevronDown, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart2,
+  Check,
+  ChevronDown,
+  DollarSign,
+  List,
+  Loader2,
+  Megaphone,
+  MessageSquareWarning,
+  Package,
+  Search,
+  ShoppingBag,
+  ShoppingCart,
+  Star,
+  Tag,
+  TrendingDown,
+  Truck,
+  X,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   ReadFilterGroup,
   BrandSummaryChip,
+  LoadingChip,
   SelectedFilterChip,
   DropdownTriggerChip,
   SkuListChip,
@@ -49,20 +70,20 @@ interface FilterBarProps {
 
 // ── Issue type options ────────────────────────────────────────────────────────
 
-const ISSUE_TYPE_OPTIONS: { id: string | null; label: string }[] = [
-  { id: null,          label: "All Issues" },
-  { id: "lbb",         label: "Buy Box" },
-  { id: "promo",       label: "Promo Badge" },
-  { id: "deals",       label: "Deal Page Visibility" },
-  { id: "coupon",      label: "Coupon" },
-  { id: "bsr",         label: "Best Seller Rank" },
-  { id: "rating",      label: "Rating" },
-  { id: "sentiment",   label: "Review Sentiment" },
-  { id: "oos",         label: "Out of Stock" },
-  { id: "shipping",    label: "Shipping Speed" },
-  { id: "sov",         label: "Share of Voice" },
-  { id: "krd",         label: "Keyword Rank" },
-  { id: "media",       label: "Media Spend" },
+const ISSUE_TYPE_OPTIONS: { id: string | null; label: string; icon?: LucideIcon; count?: number }[] = [
+  { id: null,        label: "All Issues",          icon: List,                count: 47 },
+  { id: "lbb",       label: "Buy Box",             icon: ShoppingCart,        count: 6  },
+  { id: "promo",     label: "Promo Badge",         icon: Megaphone,           count: 9  },
+  { id: "deals",     label: "Deal Page Visibility",icon: ShoppingBag,         count: 4  },
+  { id: "coupon",    label: "Coupon",              icon: Tag,                 count: 3  },
+  { id: "bsr",       label: "Best Seller Rank",    icon: TrendingDown,        count: 5  },
+  { id: "rating",    label: "Rating",              icon: Star,                count: 7  },
+  { id: "sentiment", label: "Review Sentiment",    icon: MessageSquareWarning,count: 4  },
+  { id: "oos",       label: "Out of Stock",        icon: Package,             count: 2  },
+  { id: "shipping",  label: "Shipping Speed",      icon: Truck,               count: 3  },
+  { id: "sov",       label: "Share of Voice",      icon: BarChart2,           count: 2  },
+  { id: "krd",       label: "Keyword Rank",        icon: TrendingDown,        count: 1  },
+  { id: "media",     label: "Media Spend",         icon: DollarSign,          count: 1  },
 ];
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────
@@ -81,6 +102,13 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
   const [isSkusOpen, setIsSkusOpen] = useState(false);
   const [isIssueTypeOpen, setIsIssueTypeOpen] = useState(false);
   const [selectedIssueType, setSelectedIssueType] = useState<string | null>(null);
+  const [isIssueTypeLoading, setIsIssueTypeLoading] = useState(false);
+  // Tracks the pending selection while the 2-sec loading simulation runs
+  const [pendingIssueType, setPendingIssueType] = useState<string | null | undefined>(undefined);
+
+  // Loading states for brand / category / sku filters
+  const [loadingFilter, setLoadingFilter] = useState<"brand" | "category" | "sku" | null>(null);
+  const [pendingFilterLabel, setPendingFilterLabel] = useState<string | null>(null);
 
   const brandsRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
@@ -121,6 +149,21 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
     const next = { ...filters, ...patch };
     setFilters(next);
     onFiltersChange(next);
+  }
+
+  // Runs a filter change after a 2-second simulated delay, showing a spinner chip
+  function applyFilterDelayed(
+    filterKey: "brand" | "category" | "sku",
+    label: string,
+    patch: Partial<FilterState>,
+  ) {
+    setLoadingFilter(filterKey);
+    setPendingFilterLabel(label);
+    setTimeout(() => {
+      applyFilters(patch);
+      setLoadingFilter(null);
+      setPendingFilterLabel(null);
+    }, 2000);
   }
 
   // Derived data for each drill-down level
@@ -178,15 +221,36 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
 
       {/* ── Issue type filter ─────────────────────────────────────────────── */}
       <div className="relative" ref={issueTypeRef}>
-        {selectedIssueType ? (
-          /* Selected state — matches SelectedFilterChip style */
+        {/* Loading state — shown while the 2-sec simulation runs */}
+        {isIssueTypeLoading ? (
           <button
-            onClick={() => setSelectedIssueType(null)}
-            className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-100"
+            disabled
+            className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 opacity-80"
           >
-            {ISSUE_TYPE_OPTIONS.find((o) => o.id === selectedIssueType)?.label}
-            <X className="h-3.5 w-3.5 text-brand-400" />
+            {ISSUE_TYPE_OPTIONS.find((o) => o.id === pendingIssueType)?.label ?? "All Issues"}
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-500" />
           </button>
+        ) : selectedIssueType ? (
+          /* Selected state: clicking label reopens dropdown, X clears */
+          <span className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700">
+            <button
+              onClick={() => setIsIssueTypeOpen((p) => !p)}
+              className="text-brand-700 hover:text-brand-800"
+            >
+              {ISSUE_TYPE_OPTIONS.find((o) => o.id === selectedIssueType)?.label}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedIssueType(null);
+                setIsIssueTypeLoading(false);
+                setPendingIssueType(undefined);
+              }}
+              aria-label="Clear issue type filter"
+              className="flex h-4 w-4 items-center justify-center rounded-full border border-brand-300 text-brand-400 transition-colors hover:border-brand-400 hover:bg-brand-200 hover:text-brand-700"
+            >
+              <X className="h-2.5 w-2.5" />
+            </button>
+          </span>
         ) : (
           /* Default state — "All Issues" trigger chip — matches DropdownTriggerChip style */
           <button
@@ -206,35 +270,70 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
         {/* Dropdown panel */}
         {isIssueTypeOpen && (
           <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-            {ISSUE_TYPE_OPTIONS.map((option, i) => (
-              <button
-                key={option.id ?? "all"}
-                type="button"
-                onClick={() => {
-                  setSelectedIssueType(option.id);
-                  setIsIssueTypeOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-slate-50",
-                  i === 0 && selectedIssueType === null ? "text-brand-600" : "text-slate-700",
-                  i > 0 && "border-t border-slate-100",
-                )}
-              >
-                {option.label}
-                {(option.id === selectedIssueType || (option.id === null && selectedIssueType === null)) && (
-                  <Check className="h-4 w-4 text-brand-500" />
-                )}
-              </button>
-            ))}
+            {ISSUE_TYPE_OPTIONS.map((option, i) => {
+              const Icon = option.icon;
+              const isSelected = option.id === selectedIssueType || (option.id === null && selectedIssueType === null);
+              return (
+                <button
+                  key={option.id ?? "all"}
+                  type="button"
+                  onClick={() => {
+                    setIsIssueTypeOpen(false);
+                    // Clicking the already-selected option deselects it
+                    if (option.id === selectedIssueType) {
+                      setSelectedIssueType(null);
+                      return;
+                    }
+                    // "All Issues" (null) just clears the selection
+                    if (option.id === null) {
+                      setSelectedIssueType(null);
+                      return;
+                    }
+                    setPendingIssueType(option.id);
+                    setIsIssueTypeLoading(true);
+                    setTimeout(() => {
+                      setSelectedIssueType(option.id);
+                      setIsIssueTypeLoading(false);
+                      setPendingIssueType(undefined);
+                    }, 2000);
+                  }}
+                  className={cn(
+                    "flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors hover:bg-slate-50",
+                    isSelected ? "text-brand-600" : "text-slate-700",
+                    i > 0 && "border-t border-slate-100",
+                  )}
+                >
+                  {/* Icon */}
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400">
+                    {Icon && <Icon className="h-3.5 w-3.5" />}
+                  </span>
+
+                  {/* Label + count sit together, then spacer pushes checkmark right */}
+                  <span className="flex items-center gap-1">
+                    <span>{option.label}</span>
+                    {option.count !== undefined && (
+                      <span className="text-xs text-slate-500">({option.count})</span>
+                    )}
+                  </span>
+
+                  {/* Spacer + checkmark when selected */}
+                  <span className="flex-1" />
+                  {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* ── Brand filter ──────────────────────────────────────────────────── */}
       <div className="relative" ref={brandsRef}>
-        {filters.brand ? (
+        {loadingFilter === "brand" ? (
+          <LoadingChip label={pendingFilterLabel ?? "Brand"} />
+        ) : filters.brand ? (
           <SelectedFilterChip
             label={filters.brand}
+            onClick={() => setIsBrandsOpen((p) => !p)}
             onRemove={() => applyFilters({ brand: null, category: null, sku: null })}
             gapDollar={selectedBrand?.gapDollar}
             gapUnits={selectedBrand?.gapUnits}
@@ -254,8 +353,15 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
             targetSales={PORTFOLIO_SUMMARY.targetSales}
             selectedBrand={filters.brand}
             onSelect={(brand) => {
-              applyFilters({ brand, category: null, sku: null });
-              setIsBrandsOpen(false);
+              if (brand === filters.brand) {
+                // Clicking the already-selected brand deselects it —
+                // clear immediately and keep dropdown open so user can pick another
+                applyFilters({ brand: null, category: null, sku: null });
+              } else {
+                // New brand selected — close dropdown and apply with delay
+                setIsBrandsOpen(false);
+                applyFilterDelayed("brand", brand, { brand, category: null, sku: null });
+              }
             }}
           />
         )}
@@ -264,9 +370,12 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
       {/* ── Category filter — visible once a brand is selected ────────────── */}
       {filters.brand && (
         <div className="relative" ref={categoriesRef}>
-          {filters.category ? (
+          {loadingFilter === "category" ? (
+            <LoadingChip label={pendingFilterLabel ?? "Category"} />
+          ) : filters.category ? (
             <SelectedFilterChip
               label={filters.category}
+              onClick={() => setIsCategoriesOpen((p) => !p)}
               onRemove={() => applyFilters({ category: null, sku: null })}
               gapDollar={selectedCategory?.gapDollar}
               gapUnits={selectedCategory?.gapUnits}
@@ -285,8 +394,8 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
               targetSales={selectedBrand?.targetSales ?? 0}
               selectedCategory={filters.category}
               onSelect={(cat) => {
-                applyFilters({ category: cat, sku: null });
                 setIsCategoriesOpen(false);
+                applyFilterDelayed("category", cat, { category: cat, sku: null });
               }}
             />
           )}
@@ -296,9 +405,12 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
       {/* ── SKU filter — visible once a category is selected ─────────────── */}
       {filters.category && (
         <div className="relative" ref={skusRef}>
-          {filters.sku ? (
+          {loadingFilter === "sku" ? (
+            <LoadingChip label={pendingFilterLabel ?? "SKU"} />
+          ) : filters.sku ? (
             <SelectedFilterChip
               label={filters.sku}
+              onClick={() => setIsSkusOpen((p) => !p)}
               onRemove={() => applyFilters({ sku: null })}
               gapDollar={selectedSku?.gapDollar}
               gapUnits={selectedSku?.gapUnits}
@@ -320,8 +432,8 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
               targetSales={selectedCategory?.targetSales ?? 0}
               selectedAsin={filters.sku}
               onSelect={(asin) => {
-                applyFilters({ sku: asin });
                 setIsSkusOpen(false);
+                applyFilterDelayed("sku", asin, { sku: asin });
               }}
             />
           )}

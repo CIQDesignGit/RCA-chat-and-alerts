@@ -797,7 +797,7 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
           <div className="flex items-center gap-3 text-xs text-slate-600">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-rose-500" />
-              Issue Ongoing
+              Ongoing Issue
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-amber-400" />

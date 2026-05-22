@@ -1,6 +1,6 @@
 "use client";
 
-import { X, ChevronDown, Box } from "lucide-react";
+import { X, ChevronDown, Box, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Shared format helpers (exported so brands-dropdown can reuse them) ─────────
@@ -18,6 +18,21 @@ export function formatGapUnits(value: number): string {
   const sign = value < 0 ? "-" : "+";
   if (abs >= 1_000) return `${sign}${(abs / 1_000).toFixed(1)}k units`;
   return `${sign}${abs} units`;
+}
+
+// ── LoadingChip: spinner placeholder shown while a filter is applying ─────────
+
+interface LoadingChipProps {
+  label: string;
+}
+
+export function LoadingChip({ label }: LoadingChipProps) {
+  return (
+    <span className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 opacity-80">
+      {label}
+      <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-500" />
+    </span>
+  );
 }
 
 // ── ReadFilterGroup: single "Unread" toggle — active = unread only, inactive = all ──
@@ -95,6 +110,7 @@ export function BrandSummaryChip({
 interface SelectedFilterChipProps {
   label: string;
   onRemove: () => void;
+  onClick?: () => void;
   gapDollar?: number;
   gapUnits?: number;
 }
@@ -102,6 +118,7 @@ interface SelectedFilterChipProps {
 export function SelectedFilterChip({
   label,
   onRemove,
+  onClick,
   gapDollar,
   gapUnits,
 }: SelectedFilterChipProps) {
@@ -109,20 +126,27 @@ export function SelectedFilterChip({
 
   return (
     <span className="flex items-center gap-1.5 rounded-md bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700">
-      {label}
+      {/* Clicking the label area reopens the dropdown */}
+      <button
+        onClick={onClick}
+        className="flex items-center gap-1.5 text-brand-700 hover:text-brand-800"
+      >
+        {label}
 
-      {showGap && (
-        <>
-          <span className="h-3.5 w-px bg-brand-200" />
-          <span className="font-normal text-rose-500">
-            {formatGapDollar(gapDollar!)}
-          </span>
-          <span className="font-normal text-text-tertiary">
-            {formatGapUnits(gapUnits!)}
-          </span>
-        </>
-      )}
+        {showGap && (
+          <>
+            <span className="h-3.5 w-px bg-brand-200" />
+            <span className="font-normal text-rose-500">
+              {formatGapDollar(gapDollar!)}
+            </span>
+            <span className="font-normal text-text-tertiary">
+              {formatGapUnits(gapUnits!)}
+            </span>
+          </>
+        )}
+      </button>
 
+      {/* X clears the filter */}
       <button
         onClick={onRemove}
         aria-label={`Remove ${label} filter`}

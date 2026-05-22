@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { AlertItem } from "@/components/alerts/types";
 import type { GroupBy } from "@/components/alerts/filter-bar";
@@ -74,6 +77,8 @@ export function AlertsPanel({
   brandFilter,
   groupBy = "category",
 }: AlertsPanelProps) {
+  const [isYesterdayOpen, setIsYesterdayOpen] = useState(false);
+
   const hasFilter = !!(filters?.brand || filters?.category);
 
   // All items that pass the active filters (or brand scope)
@@ -85,6 +90,10 @@ export function AlertsPanel({
     return true;
   });
 
+  // Split into today vs yesterday buckets
+  const todayItems = visibleItems.filter((i) => i.date === "Today");
+  const yesterdayItems = visibleItems.filter((i) => i.date === "Yesterday");
+
   // Full list mode: no brand scope AND no filter bar filters applied
   const isFullList = !brandFilter && !hasFilter;
 
@@ -93,29 +102,33 @@ export function AlertsPanel({
   // Category filter → show all SKUs in that category, hide links.
   const categoryFiltered = !!filters?.category;
 
-  // Build groups based on groupBy setting
+  // Build groups for a given item set based on groupBy setting
   type Group = { key: string; label: string; totalGap: number; brand: string; items: AlertItem[] };
 
-  const activeGroups: Group[] = groupBy === "date"
-    ? // Group by date — collect unique dates preserving order of first appearance
-      Array.from(new Set(visibleItems.map((i) => i.date))).map((date) => {
-        const items = visibleItems.filter((i) => i.date === date);
+  function buildGroups(items: AlertItem[]): Group[] {
+    if (groupBy === "date") {
+      return Array.from(new Set(items.map((i) => i.date))).map((date) => {
+        const dateItems = items.filter((i) => i.date === date);
         return {
           key: date,
           label: date,
           brand: "",
-          totalGap: items.reduce((sum, i) => sum + i.gapDollar, 0),
-          items,
+          totalGap: dateItems.reduce((sum, i) => sum + i.gapDollar, 0),
+          items: dateItems,
         };
-      })
-    : // Group by category — use canonical order from CATEGORY_GROUPS
-      CATEGORY_GROUPS.map((g) => ({
-        key: g.category,
-        label: g.category,
-        brand: g.brand,
-        totalGap: g.totalGap,
-        items: visibleItems.filter((i) => i.category === g.category),
-      })).filter((g) => g.items.length > 0);
+      });
+    }
+    return CATEGORY_GROUPS.map((g) => ({
+      key: g.category,
+      label: g.category,
+      brand: g.brand,
+      totalGap: g.totalGap,
+      items: items.filter((i) => i.category === g.category),
+    })).filter((g) => g.items.length > 0);
+  }
+
+  const todayGroups = buildGroups(todayItems);
+  const yesterdayGroups = buildGroups(yesterdayItems);
 
 
   return (
@@ -123,15 +136,14 @@ export function AlertsPanel({
       <aside className="flex w-[368px] flex-1 flex-col overflow-hidden border-r border-slate-200 bg-white/50">
 
         {/* ── Scrollable category groups ── */}
-        <div className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto pb-48 scrollbar-none [&::-webkit-scrollbar]:hidden">
 
-          {/* Panel header — scrolls with the list */}
-          <div className="px-4 py-3">
+          {/* ── Today's SKUs ── */}
+          <div className="sticky top-0 z-10 bg-white px-4 py-3">
             <span className="text-sm font-semibold text-slate-800">Today's SKUs</span>
           </div>
 
-          {activeGroups.map((group, groupIndex) => {
-            // Category-filtered → show everything; snapshot/full-list → all too; default → top 3
+          {todayGroups.map((group, groupIndex) => {
             const shownItems = (categoryFiltered || isFullList)
               ? group.items
               : group.items.slice(0, HOME_SKU_LIMIT);
@@ -141,17 +153,14 @@ export function AlertsPanel({
                 key={group.key}
                 className={groupIndex > 0 ? "border-t border-slate-100" : ""}
               >
-                {/* Group header */}
                 <div className="flex items-center justify-between bg-slate-50 px-4 py-2">
-                  <span className="text-xs font-semibold text-slate-800">
-                    {group.label}
+                  <span className="flex items-center gap-1">
+                    <span className="text-xs font-semibold text-slate-800">{group.label}</span>
+                    <span className="text-xs text-slate-500">({group.items.length})</span>
                   </span>
-                  <span className="text-xs font-bold text-red-500">
-                    {formatGap(group.totalGap)}
-                  </span>
+                  <span className="text-xs font-bold text-red-500">{formatGap(group.totalGap)}</span>
                 </div>
 
-                {/* Alert cards */}
                 <div className="flex flex-col gap-2 p-3">
                   {shownItems.map((item) => (
                     <SkuAlertCard
@@ -164,7 +173,6 @@ export function AlertsPanel({
                   ))}
                 </div>
 
-                {/* "View all [category] SKUs" — snapshot + category mode only, top 3 shown */}
                 {!categoryFiltered && !isFullList && groupBy === "category" && (
                   onViewAllCategory ? (
                     <button
@@ -187,6 +195,68 @@ export function AlertsPanel({
               </div>
             );
           })}
+
+          {/* ── Yesterday's SKUs — collapsed accordion ── */}
+          {yesterdayItems.length > 0 && (
+            <div className="border-t-2 border-slate-200">
+              {/* Accordion toggle header */}
+              <button
+                onClick={() => setIsYesterdayOpen((p) => !p)}
+                className="sticky top-0 z-10 flex w-full items-center justify-between border-b border-slate-200 bg-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-200"
+              >
+                <span className="text-sm font-semibold text-slate-800">Yesterday's SKUs</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-red-500">
+                    {formatGap(yesterdayItems.reduce((sum, i) => sum + i.gapDollar, 0))}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-slate-400 transition-transform duration-200",
+                      isYesterdayOpen && "rotate-180",
+                    )}
+                  />
+                </div>
+              </button>
+
+              {/* Accordion body */}
+              {isYesterdayOpen && (
+                <div>
+                  {yesterdayGroups.map((group, groupIndex) => {
+                    const shownItems = (categoryFiltered || isFullList)
+                      ? group.items
+                      : group.items.slice(0, HOME_SKU_LIMIT);
+
+                    return (
+                      <div
+                        key={group.key}
+                        className={groupIndex > 0 ? "border-t border-slate-100" : ""}
+                      >
+                        <div className="flex items-center justify-between bg-slate-50 px-4 py-2">
+                          <span className="flex items-center gap-1">
+                            <span className="text-xs font-semibold text-slate-800">{group.label}</span>
+                            <span className="text-xs text-slate-500">({group.items.length})</span>
+                          </span>
+                          <span className="text-xs font-bold text-red-500">{formatGap(group.totalGap)}</span>
+                        </div>
+
+                        <div className="flex flex-col gap-2 p-3">
+                          {shownItems.map((item) => (
+                            <SkuAlertCard
+                              key={item.id}
+                              alert={item}
+                              variant={(categoryFiltered || isFullList) ? "full" : "compact"}
+                              isActive={item.id === selectedAlertId}
+                              onClick={() => onAlertSelect?.(item)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
       </aside>
