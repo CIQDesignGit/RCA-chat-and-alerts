@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Tag,
   Megaphone,
-  BarChart2,
+  PieChart,
   DollarSign,
   Package,
   Truck,
@@ -18,6 +18,9 @@ import {
   SearchX,
   MessageSquareWarning,
   ShoppingBag,
+  Funnel,
+  Award,
+  Shield,
 } from "lucide-react";
 import {
   LineChart,
@@ -37,6 +40,12 @@ import { StarRatingIssue }           from "@/components/alerts/issues/star-ratin
 import { LastWeekPerformanceLBB }    from "@/components/alerts/issues/last-week-lbb";
 import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
+import {
+  ConversionIssue,
+  getConversionIssueProps,
+  getConversionDiagnosis,
+  type ConversionState,
+} from "@/components/alerts/issues/conversion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,7 +60,8 @@ type IssueCardType =
   | "keyword-rank-drop"  // KeywordRankDropIssue
   | "sov-drop"           // SovDropIssue
   | "organic-keyword"    // KeywordRankDropIssue (reused)
-  | "coupon";            // CouponIssue
+  | "coupon"             // CouponIssue
+  | "conversion";        // ConversionIssue
 
 type KpiStat = {
   label: string;
@@ -81,6 +91,8 @@ type RootCause = {
   liveStatus: LiveStatus;
   // When set, renders the matching issue card inside the expanded row
   issueCardType?: IssueCardType;
+  // Conversion issue card — drives OK / Dropping Fast / Dropped mock data
+  conversionState?: ConversionState;
   // When set, renders a last-week performance summary below the issue card
   lastWeekSummaryType?: "lbb" | "promo-badge";
 };
@@ -108,7 +120,7 @@ type RcaData = {
 
 const CAUSE_BSR: RootCause = {
   id: "bsr",
-  icon: <TrendingDown className="h-4 w-4" />,
+  icon: <Award className="h-4 w-4" />,
   label: "Best Seller Rank",
   impact: null,
   statusLabel: "Dropped #",
@@ -243,7 +255,7 @@ const CAUSE_STAR_RATING: RootCause = {
 // 5. Rank Dropped (paid / blended)
 const CAUSE_KRD: RootCause = {
   id: "krd",
-  icon: <TrendingDown className="h-4 w-4" />,
+  icon: <Shield className="h-4 w-4" />,
   label: "Keyword Rank",
   impact: null,
   statusLabel: "Dropped",
@@ -257,7 +269,7 @@ const CAUSE_KRD: RootCause = {
 // 6. SoV dropped
 const CAUSE_SOV: RootCause = {
   id: "sov",
-  icon: <BarChart2 className="h-4 w-4" />,
+  icon: <PieChart className="h-4 w-4" />,
   label: "Share of Voice",
   impact: "−$38.2K",
   statusLabel: "Dropped",
@@ -268,7 +280,47 @@ const CAUSE_SOV: RootCause = {
   issueCardType: "sov-drop",
 };
 
-// 7. Organic keyword issue
+// 7. Conversion rate anomaly — three health states
+const CAUSE_CONVERSION_DROPPED: RootCause = {
+  id: "conversion-dropped",
+  icon: <Funnel className="h-4 w-4" />,
+  label: "Conversion",
+  impact: "−$31.2K",
+  statusLabel: "Dropped",
+  statusStyle: "bg-rose-100 text-rose-700",
+  liveStatus: "bad",
+  description: getConversionDiagnosis("dropped"),
+  issueCardType: "conversion",
+  conversionState: "dropped",
+};
+
+const CAUSE_CONVERSION_DROPPING: RootCause = {
+  id: "conversion-dropping",
+  icon: <Funnel className="h-4 w-4" />,
+  label: "Conversion",
+  impact: "−$12.8K",
+  statusLabel: "Dropping Fast",
+  statusStyle: "bg-amber-100 text-amber-700",
+  liveStatus: "warning",
+  description: getConversionDiagnosis("dropping-fast"),
+  issueCardType: "conversion",
+  conversionState: "dropping-fast",
+};
+
+const CAUSE_CONVERSION_OK: RootCause = {
+  id: "conversion-ok",
+  icon: <Funnel className="h-4 w-4" />,
+  label: "Conversion",
+  impact: null,
+  statusLabel: "OK",
+  statusStyle: "bg-emerald-100 text-emerald-700",
+  liveStatus: "ok",
+  description: getConversionDiagnosis("ok"),
+  issueCardType: "conversion",
+  conversionState: "ok",
+};
+
+// 8. Organic keyword issue
 const CAUSE_ORGANIC: RootCause = {
   id: "organic",
   icon: <TrendingDown className="h-4 w-4" />,
@@ -287,7 +339,7 @@ const CAUSE_ORGANIC: RootCause = {
 // types are always visible in the RCA panel.
 //
 // sk1  B00I0DI0Z6  Food Processor : Lost Buy Box + Missing Promo Badge   + common
-// sk2  B08H8JZKDF  Blender        : SoV Drop + Keyword Rank Drop         + common
+// sk2  B08H8JZKDF  Blender        : SoV Drop + Conversion (Dropping)    + common
 // sk3  B000BVFYU8  Kettle         : Review Rating Dropped + Organic KW   + common
 // sk4  B0BJZW4CLC  Cooker         : Not on Deals Page + SoV Drop         + common
 // default                         : Lost Buy Box + Missing Promo Badge   + common
@@ -298,7 +350,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   if (sku.asin === "B08H8JZKDF") {
     // Blender — traffic & SoV problems
     return [
-      { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_KRD, CAUSE_MEDIA] },
+      { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_CONVERSION_DROPPING, CAUSE_KRD, CAUSE_MEDIA] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
       { label: "Product Reputation", causes: [CAUSE_REVIEW_SENTIMENT] },
     ];
@@ -307,7 +359,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
     // Kettle — reputation & organic issues
     return [
       { label: "Product Reputation", causes: [CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
-      { label: "Search & Traffic",   causes: [CAUSE_ORGANIC, CAUSE_MEDIA] },
+      { label: "Search & Traffic",   causes: [CAUSE_ORGANIC, CAUSE_CONVERSION_OK, CAUSE_MEDIA] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
     ];
   }
@@ -325,7 +377,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
     { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE, CAUSE_COUPON] },
     { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
     { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
-    { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_KRD, CAUSE_MEDIA] },
+    { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_CONVERSION_DROPPED, CAUSE_KRD, CAUSE_MEDIA] },
   ];
 }
 
@@ -429,7 +481,13 @@ function getRcaData(sku: SkuAlert): RcaData {
 // "deals-page" reuses PromoBadgeIssue and "organic-keyword" reuses
 // KeywordRankDropIssue until dedicated components are built.
 
-function RootCauseIssueCard({ type }: { type: IssueCardType }) {
+function RootCauseIssueCard({
+  type,
+  conversionState = "dropped",
+}: {
+  type: IssueCardType;
+  conversionState?: ConversionState;
+}) {
   switch (type) {
     case "lost-buy-box":
       return (
@@ -490,14 +548,39 @@ function RootCauseIssueCard({ type }: { type: IssueCardType }) {
       return (
         <CouponIssue
           scrapes={[
-            { timestamp: now - 3  * hr, detected: true,  value: "$2.95", couponType: "off purchase" },
-            { timestamp: now - 6  * hr, detected: true,  value: "$2.95", couponType: "off purchase" },
-            { timestamp: now - 9  * hr, detected: false },
-            { timestamp: now - 12 * hr, detected: true,  value: "$3.50", couponType: "off purchase" },
+            {
+              // Multiple coupons at the same scrape time
+              timestamp: now - 3 * hr,
+              detected: true,
+              coupons: [
+                "Apply $2.95 coupon",
+                "Save 10%: Coupon available when you select Subscribe & Save .",
+              ],
+            },
+            {
+              // Dollar-off coupon
+              timestamp: now - 6 * hr,
+              detected: true,
+              coupons: ["Apply $2.95 coupon"],
+            },
+            {
+              // No coupon detected
+              timestamp: now - 9 * hr,
+              detected: false,
+            },
+            {
+              // Percentage coupon
+              timestamp: now - 12 * hr,
+              detected: true,
+              coupons: ["Apply 15% coupon"],
+            },
           ]}
         />
       );
     }
+
+    case "conversion":
+      return <ConversionIssue {...getConversionIssueProps(conversionState)} />;
 
     case "sov-drop":
       return (
@@ -747,14 +830,17 @@ function RootCauseRow({
             </p>
             <button
               type="button"
-              className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"
+              className="hidden shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"
             >
               Mark as resolved
             </button>
           </div>
           {cause.issueCardType && (
             <div className={cause.description ? "mt-3" : ""}>
-              <RootCauseIssueCard type={cause.issueCardType} />
+              <RootCauseIssueCard
+                type={cause.issueCardType}
+                conversionState={cause.conversionState}
+              />
             </div>
           )}
           {cause.lastWeekSummaryType && (

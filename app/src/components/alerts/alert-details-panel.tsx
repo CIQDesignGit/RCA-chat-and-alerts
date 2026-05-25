@@ -26,6 +26,7 @@ import { StarRatingIssue } from "./issues/star-rating";
 import { SovDropIssue } from "./issues/sov-drop";
 import { PromoBadgeIssue } from "./issues/promo-badge";
 import { KeywordRankDropIssue } from "./issues/keyword-rank-drop";
+import { ConversionIssue, getConversionIssueProps } from "./issues/conversion";
 import { useChatStore } from "@/lib/chat-store";
 
 
@@ -98,6 +99,8 @@ function IssueBody({ issue }: { issue: Issue }) {
           ]}
         />
       );
+    case "conversion":
+      return <ConversionIssue {...getConversionIssueProps("dropped")} />;
     default:
       return null;
   }
@@ -131,7 +134,7 @@ function IssueThread({ issue }: { issue: Issue }) {
         ) : (
           <button
             type="button"
-            className="flex items-center rounded-2xl border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-slate-50"
+            className="hidden flex items-center rounded-2xl border border-slate-400 bg-white px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-slate-50"
           >
             Mark as Resolved
           </button>

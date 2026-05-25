@@ -32,6 +32,7 @@ const TAG_TO_ISSUE_TYPE: Record<string, IssueType> = {
   "SoV Drop":          "sov-drop",
   "SOV Drop":          "sov-drop",
   "Share of Voice":    "sov-drop",
+  "Conversion":        "conversion",
 };
 
 function isTagResolved(alert: AlertItem, tag: string): boolean {

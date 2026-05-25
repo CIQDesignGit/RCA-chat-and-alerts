@@ -5,21 +5,23 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
-  BarChart2,
+  Award,
   Check,
   ChevronDown,
   DollarSign,
+  Funnel,
   List,
   Loader2,
   Megaphone,
   MessageSquareWarning,
   Package,
+  PieChart,
   Search,
+  Shield,
   ShoppingBag,
   ShoppingCart,
   Star,
   Tag,
-  TrendingDown,
   Truck,
   X,
 } from "lucide-react";
@@ -76,13 +78,14 @@ const ISSUE_TYPE_OPTIONS: { id: string | null; label: string; icon?: LucideIcon;
   { id: "promo",     label: "Promo Badge",         icon: Megaphone,           count: 9  },
   { id: "deals",     label: "Deal Page Visibility",icon: ShoppingBag,         count: 4  },
   { id: "coupon",    label: "Coupon",              icon: Tag,                 count: 3  },
-  { id: "bsr",       label: "Best Seller Rank",    icon: TrendingDown,        count: 5  },
+  { id: "bsr",       label: "Best Seller Rank",    icon: Award,               count: 5  },
   { id: "rating",    label: "Rating",              icon: Star,                count: 7  },
   { id: "sentiment", label: "Review Sentiment",    icon: MessageSquareWarning,count: 4  },
   { id: "oos",       label: "Out of Stock",        icon: Package,             count: 2  },
   { id: "shipping",  label: "Shipping Speed",      icon: Truck,               count: 3  },
-  { id: "sov",       label: "Share of Voice",      icon: BarChart2,           count: 2  },
-  { id: "krd",       label: "Keyword Rank",        icon: TrendingDown,        count: 1  },
+  { id: "sov",       label: "Share of Voice",      icon: PieChart,            count: 2  },
+  { id: "krd",       label: "Keyword Rank",        icon: Shield,              count: 1  },
+  { id: "conversion",label: "Conversion",          icon: Funnel,              count: 2  },
   { id: "media",     label: "Media Spend",         icon: DollarSign,          count: 1  },
 ];
 
@@ -269,7 +272,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
 
         {/* Dropdown panel */}
         {isIssueTypeOpen && (
-          <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+          <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg" style={{ maxHeight: "450px", overflowY: "auto" }}>
             {ISSUE_TYPE_OPTIONS.map((option, i) => {
               const Icon = option.icon;
               const isSelected = option.id === selectedIssueType || (option.id === null && selectedIssueType === null);

@@ -5,7 +5,8 @@ export type IssueType =
   | "star-rating"
   | "sov-drop"
   | "promo-badge"
-  | "keyword-rank-drop";
+  | "keyword-rank-drop"
+  | "conversion";
 
 export type Issue = {
   id: string;
