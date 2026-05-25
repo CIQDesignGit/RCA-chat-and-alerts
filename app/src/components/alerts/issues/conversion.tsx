@@ -1,5 +1,11 @@
-import { ArrowRight } from "lucide-react";
+import { Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 // Healthy → OK | Risky → Dropping Fast | Broken → Dropped
 export type ConversionState = "ok" | "dropping-fast" | "dropped";
@@ -114,52 +120,79 @@ export function ConversionIssue(props: ConversionIssueProps) {
   const styles = STATE_STYLES[props.state];
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Comparison cards — matches StarRatingIssue Old → New pattern */}
-      <div className="flex items-center gap-4">
-        {/* 7-day baseline — neutral, like "Old" */}
-        <div className="flex flex-1 flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
-          <span className="text-xs text-slate-500">
-            Previous 7-Day Average
-          </span>
-          <span className="text-2xl font-bold text-slate-400">
-            {props.baselineRate.toFixed(1)}%
-          </span>
+    <div className="grid grid-cols-4 gap-3">
+      {/* Col 1/4 — Conversion Drop card */}
+      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        {/* Title + info icon with date-range tooltip */}
+        <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
+          Conversion Drop
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="cursor-help">
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-56 leading-snug">
+                Yesterday (D-1) vs. 7-day baseline ({props.baselinePeriod})
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
-        <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
-
-        {/* Yesterday — alert tint on border + value, like "New" */}
-        <div
-          className={cn(
-            "flex flex-1 flex-col gap-2 rounded-xl border bg-white px-5 py-4",
-            styles.currentBorder,
-          )}
-        >
-          <span className="text-xs text-slate-700">{props.currentPeriod}</span>
-          <span className={cn("text-2xl font-bold", styles.currentValue)}>
+        {/* Values: prev → current */}
+        <div className="flex items-center gap-2">
+          <span className="text-base font-medium text-slate-500">{props.baselineRate.toFixed(1)}%</span>
+          <span className="text-slate-400">→</span>
+          <span className={cn("text-base font-semibold", styles.currentValue)}>
             {props.currentRate.toFixed(1)}%
           </span>
         </div>
+
+        {/* Subline: drop magnitude */}
+        <p className="text-xs text-slate-400">
+          Drop magnitude: <span className="font-medium text-slate-600">{formatPp(props.changePp)}</span>
+        </p>
       </div>
 
-      {/* Detail metrics */}
-      <div className="grid grid-cols-3 gap-4 rounded-xl border border-slate-200 bg-white px-4 py-4">
+      {/* Cols 2–4 — Glance Views (3/4 width) */}
+      <div className="col-span-3 grid grid-cols-3 gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+        {/* Section label spans all 3 inner columns */}
+        <div className="col-span-3 -mb-1">
+          <span className="text-sm font-semibold text-slate-700">Glance Views</span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm text-slate-700">Yesterday</span>
+          <span className="text-sm font-semibold text-slate-800">12,340</span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-slate-700">7-Day Avg</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="cursor-help">
+                  <Info className="h-3 w-3 text-slate-400" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="leading-snug">
+                  Average of D-2 through D-8
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <span className="text-sm font-semibold text-slate-800">12,480</span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm text-slate-700">Deviation</span>
+          <span className="text-sm font-semibold text-rose-500">−140 (−1.1%)</span>
+        </div>
+      </div>
+
+      {/* Detail metrics — hidden, preserved for future use */}
+      <div className="hidden col-span-4 grid grid-cols-2 gap-4 rounded-xl border border-slate-200 bg-white px-4 py-4">
         <div className="flex flex-col gap-1.5">
           <span className="text-xs text-slate-700">IQR (7-day)</span>
           <span className="text-sm font-semibold text-slate-800">
             {props.iqrValue.toFixed(2)}pp
           </span>
           <span className="text-xs text-slate-500">{props.iqrRange}</span>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs text-slate-700">Drop Magnitude</span>
-          <span className="text-sm font-semibold text-slate-800">
-            {formatPp(props.changePp)}
-          </span>
-          <span className="text-xs text-slate-500">
-            {props.iqrMagnitude.toFixed(1)} x IQR
-          </span>
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-xs text-slate-700">Comparison</span>

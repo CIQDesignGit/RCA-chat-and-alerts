@@ -84,6 +84,8 @@ type RootCause = {
   icon: React.ReactNode;
   label: string;
   impact: string | null;
+  // Short label shown next to the impact value, e.g. "revenue at risk"
+  impactLabel?: string;
   statusLabel: string;
   statusStyle: string;
   description: string;
@@ -190,6 +192,7 @@ const CAUSE_LBB: RootCause = {
   statusLabel: "OK",
   statusStyle: "bg-emerald-100 text-emerald-700",
   liveStatus: "ok",
+  impactLabel: "estimated revenue at risk",
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
@@ -243,7 +246,7 @@ const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
   label: "Rating",
-  impact: "−$22.4K",
+  impact: null,
   statusLabel: "Dropped #",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
@@ -271,7 +274,7 @@ const CAUSE_SOV: RootCause = {
   id: "sov",
   icon: <PieChart className="h-4 w-4" />,
   label: "Share of Voice",
-  impact: "−$38.2K",
+  impact: null,
   statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
@@ -285,7 +288,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   id: "conversion-dropped",
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
-  impact: "−$31.2K",
+  impact: null,
   statusLabel: "Dropped",
   statusStyle: "bg-rose-100 text-rose-700",
   liveStatus: "bad",
@@ -298,7 +301,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   id: "conversion-dropping",
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
-  impact: "−$12.8K",
+  impact: null,
   statusLabel: "Dropping Fast",
   statusStyle: "bg-amber-100 text-amber-700",
   liveStatus: "warning",
@@ -804,17 +807,29 @@ function RootCauseRow({
         onClick={onToggle}
         className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${isOpen ? "bg-white hover:bg-white" : "hover:bg-slate-50"}`}
       >
-        {/* live dot — leftmost, before the icon */}
-        <span
-          className={`h-2 w-2 shrink-0 rounded-full ${LIVE_DOT_CLASS[cause.liveStatus]}`}
-          title={`Live: ${cause.liveStatus}`}
-        />
-        <span className="text-slate-500">{cause.icon}</span>
-        {/* title, impact, and badge all grouped left — hug content */}
-        <span className="text-sm font-medium text-slate-700">{cause.label}</span>
-        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
-          {cause.statusLabel}
+        {/* Group 1: dot + icon + label + status badge */}
+        <span className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 shrink-0 rounded-full ${LIVE_DOT_CLASS[cause.liveStatus]}`}
+            title={`Live: ${cause.liveStatus}`}
+          />
+          <span className="text-slate-500">{cause.icon}</span>
+          <span className="text-sm font-medium text-slate-700">{cause.label}</span>
+          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
+            {cause.statusLabel}
+          </span>
         </span>
+
+        {/* Group 2: impact value + explanatory label */}
+        {cause.impact && (
+          <span className="ml-4 flex items-baseline gap-1.5">
+            <span className="text-sm font-semibold text-rose-500">{cause.impact}</span>
+            {cause.impactLabel && (
+              <span className="text-sm text-slate-500">{cause.impactLabel}</span>
+            )}
+          </span>
+        )}
+
         {/* spacer pushes chevron to the far right */}
         <span className="flex-1" />
         <ChevronDown

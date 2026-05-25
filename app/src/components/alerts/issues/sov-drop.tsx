@@ -24,10 +24,10 @@ function SovMetricCard({
       </div>
 
       {/* Prev → Curr */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-slate-400">{prevSov}%</span>
-        <span className="text-slate-300">→</span>
-        <span className="font-bold text-rose-500">{currSov}%</span>
+      <div className="flex items-center gap-2 text-base">
+        <span className="font-medium text-slate-500">{prevSov}%</span>
+        <span className="text-slate-400">→</span>
+        <span className="font-semibold text-rose-500">{currSov}%</span>
       </div>
 
       {/* Competitor benchmark */}
@@ -87,8 +87,8 @@ export function SovDropIssue(p: SovDropProps) {
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-xs font-semibold text-slate-500">
                 <th className="px-4 py-2.5 text-left">Keyword</th>
-                <th className="px-4 py-2.5 text-left">SP SoV (from → to)</th>
-                <th className="px-4 py-2.5 text-left">SB SoV (from → to)</th>
+                <th className="w-64 px-4 py-2.5 text-right">SP SoV (from → to)</th>
+                <th className="w-64 px-4 py-2.5 text-right">SB SoV (from → to)</th>
               </tr>
             </thead>
             <tbody className="px-4">
@@ -100,22 +100,22 @@ export function SovDropIssue(p: SovDropProps) {
                       {kw.keyword}
                     </div>
                   </td>
-                  <td className="px-4 py-2.5">
-                    <span className="flex items-center gap-1.5 text-sm">
-                      <span className="text-slate-400">{kw.spFrom}%</span>
+                  <td className="w-64 px-4 py-2.5">
+                    <span className="flex items-center justify-end gap-1.5 text-sm tabular-nums">
+                      <span className="w-14 text-right text-slate-400">{kw.spFrom}%</span>
                       <span className="text-slate-300">→</span>
-                      <span className="font-semibold text-slate-700">{kw.spTo}%</span>
-                      <span className="font-semibold text-rose-500">
+                      <span className="w-14 text-right font-semibold text-slate-700">{kw.spTo}%</span>
+                      <span className="w-14 text-right font-semibold text-rose-500">
                         ({Math.round(((kw.spTo - kw.spFrom) / kw.spFrom) * 100)}%)
                       </span>
                     </span>
                   </td>
-                  <td className="px-4 py-2.5">
-                    <span className="flex items-center gap-1.5 text-sm">
-                      <span className="text-slate-400">{kw.sbFrom}%</span>
+                  <td className="w-64 px-4 py-2.5">
+                    <span className="flex items-center justify-end gap-1.5 text-sm tabular-nums">
+                      <span className="w-16 text-right text-slate-400">{kw.sbFrom}%</span>
                       <span className="text-slate-300">→</span>
-                      <span className="font-semibold text-slate-700">{kw.sbTo}%</span>
-                      <span className="font-semibold text-rose-500">
+                      <span className="w-14 text-right font-semibold text-slate-700">{kw.sbTo}%</span>
+                      <span className="w-14 text-right font-semibold text-rose-500">
                         ({Math.round(((kw.sbTo - kw.sbFrom) / kw.sbFrom) * 100)}%)
                       </span>
                     </span>
