@@ -125,8 +125,8 @@ const CAUSE_BSR: RootCause = {
   icon: <Award className="h-4 w-4" />,
   label: "Best Seller Rank",
   impact: null,
-  statusLabel: "Dropped #",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusLabel: "Dropped",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "BSR dropped from #12 → #31 in Vacuum Cleaners over the past two weeks, reducing category browse visibility.",
@@ -138,7 +138,7 @@ const CAUSE_MEDIA: RootCause = {
   label: "Media Spend",
   impact: null,
   statusLabel: "Threshold Breached",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Spend cut on all top-10 keywords last week. Largest reduction on 'vacuum cleaners for home' (−$1,715 spend, −$37.3K sales WoW).",
@@ -151,7 +151,7 @@ const CAUSE_OOS: RootCause = {
   label: "Out of Stock",
   impact: null,
   statusLabel: "At Risk",
-  statusStyle: "border-amber-200 text-amber-600",
+  statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
   description: "No stock issues last week — 0% rep OOS and 0% unavailability.",
 };
@@ -162,7 +162,7 @@ const CAUSE_SHIP: RootCause = {
   label: "Shipping Speed",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "border-emerald-200 text-emerald-600",
+  statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
   liveStatus: "ok",
   description: "Prime delivery available tomorrow (May 14). No extended delay risk detected.",
 };
@@ -173,7 +173,7 @@ const CAUSE_REVIEW_SENTIMENT: RootCause = {
   label: "Review Sentiment",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "border-emerald-200 text-emerald-600",
+  statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
   liveStatus: "ok",
   description: "4.2-star average across 2,298 reviews. 1-star rate at 11% — within benchmark.",
 };
@@ -190,7 +190,7 @@ const CAUSE_LBB: RootCause = {
   label: "Buy Box",
   impact: "−$119.7K",
   statusLabel: "Lost",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   impactLabel: "estimated revenue at risk",
   description:
@@ -206,7 +206,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   label: "Promo Badge",
   impact: null,
   statusLabel: "Missing",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
@@ -221,7 +221,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   label: "Deal Page Visibility",
   impact: null,
   statusLabel: "Missing",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Active Lightning Deal is not surfacing on the Amazon Deals page, removing a high-intent discovery placement.",
@@ -235,7 +235,7 @@ const CAUSE_COUPON: RootCause = {
   label: "Coupon",
   impact: null,
   statusLabel: "Detected",
-  statusStyle: "border-amber-200 text-amber-600",
+  statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
   description: "Coupon history for this SKU's PDP is available below, detailing status changes and coupon values.",
   issueCardType: "coupon",
@@ -247,8 +247,8 @@ const CAUSE_STAR_RATING: RootCause = {
   icon: <Star className="h-4 w-4" />,
   label: "Rating",
   impact: null,
-  statusLabel: "Dropped #",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusLabel: "Dropped",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Rating fell from 4.3 → 3.2 over 3 weeks following a batch of defect-related negative reviews.",
@@ -262,7 +262,7 @@ const CAUSE_KRD: RootCause = {
   label: "Keyword Rank",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Top keywords dropped 6–8 positions after a content update, pushing off page 1 for high-volume terms.",
@@ -276,7 +276,7 @@ const CAUSE_SOV: RootCause = {
   label: "Share of Voice",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "SP SoV dropped from 5.0% → 4.0% as the leading competitor holds 6% across all tracked terms.",
@@ -290,7 +290,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description: getConversionDiagnosis("dropped"),
   issueCardType: "conversion",
@@ -303,7 +303,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "Dropping Fast",
-  statusStyle: "border-amber-200 text-amber-600",
+  statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
   description: getConversionDiagnosis("dropping-fast"),
   issueCardType: "conversion",
@@ -316,7 +316,7 @@ const CAUSE_CONVERSION_OK: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "border-emerald-200 text-emerald-600",
+  statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
   liveStatus: "ok",
   description: getConversionDiagnosis("ok"),
   issueCardType: "conversion",
@@ -330,52 +330,70 @@ const CAUSE_ORGANIC: RootCause = {
   label: "Organic Keyword Issue",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "border-rose-200 text-rose-600",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
     "Organic rank declined on 3 high-volume terms after an A+ content change removed keyword-rich copy. Impressions down 34% WoW.",
   issueCardType: "organic-keyword",
 };
 
-// ─── SKU-specific root cause sets ─────────────────────────────────────────────
-// Each SKU gets a mix of card-backed issues AND text-only issues so both
-// types are always visible in the RCA panel.
-//
-// sk1  B00I0DI0Z6  Food Processor : Lost Buy Box + Missing Promo Badge   + common
-// sk2  B08H8JZKDF  Blender        : SoV Drop + Conversion (Dropping)    + common
-// sk3  B000BVFYU8  Kettle         : Review Rating Dropped + Organic KW   + common
-// sk4  B0BJZW4CLC  Cooker         : Not on Deals Page + SoV Drop         + common
-// default                         : Lost Buy Box + Missing Promo Badge   + common
+// ─── neutral() helper ──────────────────────────────────────────────────────────
+// Returns a copy of a cause with OK/slate status and no expandable issue card.
+// Used to fill in causes that are healthy for a given SKU so every SKU always
+// shows the same complete list of root cause rows.
+
+const OK_STYLE = "border-slate-200 bg-slate-50/50 text-slate-500";
+
+function neutral(cause: RootCause): RootCause {
+  return {
+    ...cause,
+    statusLabel: "OK",
+    statusStyle: OK_STYLE,
+    liveStatus: "ok",
+    issueCardType: undefined,
+    lastWeekSummaryType: undefined,
+    impact: null,
+    impactLabel: undefined,
+  };
+}
+
+// ─── Standard 4-group layout ───────────────────────────────────────────────────
+// All SKUs always render the same 4 groups with the same 14 cause rows.
+// Per-SKU differences are expressed by passing the active (problem) cause
+// constant vs neutral() for healthy rows.
 
 function buildGroups(sku: SkuAlert): RootCauseGroup[] {
-  // Each branch defines which causes appear per group for that SKU.
-  // Groups with zero causes are filtered out before rendering.
+  // ── B08H8JZKDF  Blender — traffic & SoV problems ──────────────────────────
   if (sku.asin === "B08H8JZKDF") {
-    // Blender — traffic & SoV problems
     return [
+      { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), neutral(CAUSE_DEALS_PAGE), neutral(CAUSE_COUPON)] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING), CAUSE_REVIEW_SENTIMENT] },
+      { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
       { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_CONVERSION_DROPPING, CAUSE_KRD, CAUSE_MEDIA] },
-      { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
-      { label: "Product Reputation", causes: [CAUSE_REVIEW_SENTIMENT] },
     ];
   }
+
+  // ── B000BVFYU8  Kettle — reputation & keyword issues ──────────────────────
   if (sku.asin === "B000BVFYU8") {
-    // Kettle — reputation & organic issues
     return [
-      { label: "Product Reputation", causes: [CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
-      { label: "Search & Traffic",   causes: [CAUSE_ORGANIC, CAUSE_CONVERSION_OK, CAUSE_MEDIA] },
+      { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), neutral(CAUSE_DEALS_PAGE), neutral(CAUSE_COUPON)] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
+      { label: "Search & Traffic",   causes: [neutral(CAUSE_SOV), CAUSE_CONVERSION_OK, CAUSE_ORGANIC, CAUSE_MEDIA] },
     ];
   }
+
+  // ── B0BJZW4CLC  Cooker — deals page + SoV ─────────────────────────────────
   if (sku.asin === "B0BJZW4CLC") {
-    // Cooker — deals page + SoV
     return [
-      { label: "PDP & Promos",       causes: [CAUSE_DEALS_PAGE] },
-      { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_MEDIA] },
+      { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), CAUSE_DEALS_PAGE, neutral(CAUSE_COUPON)] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING), CAUSE_REVIEW_SENTIMENT] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
-      { label: "Product Reputation", causes: [CAUSE_REVIEW_SENTIMENT] },
+      { label: "Search & Traffic",   causes: [CAUSE_SOV, neutral(CAUSE_CONVERSION_OK), neutral(CAUSE_KRD), CAUSE_MEDIA] },
     ];
   }
-  // Default (Food Processor) — full set across all groups
+
+  // ── Default (B00I0DI0Z6 Food Processor) — full active set ──────────────────
   return [
     { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE, CAUSE_COUPON] },
     { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
