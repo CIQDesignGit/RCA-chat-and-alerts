@@ -120,9 +120,9 @@ export function ConversionIssue(props: ConversionIssueProps) {
   const styles = STATE_STYLES[props.state];
 
   return (
-    <div className="grid grid-cols-4 gap-3">
-      {/* Col 1/4 — Conversion Drop card */}
-      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <div className="flex flex-row gap-3">
+      {/* Tile 1 — Conversion Drop */}
+      <div className="flex flex-col gap-4 self-start rounded-xl border border-slate-200 bg-white pl-4 pr-[50px] py-3">
         {/* Title + info icon with date-range tooltip */}
         <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
           Conversion Drop
@@ -138,50 +138,49 @@ export function ConversionIssue(props: ConversionIssueProps) {
           </TooltipProvider>
         </div>
 
-        {/* Values: prev → current */}
-        <div className="flex items-center gap-2">
-          <span className="text-base font-medium text-slate-500">{props.baselineRate.toFixed(1)}%</span>
-          <span className="text-slate-400">→</span>
-          <span className={cn("text-base font-semibold", styles.currentValue)}>
-            {props.currentRate.toFixed(1)}%
-          </span>
+        {/* Grouped: values + subline */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-medium text-slate-500">{props.baselineRate.toFixed(1)}%</span>
+            <span className="text-slate-400">→</span>
+            <span className={cn("text-lg font-semibold", styles.currentValue)}>
+              {props.currentRate.toFixed(1)}%
+            </span>
+          </div>
+          <p className="text-sm text-slate-400">
+            Drop magnitude: <span className="font-medium text-slate-600">{formatPp(props.changePp)}</span>
+          </p>
         </div>
-
-        {/* Subline: drop magnitude */}
-        <p className="text-xs text-slate-400">
-          Drop magnitude: <span className="font-medium text-slate-600">{formatPp(props.changePp)}</span>
-        </p>
       </div>
 
-      {/* Cols 2–4 — Glance Views (3/4 width) */}
-      <div className="col-span-3 grid grid-cols-3 gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
-        {/* Section label spans all 3 inner columns */}
-        <div className="col-span-3 -mb-1">
-          <span className="text-sm font-semibold text-slate-700">Glance Views</span>
+      {/* Row 2 — Glance Views tile */}
+      {/* Tile 2 — Glance Views */}
+      <div className="flex flex-col gap-4 self-start rounded-xl border border-slate-200 bg-white pl-4 pr-[50px] py-3">
+        {/* Title + info icon */}
+        <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
+          Glance Views
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="cursor-help">
+                <Info className="h-3.5 w-3.5 text-slate-400" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-56 leading-snug">
+                Yesterday (D-1) vs. 7-day avg (D-2 through D-8)
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm text-slate-700">Yesterday</span>
-          <span className="text-sm font-semibold text-slate-800">12,340</span>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1">
-            <span className="text-sm text-slate-700">7-Day Avg</span>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger className="cursor-help">
-                  <Info className="h-3 w-3 text-slate-400" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="leading-snug">
-                  Average of D-2 through D-8
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+
+        {/* Grouped: values + subline */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-medium text-slate-500">12,480</span>
+            <span className="text-slate-400">→</span>
+            <span className="text-lg font-semibold text-rose-500">12,340</span>
           </div>
-          <span className="text-sm font-semibold text-slate-800">12,480</span>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm text-slate-700">Deviation</span>
-          <span className="text-sm font-semibold text-rose-500">−140 (−1.1%)</span>
+          <p className="text-sm text-slate-400">
+            Deviation: <span className="font-medium text-slate-600">−140 (−1.1%)</span>
+          </p>
         </div>
       </div>
 

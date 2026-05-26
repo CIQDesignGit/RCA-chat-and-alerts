@@ -126,7 +126,7 @@ const CAUSE_BSR: RootCause = {
   label: "Best Seller Rank",
   impact: null,
   statusLabel: "Dropped #",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "BSR dropped from #12 → #31 in Vacuum Cleaners over the past two weeks, reducing category browse visibility.",
@@ -138,7 +138,7 @@ const CAUSE_MEDIA: RootCause = {
   label: "Media Spend",
   impact: null,
   statusLabel: "Threshold Breached",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Spend cut on all top-10 keywords last week. Largest reduction on 'vacuum cleaners for home' (−$1,715 spend, −$37.3K sales WoW).",
@@ -151,7 +151,7 @@ const CAUSE_OOS: RootCause = {
   label: "Out of Stock",
   impact: null,
   statusLabel: "At Risk",
-  statusStyle: "bg-amber-100 text-amber-700",
+  statusStyle: "border-amber-200 text-amber-600",
   liveStatus: "warning",
   description: "No stock issues last week — 0% rep OOS and 0% unavailability.",
 };
@@ -162,7 +162,7 @@ const CAUSE_SHIP: RootCause = {
   label: "Shipping Speed",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "bg-emerald-100 text-emerald-700",
+  statusStyle: "border-emerald-200 text-emerald-600",
   liveStatus: "ok",
   description: "Prime delivery available tomorrow (May 14). No extended delay risk detected.",
 };
@@ -173,7 +173,7 @@ const CAUSE_REVIEW_SENTIMENT: RootCause = {
   label: "Review Sentiment",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "bg-emerald-100 text-emerald-700",
+  statusStyle: "border-emerald-200 text-emerald-600",
   liveStatus: "ok",
   description: "4.2-star average across 2,298 reviews. 1-star rate at 11% — within benchmark.",
 };
@@ -190,7 +190,7 @@ const CAUSE_LBB: RootCause = {
   label: "Buy Box",
   impact: "−$119.7K",
   statusLabel: "OK",
-  statusStyle: "bg-emerald-100 text-emerald-700",
+  statusStyle: "border-emerald-200 text-emerald-600",
   liveStatus: "ok",
   impactLabel: "estimated revenue at risk",
   description:
@@ -206,7 +206,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   label: "Promo Badge",
   impact: null,
   statusLabel: "Missing",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
@@ -221,7 +221,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   label: "Deal Page Visibility",
   impact: null,
   statusLabel: "Missing",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Active Lightning Deal is not surfacing on the Amazon Deals page, removing a high-intent discovery placement.",
@@ -235,7 +235,7 @@ const CAUSE_COUPON: RootCause = {
   label: "Coupon",
   impact: null,
   statusLabel: "Detected",
-  statusStyle: "bg-amber-100 text-amber-700",
+  statusStyle: "border-amber-200 text-amber-600",
   liveStatus: "warning",
   description: "Coupon history for this SKU's PDP is available below, detailing status changes and coupon values.",
   issueCardType: "coupon",
@@ -248,7 +248,7 @@ const CAUSE_STAR_RATING: RootCause = {
   label: "Rating",
   impact: null,
   statusLabel: "Dropped #",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Rating fell from 4.3 → 3.2 over 3 weeks following a batch of defect-related negative reviews.",
@@ -262,7 +262,7 @@ const CAUSE_KRD: RootCause = {
   label: "Keyword Rank",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Top keywords dropped 6–8 positions after a content update, pushing off page 1 for high-volume terms.",
@@ -276,7 +276,7 @@ const CAUSE_SOV: RootCause = {
   label: "Share of Voice",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "SP SoV dropped from 5.0% → 4.0% as the leading competitor holds 6% across all tracked terms.",
@@ -290,7 +290,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description: getConversionDiagnosis("dropped"),
   issueCardType: "conversion",
@@ -303,7 +303,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "Dropping Fast",
-  statusStyle: "bg-amber-100 text-amber-700",
+  statusStyle: "border-amber-200 text-amber-600",
   liveStatus: "warning",
   description: getConversionDiagnosis("dropping-fast"),
   issueCardType: "conversion",
@@ -316,7 +316,7 @@ const CAUSE_CONVERSION_OK: RootCause = {
   label: "Conversion",
   impact: null,
   statusLabel: "OK",
-  statusStyle: "bg-emerald-100 text-emerald-700",
+  statusStyle: "border-emerald-200 text-emerald-600",
   liveStatus: "ok",
   description: getConversionDiagnosis("ok"),
   issueCardType: "conversion",
@@ -330,7 +330,7 @@ const CAUSE_ORGANIC: RootCause = {
   label: "Organic Keyword Issue",
   impact: null,
   statusLabel: "Dropped",
-  statusStyle: "bg-rose-100 text-rose-700",
+  statusStyle: "border-rose-200 text-rose-600",
   liveStatus: "bad",
   description:
     "Organic rank declined on 3 high-volume terms after an A+ content change removed keyword-rich copy. Impressions down 34% WoW.",
@@ -389,7 +389,7 @@ function getRcaData(sku: SkuAlert): RcaData {
   return {
     kpis: [
       {
-        label: "LAST WEEK",
+        label: "Last Week",
         period: "May 3–9",
         value: "-$227.7K",
         valueColor: "text-red-600",
@@ -403,7 +403,7 @@ function getRcaData(sku: SkuAlert): RcaData {
         sub: "in sales · 49.2% of week elapsed",
       },
       {
-        label: "PROJECTED EOW",
+        label: "Projected EOW",
         period: "May 10–16",
         value: "+$29.6K vs plan",
         valueColor: "text-emerald-600",
@@ -612,10 +612,12 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
   if (type === "lbb") {
     return (
       <LastWeekPerformanceLBB
-        buyBoxWinner="amazon.com"
         lbbDays="0 / 7"
         revenueLost="$0"
-        avgSellingPrice="$219.96"
+        primaryCompetitor="amazon.com"
+        yourAvgPrice="$219.96"
+        competitorAvgPrice="$219.96"
+        avgPriceGap="$0.00"
         status="clean"
       />
     );
@@ -624,10 +626,11 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
     <LastWeekPerformancePromoBadge
       period="May 10–16"
       badgeMissingDays="7 / 7 days"
-      expectedPromoPrice="$299.99"
-      avgDealPriceShown="$283.64"
-      listPriceShown="$349.99"
-      priceCheckStatus="PRICE_MISMATCH"
+      estRevenueImpact="$4,200"
+      listPriceMismatch="7 / 7 days"
+      sellingPriceMismatch="7 / 7 days"
+      listPriceVisibility="2 / 7 days"
+      noStrikethroughOnMsrp="7 / 7 days"
       badgeShowing={false}
     />
   );
@@ -637,7 +640,7 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+    <h3 className="mb-4 text-sm font-medium text-slate-600">
       {children}
     </h3>
   );
@@ -665,10 +668,10 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
       {kpis.map((k) => (
         <div key={k.label} className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{k.label}</span>
-            <span className="text-[10px] text-slate-300">({k.period})</span>
+            <span className="text-sm font-medium text-slate-600">{k.label}</span>
+            <span className="text-sm text-slate-400">({k.period})</span>
           </div>
-          <p className={`text-2xl font-bold leading-none ${k.valueColor}`}>
+          <p className={`text-2xl font-semibold leading-none ${k.valueColor}`}>
             {k.value.includes(" vs ") ? (
               <>
                 {k.value.split(" vs ")[0]}
@@ -680,7 +683,7 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
               k.value
             )}
           </p>
-          <p className="text-[11px] leading-snug text-slate-400">{k.sub}</p>
+          <p className="text-sm leading-snug text-slate-500">{k.sub}</p>
         </div>
       ))}
     </div>
@@ -698,13 +701,13 @@ const STATUS_DOT: Record<StatusPill["status"], string> = {
 function StatusPillsRow({ pills }: { pills: StatusPill[] }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="mr-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+      <span className="mr-1 text-sm font-medium text-slate-600">
         Live Now
       </span>
       {pills.map((p) => (
         <span
           key={p.label}
-          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
+          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-600"
         >
           <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[p.status]}`} />
           <span className="font-medium text-slate-400">{p.label}:</span>
@@ -815,7 +818,7 @@ function RootCauseRow({
           />
           <span className="text-slate-500">{cause.icon}</span>
           <span className="text-sm font-medium text-slate-700">{cause.label}</span>
-          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cause.statusStyle}`}>
+          <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${cause.statusStyle}`}>
             {cause.statusLabel}
           </span>
         </span>
@@ -823,7 +826,7 @@ function RootCauseRow({
         {/* Group 2: impact value + explanatory label */}
         {cause.impact && (
           <span className="ml-4 flex items-baseline gap-1.5">
-            <span className="text-sm font-semibold text-rose-500">{cause.impact}</span>
+            <span className="text-sm font-medium text-slate-700">{cause.impact}</span>
             {cause.impactLabel && (
               <span className="text-sm text-slate-500">{cause.impactLabel}</span>
             )}
@@ -888,7 +891,7 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
       {/* Section heading row */}
       <div className="mb-2 flex items-start justify-between">
         <div className="flex flex-col gap-0.5">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <h3 className="text-sm font-medium text-slate-600">
             Root causes
           </h3>
           <span className="text-xs text-slate-500">From previous 24 hours</span>

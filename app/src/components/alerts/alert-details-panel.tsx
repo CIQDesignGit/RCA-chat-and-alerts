@@ -394,7 +394,7 @@ export function AlertDetailsPanel({
         )}
 
         {/* RCA response section */}
-        <div className="bg-brand-50/30">
+        <div className="bg-white">
           {rcaStatus === "generating" ? (
             <div className="px-6 py-5">
               <ThinkingState />

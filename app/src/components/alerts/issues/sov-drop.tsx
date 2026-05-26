@@ -16,24 +16,27 @@ function SovMetricCard({
   competitorLabel: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
       {/* Label + info icon */}
       <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
         {label}
         <Info className="h-3.5 w-3.5 text-slate-400" />
       </div>
 
-      {/* Prev → Curr */}
-      <div className="flex items-center gap-2 text-base">
-        <span className="font-medium text-slate-500">{prevSov}%</span>
-        <span className="text-slate-400">→</span>
-        <span className="font-semibold text-rose-500">{currSov}%</span>
-      </div>
+      {/* Grouped: values + competitor subline */}
+      <div className="flex flex-col gap-1">
+        {/* Prev → Curr */}
+        <div className="flex items-center gap-2 text-lg">
+          <span className="font-medium text-slate-500">{prevSov}%</span>
+          <span className="text-slate-400">→</span>
+          <span className="font-semibold text-rose-500">{currSov}%</span>
+        </div>
 
-      {/* Competitor benchmark */}
-      <p className="text-xs text-slate-400">
-        {competitorLabel} <span className="font-semibold text-slate-600">{competitorSov}%</span>
-      </p>
+        {/* Competitor benchmark */}
+        <p className="text-sm text-slate-400">
+          {competitorLabel} <span className="font-semibold text-slate-600">{competitorSov}%</span>
+        </p>
+      </div>
     </div>
   );
 }
