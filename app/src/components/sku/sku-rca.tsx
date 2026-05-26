@@ -686,24 +686,28 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
   return (
     <div className="grid grid-cols-3 gap-4">
       {kpis.map((k) => (
-        <div key={k.label} className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div key={k.label} className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          {/* Title row */}
           <div className="flex items-baseline gap-1.5">
             <span className="text-sm font-medium text-slate-600">{k.label}</span>
             <span className="text-sm text-slate-400">({k.period})</span>
           </div>
-          <p className={`text-2xl font-semibold leading-none ${k.valueColor}`}>
-            {k.value.includes(" vs ") ? (
-              <>
-                {k.value.split(" vs ")[0]}
-                <span className="ml-1.5 text-sm font-normal text-slate-400">
-                  vs {k.value.split(" vs ")[1]}
-                </span>
-              </>
-            ) : (
-              k.value
-            )}
-          </p>
-          <p className="text-sm leading-snug text-slate-500">{k.sub}</p>
+          {/* Value + sub grouped together */}
+          <div className="flex flex-col gap-2">
+            <p className={`text-2xl font-semibold leading-none ${k.valueColor}`}>
+              {k.value.includes(" vs ") ? (
+                <>
+                  {k.value.split(" vs ")[0]}
+                  <span className="ml-1.5 text-sm font-normal text-slate-400">
+                    vs {k.value.split(" vs ")[1]}
+                  </span>
+                </>
+              ) : (
+                k.value
+              )}
+            </p>
+            <p className="text-sm leading-snug text-slate-500">{k.sub}</p>
+          </div>
         </div>
       ))}
     </div>
