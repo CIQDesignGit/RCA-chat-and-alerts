@@ -189,9 +189,9 @@ const CAUSE_LBB: RootCause = {
   icon: <ShoppingCart className="h-4 w-4" />,
   label: "Buy Box",
   impact: "−$119.7K",
-  statusLabel: "OK",
-  statusStyle: "border-emerald-200 text-emerald-600",
-  liveStatus: "ok",
+  statusLabel: "Lost",
+  statusStyle: "border-rose-200 text-rose-600",
+  liveStatus: "bad",
   impactLabel: "estimated revenue at risk",
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
@@ -411,7 +411,7 @@ function getRcaData(sku: SkuAlert): RcaData {
       },
     ],
     statusPills: [
-      { label: "Buy Box",         value: "Buy Box Won (amazon.com)", status: "ok"      },
+      { label: "Buy Box",         value: "Buy Box Lost (3P Seller)", status: "warning" },
       { label: "Stock",           value: "In Stock",                 status: "ok"      },
       { label: "Deal Visibility", value: "Badge Missing",            status: "warning" },
       { label: "Shipping Speed",  value: "Thu May 14 (Prime)",       status: "info"    },
@@ -612,13 +612,15 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
   if (type === "lbb") {
     return (
       <LastWeekPerformanceLBB
-        lbbDays="0 / 7"
-        revenueLost="$0"
-        primaryCompetitor="amazon.com"
-        yourAvgPrice="$219.96"
-        competitorAvgPrice="$219.96"
-        avgPriceGap="$0.00"
-        status="clean"
+        period="May 10–16"
+        lbbPercent="70%"
+        revenueLost="-$119,708"
+        primaryCompetitor="Dyson"
+        primaryCompetitorType="3P Seller"
+        yourAvgPrice="$529.99"
+        competitorAvgPrice="$361.50"
+        avgPriceGap="-$168.49"
+        status="lost"
       />
     );
   }
@@ -626,7 +628,7 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
     <LastWeekPerformancePromoBadge
       period="May 10–16"
       badgeMissingDays="7 / 7 days"
-      estRevenueImpact="$4,200"
+      estRevenueImpact="-$4,200"
       listPriceMismatch="7 / 7 days"
       sellingPriceMismatch="7 / 7 days"
       listPriceVisibility="2 / 7 days"
