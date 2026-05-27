@@ -98,10 +98,8 @@ export function LastWeekPerformanceLBB({
             Primary Competitor
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">
-                    <Info className="h-3 w-3 text-slate-300" />
-                  </span>
+                <TooltipTrigger className="cursor-help">
+                  <Info className="h-3 w-3 text-slate-300" />
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   The seller who won the Buy Box most frequently during this period
