@@ -113,6 +113,7 @@ type RcaData = {
   chartData: { week: string; plan: number; actual: number | null }[];
   chartCaption: string;
   rootCauses: RootCauseGroup[];
+  rootCausesLastChecked: string;
   analysisBlocks: AnalysisBlock[];
   recommendations: Recommendation[];
   followUpQuestions: string[];
@@ -449,6 +450,7 @@ function getRcaData(sku: SkuAlert): RcaData {
     chartCaption:
       "Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.",
     rootCauses: buildGroups(sku),
+    rootCausesLastChecked: "Today, 9:42 AM",
     analysisBlocks: [
       {
         heading: "Primary cause — 100% Lost Buy Box all 7 days (May 3–9)",
@@ -896,7 +898,13 @@ function RootCauseRow({
   );
 }
 
-function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
+function RootCauses({
+  groups,
+  lastChecked,
+}: {
+  groups: RootCauseGroup[];
+  lastChecked: string;
+}) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   function toggle(id: string) {
@@ -936,7 +944,9 @@ function RootCauses({ groups }: { groups: RootCauseGroup[] }) {
               OK
             </span>
           </div>
-          <span className="text-xs text-slate-500">status as of last check</span>
+          <span className="text-xs text-slate-500">
+            As of <span className="font-medium text-slate-600">{lastChecked}</span>
+          </span>
         </div>
       </div>
 
@@ -1083,7 +1093,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
     return hasRootCauses ? (
       <div className="flex flex-col gap-8">
-        <RootCauses groups={data.rootCauses} />
+        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} />
       </div>
     ) : null;
   }
@@ -1118,7 +1128,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
           {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
           {data.rootCauses.some((g) => g.causes.length > 0) && (
-            <RootCauses groups={data.rootCauses} />
+            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} />
           )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />
