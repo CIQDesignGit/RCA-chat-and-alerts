@@ -37,8 +37,9 @@ import { PromoBadgeIssue }           from "@/components/alerts/issues/promo-badg
 import { SovDropIssue }              from "@/components/alerts/issues/sov-drop";
 import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-rank-drop";
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
-import { LastWeekPerformanceLBB }    from "@/components/alerts/issues/last-week-lbb";
 import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
+import { PromoBadgeTrendTable }      from "@/components/alerts/issues/promo-badge-trend-table";
+import { LastWeekTrendBuyBox }       from "@/components/alerts/issues/last-week-trend-buy-box";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -95,8 +96,11 @@ type RootCause = {
   issueCardType?: IssueCardType;
   // Conversion issue card — drives OK / Dropping Fast / Dropped mock data
   conversionState?: ConversionState;
-  // When set, renders a last-week performance summary below the issue card
-  lastWeekSummaryType?: "lbb" | "promo-badge";
+  // When true, renders the merged LastWeekTrendBuyBox widget
+  showBuyBoxTrend?: boolean;
+  // When set, renders the promo badge summary + 7-day trend (still separate for now)
+  lastWeekSummaryType?: "promo-badge";
+  trendTableType?: "promo-badge";
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -197,7 +201,7 @@ const CAUSE_LBB: RootCause = {
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
-  lastWeekSummaryType: "lbb",
+  showBuyBoxTrend: true,
 };
 
 // 2. Missing promo badge
@@ -213,6 +217,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
     "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
   issueCardType: "promo-badge",
   lastWeekSummaryType: "promo-badge",
+  trendTableType: "promo-badge",
 };
 
 // 3. Product not on deals page
@@ -626,24 +631,10 @@ function RootCauseIssueCard({
   }
 }
 
-// Renders the last-week performance summary card for a given cause type.
+// Renders the last-week performance summary card for promo-badge.
 // Hardcoded mock data matching the design images.
-function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
-  if (type === "lbb") {
-    return (
-      <LastWeekPerformanceLBB
-        period="May 10–16"
-        lbbPercent="70%"
-        revenueLost="-$119,708"
-        primaryCompetitor="Dyson"
-        primaryCompetitorType="3P Seller"
-        yourAvgPrice="$529.99"
-        competitorAvgPrice="$361.50"
-        avgPriceGap="-$168.49"
-        status="lost"
-      />
-    );
-  }
+function LastWeekSummaryCard({ type }: { type: "promo-badge" }) {
+  void type; // only "promo-badge" supported here now; LBB uses LastWeekTrendBuyBox
   return (
     <LastWeekPerformancePromoBadge
       period="May 10–16"
@@ -657,6 +648,17 @@ function LastWeekSummaryCard({ type }: { type: "lbb" | "promo-badge" }) {
     />
   );
 }
+
+// Mock rows for the Buy Box 7-day trend table.
+const LBB_TREND_ROWS = [
+  { date: "May 3",  buyBoxWinner: "Shark",      isYou: true,  revenueImpact: null,      yourPrice: "$379.99", competitorPrice: "$389.00", priceDiff: "+$9.01"   },
+  { date: "May 4",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$17.2K", yourPrice: "$529.99", competitorPrice: "$364.99", priceDiff: "-$165.00" },
+  { date: "May 5",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$16.8K", yourPrice: "$529.99", competitorPrice: "$359.49", priceDiff: "-$170.50" },
+  { date: "May 6",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$17.9K", yourPrice: "$529.99", competitorPrice: "$361.50", priceDiff: "-$168.49" },
+  { date: "May 7",  buyBoxWinner: "Shark",      isYou: true,  revenueImpact: null,      yourPrice: "$369.99", competitorPrice: "$371.00", priceDiff: "+$1.01"   },
+  { date: "May 8",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$19.1K", yourPrice: "$529.99", competitorPrice: "$357.99", priceDiff: "-$172.00" },
+  { date: "May 9",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$15.0K", yourPrice: "$529.99", competitorPrice: "$366.49", priceDiff: "-$163.50" },
+];
 
 // ─── Section heading ──────────────────────────────────────────────────────────
 
@@ -887,9 +889,30 @@ function RootCauseRow({
               />
             </div>
           )}
+          {cause.showBuyBoxTrend && (
+            <div className="mt-3">
+              <LastWeekTrendBuyBox
+                period="May 3–9"
+                lbbPercent="71%"
+                revenueLost="-$86.0K"
+                primaryCompetitor="Dyson"
+                primaryCompetitorType="3P Seller"
+                yourAvgPrice="$529.99"
+                competitorAvgPrice="$362.09"
+                avgPriceGap="-$167.90"
+                status="lost"
+                rows={LBB_TREND_ROWS}
+              />
+            </div>
+          )}
           {cause.lastWeekSummaryType && (
             <div className="mt-3">
               <LastWeekSummaryCard type={cause.lastWeekSummaryType} />
+            </div>
+          )}
+          {cause.trendTableType && (
+            <div className="mt-3">
+              <PromoBadgeTrendTable />
             </div>
           )}
         </div>
