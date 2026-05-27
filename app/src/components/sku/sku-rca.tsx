@@ -39,6 +39,8 @@ import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-ra
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
 import { LastWeekPerformanceLBB }    from "@/components/alerts/issues/last-week-lbb";
 import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
+import { LbbTrendTable }             from "@/components/alerts/issues/lbb-trend-table";
+import { PromoBadgeTrendTable }      from "@/components/alerts/issues/promo-badge-trend-table";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -97,6 +99,8 @@ type RootCause = {
   conversionState?: ConversionState;
   // When set, renders a last-week performance summary below the issue card
   lastWeekSummaryType?: "lbb" | "promo-badge";
+  // When set, renders a 7-day trend table below the summary card
+  trendTableType?: "lbb" | "promo-badge";
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -189,14 +193,15 @@ const CAUSE_LBB: RootCause = {
   icon: <ShoppingCart className="h-4 w-4" />,
   label: "Buy Box",
   impact: "−$119.7K",
-  statusLabel: "OK",
-  statusStyle: "border-emerald-200 text-emerald-600",
-  liveStatus: "ok",
+  statusLabel: "Lost",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
+  liveStatus: "bad",
   impactLabel: "estimated revenue at risk",
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
   lastWeekSummaryType: "lbb",
+  trendTableType: "lbb",
 };
 
 // 2. Missing promo badge
@@ -212,6 +217,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
     "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
   issueCardType: "promo-badge",
   lastWeekSummaryType: "promo-badge",
+  trendTableType: "promo-badge",
 };
 
 // 3. Product not on deals page
@@ -864,6 +870,14 @@ function RootCauseRow({
           {cause.lastWeekSummaryType && (
             <div className="mt-3">
               <LastWeekSummaryCard type={cause.lastWeekSummaryType} />
+            </div>
+          )}
+          {cause.trendTableType && (
+            <div className="mt-3">
+              {cause.trendTableType === "lbb"
+                ? <LbbTrendTable />
+                : <PromoBadgeTrendTable />
+              }
             </div>
           )}
         </div>
