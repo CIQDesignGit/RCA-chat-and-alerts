@@ -37,9 +37,8 @@ import { PromoBadgeIssue }           from "@/components/alerts/issues/promo-badg
 import { SovDropIssue }              from "@/components/alerts/issues/sov-drop";
 import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-rank-drop";
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
-import { LastWeekPerformancePromoBadge } from "@/components/alerts/issues/last-week-promo-badge";
-import { PromoBadgeTrendTable }      from "@/components/alerts/issues/promo-badge-trend-table";
 import { LastWeekTrendBuyBox }       from "@/components/alerts/issues/last-week-trend-buy-box";
+import { LastWeekTrendPromoBadge }   from "@/components/alerts/issues/last-week-trend-promo-badge";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -98,9 +97,8 @@ type RootCause = {
   conversionState?: ConversionState;
   // When true, renders the merged LastWeekTrendBuyBox widget
   showBuyBoxTrend?: boolean;
-  // When set, renders the promo badge summary + 7-day trend (still separate for now)
-  lastWeekSummaryType?: "promo-badge";
-  trendTableType?: "promo-badge";
+  // When true, renders the merged LastWeekTrendPromoBadge widget
+  showPromoBadgeTrend?: boolean;
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -216,8 +214,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   description:
     "Matching event ($349.99) active May 10–30 but the deal badge has not appeared on the PDP since launch.",
   issueCardType: "promo-badge",
-  lastWeekSummaryType: "promo-badge",
-  trendTableType: "promo-badge",
+  showPromoBadgeTrend: true,
 };
 
 // 3. Product not on deals page
@@ -357,7 +354,8 @@ function neutral(cause: RootCause): RootCause {
     statusStyle: OK_STYLE,
     liveStatus: "ok",
     issueCardType: undefined,
-    lastWeekSummaryType: undefined,
+    showBuyBoxTrend: undefined,
+    showPromoBadgeTrend: undefined,
     impact: null,
     impactLabel: undefined,
   };
@@ -631,23 +629,16 @@ function RootCauseIssueCard({
   }
 }
 
-// Renders the last-week performance summary card for promo-badge.
-// Hardcoded mock data matching the design images.
-function LastWeekSummaryCard({ type }: { type: "promo-badge" }) {
-  void type; // only "promo-badge" supported here now; LBB uses LastWeekTrendBuyBox
-  return (
-    <LastWeekPerformancePromoBadge
-      period="May 10–16"
-      badgeMissingDays="7 / 7 days"
-      estRevenueImpact="-$4,200"
-      listPriceMismatch="7 / 7 days"
-      sellingPriceMismatch="7 / 7 days"
-      listPriceVisibility="2 / 7 days"
-      noStrikethroughOnMsrp="7 / 7 days"
-      badgeShowing={false}
-    />
-  );
-}
+// Mock rows for the Promo Badge 7-day trend table.
+const PROMO_BADGE_TREND_ROWS = [
+  { date: "May 10", badgeMissing: true,  estRevenueImpact: "-$710", listPriceShown: false, strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+  { date: "May 11", badgeMissing: true,  estRevenueImpact: "-$680", listPriceShown: false, strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+  { date: "May 12", badgeMissing: false, estRevenueImpact: "$0",    listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$299.99", expectedSellingPrice: "$299.99" },
+  { date: "May 13", badgeMissing: true,  estRevenueImpact: "-$620", listPriceShown: false, strikethroughOnMsrp: false, sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+  { date: "May 14", badgeMissing: true,  estRevenueImpact: "-$710", listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+  { date: "May 15", badgeMissing: false, estRevenueImpact: "$0",    listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$299.99", expectedSellingPrice: "$299.99" },
+  { date: "May 16", badgeMissing: true,  estRevenueImpact: "-$605", listPriceShown: false, strikethroughOnMsrp: false, sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+];
 
 // Mock rows for the Buy Box 7-day trend table.
 const LBB_TREND_ROWS = [
@@ -905,14 +896,19 @@ function RootCauseRow({
               />
             </div>
           )}
-          {cause.lastWeekSummaryType && (
+          {cause.showPromoBadgeTrend && (
             <div className="mt-3">
-              <LastWeekSummaryCard type={cause.lastWeekSummaryType} />
-            </div>
-          )}
-          {cause.trendTableType && (
-            <div className="mt-3">
-              <PromoBadgeTrendTable />
+              <LastWeekTrendPromoBadge
+                period="May 10–16"
+                badgeMissingDays="7 / 7 days"
+                estRevenueImpact="-$4,200"
+                listPriceMismatch="7 / 7 days"
+                sellingPriceMismatch="7 / 7 days"
+                listPriceVisibility="2 / 7 days"
+                noStrikethroughOnMsrp="7 / 7 days"
+                badgeShowing={false}
+                rows={PROMO_BADGE_TREND_ROWS}
+              />
             </div>
           )}
         </div>
