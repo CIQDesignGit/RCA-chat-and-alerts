@@ -10,6 +10,7 @@ import {
   ArrowUp,
   ArrowUpRight,
   X,
+  History,
 } from "lucide-react";
 import {
   PromptInput,
@@ -180,6 +181,80 @@ function issueTypeToAlertType(type: Issue["type"] | undefined): string {
   }
 }
 
+// ─── PDP crawl-history dropdown ───────────────────────────────────────────────
+// Shows a list of past crawl timestamps, each linking to the live PDP snapshot.
+
+// Mock crawl history — replace with real API data when available.
+// Each entry represents a point-in-time crawl of the Amazon PDP.
+const MOCK_CRAWL_HISTORY = [
+  { label: "Today, 2:30 PM",       url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { label: "Today, 8:00 AM",       url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { label: "Yesterday, 11:45 PM",  url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { label: "Yesterday, 6:15 PM",   url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { label: "May 25, 2026 · 9:00 AM", url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { label: "May 24, 2026 · 3:00 PM", url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+];
+
+function PdpHistoryDropdown({ asin }: { asin: string }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close when clicking outside the dropdown
+  useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* History icon button */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="PDP crawl history"
+        className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+      >
+        <History className="h-3.5 w-3.5" />
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1.5 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+          {/* Header */}
+          <div className="border-b border-slate-100 px-3 py-2">
+            <p className="text-xs font-semibold text-slate-500">PDP Crawl History</p>
+            <p className="font-mono text-[10px] text-slate-400">{asin}</p>
+          </div>
+
+          {/* List of crawl timestamps */}
+          <ul className="max-h-52 overflow-y-auto py-1">
+            {MOCK_CRAWL_HISTORY.map((entry) => (
+              <li key={entry.label}>
+                <a
+                  href={entry.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50"
+                  onClick={() => setOpen(false)}
+                >
+                  <span>{entry.label}</span>
+                  <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function AlertDetailsPanel({
@@ -339,16 +414,20 @@ export function AlertDetailsPanel({
                 {alert.brand}
               </p>
               <div className="flex flex-wrap items-center gap-3">
-                <a
-                  href={`https://www.amazon.com/dp/${alert.asin}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
-                >
-                  <span className="text-[10px] font-bold text-amber-600">a</span>
-                  PDP Content
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                {/* PDP link + history button grouped tightly — they belong together */}
+                <div className="flex items-center gap-1">
+                  <a
+                    href={`https://www.amazon.com/dp/${alert.asin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                  >
+                    <span className="text-[10px] font-bold text-amber-600">a</span>
+                    PDP Content
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <PdpHistoryDropdown asin={alert.asin} />
+                </div>
                 <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
                 <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
               </div>

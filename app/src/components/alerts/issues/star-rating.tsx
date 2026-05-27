@@ -1,4 +1,5 @@
 import { Star, ArrowRight } from "lucide-react";
+import { LastWeekSnapshotRating } from "./last-week-snapshot-rating";
 
 function Stars({
   rating,
@@ -33,27 +34,41 @@ export type StarRatingProps = {
 
 export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
   return (
-    <div className="flex items-center gap-4">
-      {/* Old rating box — grey, neutral */}
-      <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-bold text-slate-400">{oldRating.toFixed(1)}</span>
-          <Stars rating={oldRating} active={false} />
+    <div className="flex flex-col gap-4">
+      {/* Old → New rating comparison */}
+      <div className="flex items-center gap-4">
+        {/* Old rating box — grey, neutral */}
+        <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-slate-400">{oldRating.toFixed(1)}</span>
+            <Stars rating={oldRating} active={false} />
+          </div>
+          <span className="text-xs text-slate-400">Old</span>
         </div>
-        <span className="text-xs text-slate-400">Old</span>
+
+        {/* Arrow */}
+        <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
+
+        {/* New rating box — rose/pink, indicates the drop */}
+        <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-white px-5 py-4">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
+            <Stars rating={newRating} active={true} />
+          </div>
+          <span className="text-xs text-slate-400">New</span>
+        </div>
       </div>
 
-      {/* Arrow */}
-      <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
-
-      {/* New rating box — rose/pink, indicates the drop */}
-      <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-white px-5 py-4">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
-          <Stars rating={newRating} active={true} />
-        </div>
-        <span className="text-xs text-slate-400">New</span>
-      </div>
+      {/* Last-week snapshot — mock data; replace with real API props when ready */}
+      <LastWeekSnapshotRating
+        period="May 20–26"
+        avgRating={4.0}
+        reviewCount={736}
+        oneStarPct={14}
+        twoStarPct={4}
+        belowBenchmark={false}
+        benchmarkRating={3.5}
+      />
     </div>
   );
 }

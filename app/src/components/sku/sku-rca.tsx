@@ -16,7 +16,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   SearchX,
-  MessageSquareWarning,
   ShoppingBag,
   Funnel,
   Award,
@@ -170,19 +169,8 @@ const CAUSE_SHIP: RootCause = {
   description: "Prime delivery available tomorrow (May 14). No extended delay risk detected.",
 };
 
-const CAUSE_REVIEW_SENTIMENT: RootCause = {
-  id: "review",
-  icon: <MessageSquareWarning className="h-4 w-4" />,
-  label: "Review Sentiment",
-  impact: null,
-  statusLabel: "OK",
-  statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
-  liveStatus: "ok",
-  description: "4.2-star average across 2,298 reviews. 1-star rate at 11% — within benchmark.",
-};
-
 // Convenience bundle — attached to every SKU alongside its specific causes
-const COMMON_CAUSES: RootCause[] = [CAUSE_MEDIA, CAUSE_OOS, CAUSE_SHIP, CAUSE_REVIEW_SENTIMENT];
+const COMMON_CAUSES: RootCause[] = [CAUSE_MEDIA, CAUSE_OOS, CAUSE_SHIP];
 
 // ─── Root causes with designed issue cards ────────────────────────────────────
 
@@ -248,7 +236,7 @@ const CAUSE_COUPON: RootCause = {
 const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
-  label: "Rating",
+  label: "Rating and Reviews",
   impact: null,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
@@ -371,7 +359,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   if (sku.asin === "B08H8JZKDF") {
     return [
       { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), neutral(CAUSE_DEALS_PAGE), neutral(CAUSE_COUPON)] },
-      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING), CAUSE_REVIEW_SENTIMENT] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING)] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
       { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_CONVERSION_DROPPING, CAUSE_KRD, CAUSE_MEDIA] },
     ];
@@ -381,7 +369,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   if (sku.asin === "B000BVFYU8") {
     return [
       { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), neutral(CAUSE_DEALS_PAGE), neutral(CAUSE_COUPON)] },
-      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), CAUSE_STAR_RATING] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
       { label: "Search & Traffic",   causes: [neutral(CAUSE_SOV), CAUSE_CONVERSION_OK, CAUSE_ORGANIC, CAUSE_MEDIA] },
     ];
@@ -391,7 +379,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   if (sku.asin === "B0BJZW4CLC") {
     return [
       { label: "PDP & Promos",       causes: [neutral(CAUSE_LBB), neutral(CAUSE_PROMO_BADGE), CAUSE_DEALS_PAGE, neutral(CAUSE_COUPON)] },
-      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING), CAUSE_REVIEW_SENTIMENT] },
+      { label: "Product Reputation", causes: [neutral(CAUSE_BSR), neutral(CAUSE_STAR_RATING)] },
       { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
       { label: "Search & Traffic",   causes: [CAUSE_SOV, neutral(CAUSE_CONVERSION_OK), neutral(CAUSE_KRD), CAUSE_MEDIA] },
     ];
@@ -400,7 +388,7 @@ function buildGroups(sku: SkuAlert): RootCauseGroup[] {
   // ── Default (B00I0DI0Z6 Food Processor) — full active set ──────────────────
   return [
     { label: "PDP & Promos",       causes: [CAUSE_LBB, CAUSE_PROMO_BADGE, CAUSE_DEALS_PAGE, CAUSE_COUPON] },
-    { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING, CAUSE_REVIEW_SENTIMENT] },
+    { label: "Product Reputation", causes: [CAUSE_BSR, CAUSE_STAR_RATING] },
     { label: "Fulfilment",         causes: [CAUSE_OOS, CAUSE_SHIP] },
     { label: "Search & Traffic",   causes: [CAUSE_SOV, CAUSE_CONVERSION_DROPPED, CAUSE_KRD, CAUSE_MEDIA] },
   ];
