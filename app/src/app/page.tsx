@@ -6,7 +6,7 @@ import { Pin, X } from "lucide-react";
 import { AlertsPanel } from "@/components/home/alerts-panel";
 import { BusinessLevelInsights } from "@/components/home/business-level-insights";
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
-import { FilterBar, type FilterState, type GroupBy } from "@/components/alerts/filter-bar";
+import { FilterBar, type FilterState } from "@/components/alerts/filter-bar";
 import { MessageThread } from "@/components/chat/message-thread";
 import { ChatInputBar } from "@/components/chat/chat-input-bar";
 import { useChatStore } from "@/lib/chat-store";
@@ -35,7 +35,7 @@ function HomePageInner() {
   const [activeBrandTab, setActiveBrandTab] = useState<string | null>("Shark");
 
   const [filterBarExpanded, setFilterBarExpanded] = useState(false);
-  const [groupBy, setGroupBy] = useState<GroupBy>("category");
+  const [groupBy] = useState<"category" | "date">("category");
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
     brand: null,
@@ -178,8 +178,6 @@ function HomePageInner() {
         initialFilters={{ brand: filters.brand ?? activeBrandTab, category: filters.category }}
         onFiltersChange={handleFiltersChange}
         onBack={handleCollapseFilterBar}
-        groupBy={groupBy}
-        onGroupByChange={setGroupBy}
       />
 
       {/* ── Two-panel body ── */}

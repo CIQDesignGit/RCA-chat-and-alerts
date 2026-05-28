@@ -65,9 +65,6 @@ interface FilterBarProps {
   isExpanded?: boolean;
   // Show the back button — hidden by default; enable only if explicit back-nav is needed
   showBackButton?: boolean;
-  // Group by control
-  groupBy?: GroupBy;
-  onGroupByChange?: (groupBy: GroupBy) => void;
 }
 
 // ── Issue type options ────────────────────────────────────────────────────────
@@ -91,7 +88,7 @@ const ISSUE_TYPE_OPTIONS: { id: string | null; label: string; icon?: LucideIcon;
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────
 
-export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded = true, showBackButton = false, groupBy = "category", onGroupByChange }: FilterBarProps) {
+export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded = true, showBackButton = false }: FilterBarProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
@@ -453,18 +450,6 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
         </button>
       )}
 
-      {/* ── Group by dropdown — pinned to the right edge ──────────────────── */}
-      <div className="ml-auto flex shrink-0 items-center gap-1.5">
-        <span className="text-xs text-slate-400">Group by</span>
-        <select
-          value={groupBy}
-          onChange={(e) => onGroupByChange?.(e.target.value as GroupBy)}
-          className="w-auto cursor-pointer bg-transparent py-0.5 text-xs font-medium text-slate-700 focus:outline-none"
-        >
-          <option value="category">Category</option>
-          <option value="date">Date</option>
-        </select>
-      </div>
     </div>
     </div>
   );

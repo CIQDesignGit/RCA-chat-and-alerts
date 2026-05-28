@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
 import type { AlertItem } from "@/components/alerts/types";
 import type { GroupBy } from "@/components/alerts/filter-bar";
 import { SkuAlertCard } from "@/components/alerts/sku-alert-card";
@@ -36,8 +34,6 @@ const CATEGORY_GROUPS = CATEGORY_ORDER.map((cat) => ({
   totalGap: CATEGORY_TOTALS[cat],
   items: ALERT_ITEMS.filter((a) => a.category === cat),
 }));
-
-const TOTAL_SKUS = ALERT_ITEMS.length;
 
 function formatGap(value: number): string {
   const abs = Math.abs(value);
@@ -77,8 +73,6 @@ export function AlertsPanel({
   brandFilter,
   groupBy = "category",
 }: AlertsPanelProps) {
-  const [isYesterdayOpen, setIsYesterdayOpen] = useState(false);
-
   const hasFilter = !!(filters?.brand || filters?.category);
 
   // All items that pass the active filters (or brand scope)
@@ -90,9 +84,8 @@ export function AlertsPanel({
     return true;
   });
 
-  // Split into today vs yesterday buckets
+  // Only show today's SKUs
   const todayItems = visibleItems.filter((i) => i.date === "Today");
-  const yesterdayItems = visibleItems.filter((i) => i.date === "Yesterday");
 
   // Full list mode: no brand scope AND no filter bar filters applied
   const isFullList = !brandFilter && !hasFilter;
@@ -128,7 +121,6 @@ export function AlertsPanel({
   }
 
   const todayGroups = buildGroups(todayItems);
-  const yesterdayGroups = buildGroups(yesterdayItems);
 
 
   return (
@@ -139,8 +131,9 @@ export function AlertsPanel({
         <div className="flex-1 overflow-y-auto pb-48 scrollbar-none [&::-webkit-scrollbar]:hidden">
 
           {/* ── Today's SKUs ── */}
-          <div className="sticky top-0 z-10 bg-white px-4 py-3">
+          <div className="bg-white px-4 py-3">
             <span className="text-sm font-semibold text-slate-800">Today's SKUs</span>
+            <p className="mt-0.5 text-xs text-slate-400">Based on previous 24 hrs of data</p>
           </div>
 
           {todayGroups.map((group, groupIndex) => {
@@ -196,67 +189,6 @@ export function AlertsPanel({
             );
           })}
 
-          {/* ── Yesterday's SKUs — collapsed accordion ── */}
-          {yesterdayItems.length > 0 && (
-            <div className="border-t-2 border-slate-200">
-              {/* Accordion toggle header */}
-              <button
-                onClick={() => setIsYesterdayOpen((p) => !p)}
-                className="sticky top-0 z-10 flex w-full items-center justify-between border-b border-slate-200 bg-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-200"
-              >
-                <span className="text-sm font-semibold text-slate-800">Yesterday's SKUs</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-red-500">
-                    {formatGap(yesterdayItems.reduce((sum, i) => sum + i.gapDollar, 0))}
-                  </span>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 text-slate-400 transition-transform duration-200",
-                      isYesterdayOpen && "rotate-180",
-                    )}
-                  />
-                </div>
-              </button>
-
-              {/* Accordion body */}
-              {isYesterdayOpen && (
-                <div>
-                  {yesterdayGroups.map((group, groupIndex) => {
-                    const shownItems = (categoryFiltered || isFullList)
-                      ? group.items
-                      : group.items.slice(0, HOME_SKU_LIMIT);
-
-                    return (
-                      <div
-                        key={group.key}
-                        className={groupIndex > 0 ? "border-t border-slate-100" : ""}
-                      >
-                        <div className="flex items-center justify-between bg-slate-50 px-4 py-2">
-                          <span className="flex items-center gap-1">
-                            <span className="text-xs font-semibold text-slate-800">{group.label}</span>
-                            <span className="text-xs text-slate-500">({group.items.length})</span>
-                          </span>
-                          <span className="text-xs font-bold text-red-500">{formatGap(group.totalGap)}</span>
-                        </div>
-
-                        <div className="flex flex-col gap-2 p-3">
-                          {shownItems.map((item) => (
-                            <SkuAlertCard
-                              key={item.id}
-                              alert={item}
-                              variant={(categoryFiltered || isFullList) ? "full" : "compact"}
-                              isActive={item.id === selectedAlertId}
-                              onClick={() => onAlertSelect?.(item)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
       </aside>

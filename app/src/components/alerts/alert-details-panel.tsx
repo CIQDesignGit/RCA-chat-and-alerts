@@ -429,7 +429,6 @@ export function AlertDetailsPanel({
                   <PdpHistoryDropdown asin={alert.asin} />
                 </div>
                 <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
-                <span className="ml-auto text-xs text-slate-400">{alert.date}</span>
               </div>
             </div>
           </div>
