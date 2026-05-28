@@ -218,9 +218,10 @@ function PdpHistoryDropdown({ asin }: { asin: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="PDP crawl history"
-        className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+        className="flex h-[26px] items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
       >
-        <History className="h-3.5 w-3.5" />
+        <History className="h-3.5 w-3.5 shrink-0" />
+        PDP History
       </button>
 
       {/* Dropdown panel */}

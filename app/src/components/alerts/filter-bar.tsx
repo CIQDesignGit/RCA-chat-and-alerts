@@ -115,6 +115,23 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
   const skusRef = useRef<HTMLDivElement>(null);
   const issueTypeRef = useRef<HTMLDivElement>(null);
 
+  // Shared close timer — gives a 150ms grace period when the mouse crosses the
+  // gap between the trigger chip and the dropdown panel, preventing premature closes.
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function openDropdown(setter: (v: boolean) => void) {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    // Close all other dropdowns before opening this one
+    [setIsBrandsOpen, setIsCategoriesOpen, setIsSkusOpen, setIsIssueTypeOpen].forEach(
+      (s) => s !== setter && s(false),
+    );
+    setter(true);
+  }
+
+  function scheduleClose(setter: (v: boolean) => void) {
+    closeTimerRef.current = setTimeout(() => setter(false), 150);
+  }
+
   // Sync brand/category when parent drives a filter change (e.g. "View all X" click).
   // FilterBar is always in the DOM now, so useState initializer only runs once —
   // we need this effect to pick up changes pushed from outside.
@@ -220,7 +237,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
       />
 
       {/* ── Issue type filter ─────────────────────────────────────────────── */}
-      <div className="relative" ref={issueTypeRef}>
+      <div className="relative" ref={issueTypeRef} onMouseEnter={() => openDropdown(setIsIssueTypeOpen)} onMouseLeave={() => scheduleClose(setIsIssueTypeOpen)}>
         {/* Loading state — shown while the 2-sec simulation runs */}
         {isIssueTypeLoading ? (
           <button
@@ -327,7 +344,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
       </div>
 
       {/* ── Brand filter ──────────────────────────────────────────────────── */}
-      <div className="relative" ref={brandsRef}>
+      <div className="relative" ref={brandsRef} onMouseEnter={() => openDropdown(setIsBrandsOpen)} onMouseLeave={() => scheduleClose(setIsBrandsOpen)}>
         {loadingFilter === "brand" ? (
           <LoadingChip label={pendingFilterLabel ?? "Brand"} />
         ) : filters.brand ? (
@@ -369,7 +386,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
 
       {/* ── Category filter — visible once a brand is selected ────────────── */}
       {filters.brand && (
-        <div className="relative" ref={categoriesRef}>
+        <div className="relative" ref={categoriesRef} onMouseEnter={() => openDropdown(setIsCategoriesOpen)} onMouseLeave={() => scheduleClose(setIsCategoriesOpen)}>
           {loadingFilter === "category" ? (
             <LoadingChip label={pendingFilterLabel ?? "Category"} />
           ) : filters.category ? (
@@ -404,7 +421,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
 
       {/* ── SKU filter — visible once a category is selected ─────────────── */}
       {filters.category && (
-        <div className="relative" ref={skusRef}>
+        <div className="relative" ref={skusRef} onMouseEnter={() => openDropdown(setIsSkusOpen)} onMouseLeave={() => scheduleClose(setIsSkusOpen)}>
           {loadingFilter === "sku" ? (
             <LoadingChip label={pendingFilterLabel ?? "SKU"} />
           ) : filters.sku ? (
