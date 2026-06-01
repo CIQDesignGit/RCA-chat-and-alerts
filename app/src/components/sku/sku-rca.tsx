@@ -45,10 +45,14 @@ import {
   getConversionDiagnosis,
   type ConversionState,
 } from "@/components/alerts/issues/conversion";
+import {
+  MediaSpendIssue,
+  getMediaSpendIssueProps,
+} from "@/components/alerts/issues/media-spend";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-// All 7 issue types that have a designed card.
+// All issue types that have a designed card.
 // "deals-page" and "organic-keyword" share a renderer with "promo-badge"
 // and "keyword-rank-drop" respectively until dedicated components are built.
 type IssueCardType =
@@ -60,7 +64,8 @@ type IssueCardType =
   | "sov-drop"           // SovDropIssue
   | "organic-keyword"    // KeywordRankDropIssue (reused)
   | "coupon"             // CouponIssue
-  | "conversion";        // ConversionIssue
+  | "conversion"         // ConversionIssue
+  | "media-spend";       // MediaSpendIssue
 
 type KpiStat = {
   label: string;
@@ -143,8 +148,8 @@ const CAUSE_MEDIA: RootCause = {
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
-    "Spend cut on all top-10 keywords last week. Largest reduction on 'vacuum cleaners for home' (−$1,715 spend, −$37.3K sales WoW).",
-
+    "Spend cut on all top-10 keywords last week. Total keyword spend (all KWs): $1,240 Last Week vs. $1,580 Previous Week.",
+  issueCardType: "media-spend",
 };
 
 const CAUSE_OOS: RootCause = {
@@ -614,6 +619,9 @@ function RootCauseIssueCard({
           ]}
         />
       );
+
+    case "media-spend":
+      return <MediaSpendIssue {...getMediaSpendIssueProps()} />;
   }
 }
 
@@ -801,6 +809,19 @@ const LIVE_DOT_CLASS: Record<LiveStatus, string> = {
   bad:     "bg-red-500",
 };
 
+// Emphasise dollar figures inside diagnosis copy
+function highlightDollarAmounts(text: string) {
+  return text.split(/(\$[\d,]+(?:\.\d+)?[KMB]?)/g).map((part, i) =>
+    /^\$/.test(part) ? (
+      <span key={i} className="font-semibold text-slate-700">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 function RootCauseRow({
   cause,
   isOpen,
@@ -851,7 +872,9 @@ function RootCauseRow({
           {/* Description + action row — description always present to keep layout stable */}
           <div className="flex items-start gap-10">
             <p className="flex-1 text-sm leading-relaxed text-slate-500">
-              {cause.description || "No additional context available for this issue."}
+              {cause.description
+                ? highlightDollarAmounts(cause.description)
+                : "No additional context available for this issue."}
             </p>
             <button
               type="button"

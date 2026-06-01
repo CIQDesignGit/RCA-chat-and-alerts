@@ -228,7 +228,7 @@ function HomePageInner() {
             </div>
           ) : (
             // ── Landing overview — greeting + insights + chat input ───────────
-            <div className="flex h-full flex-col items-center justify-between py-5">
+            <div className="flex h-full flex-col items-center justify-between pt-5 pb-2">
 
               {/* Top: greeting + business insights */}
               <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
@@ -247,7 +247,7 @@ function HomePageInner() {
               </div>
 
               {/* Bottom: suggestion chips + chat input */}
-              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8 pb-10">
+              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s) => (
                     <button
