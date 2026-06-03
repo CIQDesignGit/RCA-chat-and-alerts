@@ -120,6 +120,7 @@ function RankChangeCell({ rankPw, rankLw }: { rankPw: number; rankLw: number }) 
 // 32px gap between columns via pl-8 on non-first cells
 const CELL_FIRST = "py-2.5 pl-4 pr-0 text-left align-top";
 const CELL_MID   = "py-2.5 pl-8 pr-0 text-left align-top";
+const CELL_NUM   = "py-2.5 pl-8 pr-0 text-right align-top";
 const CELL_RANK  = "py-2.5 pl-8 pr-4 text-right align-top";
 // Absorbs extra width so header bg + row borders reach the container edge
 const CELL_FILLER = "w-full p-0";
@@ -164,15 +165,22 @@ function ColHeader({
 function SpendColHeader({
   label,
   dateRange,
-  cellClass = CELL_MID,
+  cellClass = CELL_NUM,
+  align = "right",
 }: {
   label: string;
   dateRange: string;
   cellClass?: string;
+  align?: "left" | "right";
 }) {
   return (
     <th className={cn("whitespace-nowrap", cellClass)}>
-      <div className="flex flex-col items-start gap-0.5">
+      <div
+        className={cn(
+          "flex flex-col gap-0.5",
+          align === "right" ? "items-end" : "items-start",
+        )}
+      >
         <span className="text-xs font-semibold text-slate-600">{label}</span>
         <span className="text-[10px] font-medium tabular-nums text-slate-400">
           {dateRange}
@@ -208,7 +216,8 @@ export function MediaSpendIssue({
                 Importance
               </ColHeader>
               <ColHeader
-                cellClass={CELL_MID}
+                cellClass={CELL_NUM}
+                align="right"
                 tooltip="Search Frequency Rank — how often shoppers search this term. Lower numbers mean higher search volume."
               >
                 SFR
@@ -216,12 +225,10 @@ export function MediaSpendIssue({
               <SpendColHeader
                 label="Spend LW"
                 dateRange={lastWeekRange}
-                cellClass={CELL_MID}
               />
               <SpendColHeader
                 label="Spend Change"
                 dateRange={`vs. ${previousWeekRange}`}
-                cellClass={CELL_MID}
               />
               <ColHeader cellClass={CELL_RANK} align="right">
                 Rank (PW → LW)
@@ -244,13 +251,13 @@ export function MediaSpendIssue({
                   <td className={CELL_MID}>
                     <ImportanceIndicator level={kw.importance} />
                   </td>
-                  <td className={cn(CELL_MID, "text-sm tabular-nums text-slate-700")}>
+                  <td className={cn(CELL_NUM, "text-sm tabular-nums text-slate-700")}>
                     {kw.sfr.toLocaleString()}
                   </td>
-                  <td className={cn(CELL_MID, "text-sm tabular-nums text-slate-700")}>
+                  <td className={cn(CELL_NUM, "text-sm tabular-nums text-slate-700")}>
                     {fmtSpend(kw.spendLw)}
                   </td>
-                  <td className={cn(CELL_MID, "text-sm font-semibold tabular-nums text-slate-700")}>
+                  <td className={cn(CELL_NUM, "text-sm font-semibold tabular-nums text-slate-700")}>
                     {fmtSpendChange(delta)}
                   </td>
                   <td className={CELL_RANK}>
