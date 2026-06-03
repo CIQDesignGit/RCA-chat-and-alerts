@@ -14,8 +14,11 @@ export type Importance = "High" | "Medium" | "Low";
 export type MediaSpendKeyword = {
   keyword: string;
   importance: Importance;
-  spendLw: number; // spend last week
-  spendPw: number; // spend previous week
+  sfr: number; // search frequency rank — lower = higher search volume
+  spendLw: number;
+  spendPw: number;
+  rankPw: number; // organic rank previous week
+  rankLw: number; // organic rank last week
   salesImpact: number;
 };
 
@@ -29,16 +32,16 @@ export type MediaSpendIssueProps = {
 // ─── Mock data — 10 keywords, sorted by largest spend cut first ───────────────
 
 export const DEFAULT_MEDIA_SPEND_KEYWORDS: MediaSpendKeyword[] = [
-  { keyword: "vacuum cleaners for home",  importance: "High",   spendLw: 3_105, spendPw: 4_820, salesImpact: -37_300 },
-  { keyword: "robot vacuum cleaner",      importance: "High",   spendLw:     0, spendPw: 12.40, salesImpact: -24_100 },
-  { keyword: "shark cordless vacuum",     importance: "High",   spendLw: 2_480, spendPw: 3_640, salesImpact: -28_400 },
-  { keyword: "cordless stick vacuum",     importance: "Medium", spendLw:  3.20, spendPw: 18.90, salesImpact: -16_200 },
-  { keyword: "stick vacuum cleaner",      importance: "Medium", spendLw: 2_020, spendPw: 2_910, salesImpact: -19_800 },
-  { keyword: "upright vacuum",            importance: "Medium", spendLw: 1_780, spendPw: 2_450, salesImpact: -14_200 },
-  { keyword: "pet hair vacuum",           importance: "Medium", spendLw: 1_420, spendPw: 1_980, salesImpact: -11_600 },
-  { keyword: "shark vacuum deals",        importance: "Medium", spendLw:     0, spendPw:     0, salesImpact:      0 },
-  { keyword: "lightweight vacuum",        importance: "Low",    spendLw: 1_290, spendPw: 1_720, salesImpact:  -9_400 },
-  { keyword: "hardwood floor vacuum",     importance: "Low",    spendLw: 1_180, spendPw: 1_540, salesImpact:  -8_100 },
+  { keyword: "vacuum cleaners for home",  importance: "High",   sfr: 842,  spendLw: 3_105, spendPw: 4_820, rankPw: 8,  rankLw: 14, salesImpact: -37_300 },
+  { keyword: "robot vacuum cleaner",      importance: "High",   sfr: 1_240, spendLw:     0, spendPw: 12.40, rankPw: 5,  rankLw: 11, salesImpact: -24_100 },
+  { keyword: "shark cordless vacuum",     importance: "High",   sfr: 2_180, spendLw: 2_480, spendPw: 3_640, rankPw: 6,  rankLw: 9,  salesImpact: -28_400 },
+  { keyword: "cordless stick vacuum",     importance: "Medium", sfr: 3_450, spendLw:  3.20, spendPw: 18.90, rankPw: 12, rankLw: 10, salesImpact: -16_200 },
+  { keyword: "stick vacuum cleaner",      importance: "Medium", sfr: 4_120, spendLw: 2_020, spendPw: 2_910, rankPw: 11, rankLw: 15, salesImpact: -19_800 },
+  { keyword: "upright vacuum",            importance: "Medium", sfr: 5_890, spendLw: 1_780, spendPw: 2_450, rankPw: 18, rankLw: 16, salesImpact: -14_200 },
+  { keyword: "pet hair vacuum",           importance: "Medium", sfr: 6_240, spendLw: 1_420, spendPw: 1_980, rankPw: 22, rankLw: 24, salesImpact: -11_600 },
+  { keyword: "shark vacuum deals",        importance: "Medium", sfr: 8_100, spendLw:     0, spendPw:     0, rankPw: 31, rankLw: 31, salesImpact:      0 },
+  { keyword: "lightweight vacuum",        importance: "Low",    sfr: 12_400, spendLw: 1_290, spendPw: 1_720, rankPw: 28, rankLw: 26, salesImpact:  -9_400 },
+  { keyword: "hardwood floor vacuum",     importance: "Low",    sfr: 15_800, spendLw: 1_180, spendPw: 1_540, rankPw: 35, rankLw: 38, salesImpact:  -8_100 },
 ];
 
 export function getMediaSpendIssueProps(): MediaSpendIssueProps {
@@ -59,8 +62,15 @@ function fmtSpend(value: number): string {
   return `$${abs.toFixed(2)}`;
 }
 
-function spendCut(pw: number, lw: number): number {
-  return pw - lw;
+// Signed spend delta — LW minus PW
+function fmtSpendChange(delta: number): string {
+  if (delta === 0) return fmtSpend(0);
+  const sign = delta > 0 ? "+" : "−";
+  return `${sign}${fmtSpend(Math.abs(delta))}`;
+}
+
+function spendChange(pw: number, lw: number): number {
+  return lw - pw;
 }
 
 // ─── Importance — icon + label, no pill container ─────────────────────────────
@@ -77,32 +87,62 @@ const IMPORTANCE_CONFIG: Record<
 function ImportanceIndicator({ level }: { level: Importance }) {
   const { icon: Icon, iconClassName } = IMPORTANCE_CONFIG[level];
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700">
+    <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
       <Icon className={cn("h-3.5 w-3.5 shrink-0", iconClassName)} aria-hidden />
       {level}
     </span>
   );
 }
 
+// Organic rank change — lower rank number = better position
+function RankChangeCell({ rankPw, rankLw }: { rankPw: number; rankLw: number }) {
+  const delta = rankLw - rankPw; // positive = dropped, negative = improved
+
+  return (
+    <span className="inline-flex items-center text-sm tabular-nums whitespace-nowrap">
+      <span className="w-10 text-right text-slate-400">#{rankPw}</span>
+      <span className="w-4 shrink-0 pl-2 text-center text-slate-300">→</span>
+      <span className="w-10 text-right font-medium text-slate-700">#{rankLw}</span>
+      <span
+        className={cn(
+          "w-11 text-right text-xs font-medium",
+          delta > 0 ? "text-rose-500" : delta < 0 ? "text-emerald-600" : "text-slate-400",
+        )}
+      >
+        {delta !== 0 ? `(${delta > 0 ? "+" : ""}${delta})` : ""}
+      </span>
+    </span>
+  );
+}
+
 // ─── Column headers ───────────────────────────────────────────────────────────
 
-// 20px gap between columns via pl-5 on non-first cells
+// 32px gap between columns via pl-8 on non-first cells
 const CELL_FIRST = "py-2.5 pl-4 pr-0 text-left align-top";
-const CELL_MID   = "py-2.5 pl-5 pr-0 text-left align-top";
-const CELL_LAST  = "py-2.5 pl-5 pr-4 text-left align-top";
+const CELL_MID   = "py-2.5 pl-8 pr-0 text-left align-top";
+const CELL_RANK  = "py-2.5 pl-8 pr-4 text-right align-top";
+// Absorbs extra width so header bg + row borders reach the container edge
+const CELL_FILLER = "w-full p-0";
 
 function ColHeader({
   children,
   cellClass = CELL_MID,
+  align = "left",
   tooltip,
 }: {
   children: React.ReactNode;
   cellClass?: string;
+  align?: "left" | "right";
   tooltip?: string;
 }) {
   return (
     <th className={cn("whitespace-nowrap text-xs font-semibold text-slate-600", cellClass)}>
-      <span className="inline-flex items-center gap-1">
+      <span
+        className={cn(
+          "inline-flex items-center gap-1",
+          align === "right" && "w-full justify-end",
+        )}
+      >
         {children}
         {tooltip && (
           <TooltipProvider>
@@ -147,7 +187,6 @@ function SpendColHeader({
 export function MediaSpendIssue({
   period,
   lastWeekRange,
-  previousWeekRange,
   keywords,
 }: MediaSpendIssueProps) {
   return (
@@ -156,8 +195,8 @@ export function MediaSpendIssue({
         Top Contributing Keywords
         <span className="ml-2 text-xs font-normal text-slate-400">{period}</span>
       </p>
-      <div className="w-fit max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-fit table-auto border-collapse">
+      <div className="min-w-0 w-full max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-max table-auto border-collapse">
           <thead className="bg-slate-100">
             <tr className="border-b border-slate-200">
               <ColHeader cellClass={CELL_FIRST}>Keyword</ColHeader>
@@ -167,21 +206,32 @@ export function MediaSpendIssue({
               >
                 Importance
               </ColHeader>
-              <SpendColHeader
-                label="Spend PW"
-                dateRange={previousWeekRange}
+              <ColHeader
                 cellClass={CELL_MID}
-              />
+                tooltip="Search Frequency Rank — how often shoppers search this term. Lower numbers mean higher search volume."
+              >
+                SFR
+              </ColHeader>
               <SpendColHeader
                 label="Spend LW"
                 dateRange={lastWeekRange}
-                cellClass={CELL_LAST}
+                cellClass={CELL_MID}
               />
+              <ColHeader
+                cellClass={CELL_MID}
+                tooltip="Week-over-week change in media spend compared to the previous week."
+              >
+                Spend Change
+              </ColHeader>
+              <ColHeader cellClass={CELL_RANK} align="right">
+                Rank (PW → LW)
+              </ColHeader>
+              <th className={CELL_FILLER} aria-hidden />
             </tr>
           </thead>
           <tbody>
             {keywords.map((kw) => {
-              const hasCut = spendCut(kw.spendPw, kw.spendLw) > 0;
+              const delta = spendChange(kw.spendPw, kw.spendLw);
 
               return (
                 <tr
@@ -194,18 +244,21 @@ export function MediaSpendIssue({
                   <td className={CELL_MID}>
                     <ImportanceIndicator level={kw.importance} />
                   </td>
-                  <td className={cn(CELL_MID, "text-sm tabular-nums text-slate-500")}>
-                    {fmtSpend(kw.spendPw)}
+                  <td className={cn(CELL_MID, "text-sm tabular-nums text-slate-700")}>
+                    {kw.sfr.toLocaleString()}
                   </td>
-                  <td className={cn(CELL_LAST, "text-sm tabular-nums")}>
-                    <span
-                      className={cn(
-                        hasCut ? "font-medium text-rose-500" : "text-slate-700",
-                      )}
-                    >
-                      {fmtSpend(kw.spendLw)}
-                    </span>
+                  <td className={cn(CELL_MID, "text-sm tabular-nums text-slate-700")}>
+                    {fmtSpend(kw.spendLw)}
                   </td>
+                  <td className={cn(CELL_MID, "text-sm font-semibold tabular-nums text-slate-700")}>
+                    {fmtSpendChange(delta)}
+                  </td>
+                  <td className={CELL_RANK}>
+                    <div className="flex justify-end">
+                      <RankChangeCell rankPw={kw.rankPw} rankLw={kw.rankLw} />
+                    </div>
+                  </td>
+                  <td className={CELL_FILLER} aria-hidden />
                 </tr>
               );
             })}
