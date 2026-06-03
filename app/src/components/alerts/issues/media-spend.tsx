@@ -187,6 +187,7 @@ function SpendColHeader({
 export function MediaSpendIssue({
   period,
   lastWeekRange,
+  previousWeekRange,
   keywords,
 }: MediaSpendIssueProps) {
   return (
@@ -217,12 +218,11 @@ export function MediaSpendIssue({
                 dateRange={lastWeekRange}
                 cellClass={CELL_MID}
               />
-              <ColHeader
+              <SpendColHeader
+                label="Spend Change"
+                dateRange={`vs. ${previousWeekRange}`}
                 cellClass={CELL_MID}
-                tooltip="Week-over-week change in media spend compared to the previous week."
-              >
-                Spend Change
-              </ColHeader>
+              />
               <ColHeader cellClass={CELL_RANK} align="right">
                 Rank (PW → LW)
               </ColHeader>
