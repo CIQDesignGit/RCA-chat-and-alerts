@@ -46,7 +46,7 @@ export const DEFAULT_MEDIA_SPEND_KEYWORDS: MediaSpendKeyword[] = [
 
 export function getMediaSpendIssueProps(): MediaSpendIssueProps {
   return {
-    period: "Last week (May 3–9)",
+    period: "Last 7 Days (May 3–9)",
     lastWeekRange: "May 3–9",
     previousWeekRange: "Apr 26–May 2",
     keywords: DEFAULT_MEDIA_SPEND_KEYWORDS,
@@ -223,16 +223,19 @@ export function MediaSpendIssue({
                 SFR
               </ColHeader>
               <SpendColHeader
-                label="Spend LW"
+                label="Last 7 Days"
                 dateRange={lastWeekRange}
               />
               <SpendColHeader
-                label="Spend Change"
-                dateRange={`vs. ${previousWeekRange}`}
+                label="Previous 7 Days"
+                dateRange={previousWeekRange}
               />
-              <ColHeader cellClass={CELL_RANK} align="right">
-                Rank (PW → LW)
-              </ColHeader>
+              <SpendColHeader
+                label="Keyword Rank"
+                dateRange="Previous 7 Days → Last 7 Days"
+                cellClass={CELL_RANK}
+                align="right"
+              />
               <th className={CELL_FILLER} aria-hidden />
             </tr>
           </thead>

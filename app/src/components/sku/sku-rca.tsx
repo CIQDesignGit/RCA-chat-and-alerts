@@ -148,7 +148,7 @@ const CAUSE_MEDIA: RootCause = {
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
-    "Spend cut on all top-10 keywords last week. Total keyword spend (all KWs): $1,240 Last Week vs. $1,580 Previous Week.",
+    "Spend cut on all top-10 keywords in the last 7 days. Total keyword spend (all KWs): $1,240 Last 7 Days vs. $1,580 Previous 7 Days.",
   issueCardType: "media-spend",
 };
 
