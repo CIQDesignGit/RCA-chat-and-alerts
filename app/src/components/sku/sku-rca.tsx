@@ -503,9 +503,11 @@ function getRcaData(sku: SkuAlert): RcaData {
 function RootCauseIssueCard({
   type,
   conversionState = "dropped",
+  asin,
 }: {
   type: IssueCardType;
   conversionState?: ConversionState;
+  asin?: string;
 }) {
   switch (type) {
     case "lost-buy-box":
@@ -566,11 +568,13 @@ function RootCauseIssueCard({
       const hr = 3_600_000;
       return (
         <CouponIssue
+          asin={asin}
           scrapes={[
             {
               // Multiple coupons at the same scrape time
               timestamp: now - 3 * hr,
               detected: true,
+              buyBoxWinner: "Shark",
               coupons: [
                 "Apply $2.95 coupon",
                 "Save 10%: Coupon available when you select Subscribe & Save .",
@@ -580,17 +584,20 @@ function RootCauseIssueCard({
               // Dollar-off coupon
               timestamp: now - 6 * hr,
               detected: true,
+              buyBoxWinner: "Dyson (3P)",
               coupons: ["Apply $2.95 coupon"],
             },
             {
               // No coupon detected
               timestamp: now - 9 * hr,
               detected: false,
+              buyBoxWinner: "Shark",
             },
             {
               // Percentage coupon
               timestamp: now - 12 * hr,
               detected: true,
+              buyBoxWinner: "Hotwired (3P)",
               coupons: ["Apply 15% coupon"],
             },
           ]}
@@ -826,10 +833,12 @@ function RootCauseRow({
   cause,
   isOpen,
   onToggle,
+  asin,
 }: {
   cause: RootCause;
   isOpen: boolean;
   onToggle: () => void;
+  asin?: string;
 }) {
   return (
     <div>
@@ -888,6 +897,7 @@ function RootCauseRow({
               <RootCauseIssueCard
                 type={cause.issueCardType}
                 conversionState={cause.conversionState}
+                asin={asin}
               />
             </div>
           )}
@@ -931,9 +941,11 @@ function RootCauseRow({
 function RootCauses({
   groups,
   lastChecked,
+  asin,
 }: {
   groups: RootCauseGroup[];
   lastChecked: string;
+  asin?: string;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
@@ -998,6 +1010,7 @@ function RootCauses({
                     cause={cause}
                     isOpen={openIds.has(cause.id)}
                     onToggle={() => toggle(cause.id)}
+                    asin={asin}
                   />
                 </div>
               ))}
@@ -1123,7 +1136,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
     return hasRootCauses ? (
       <div className="flex flex-col gap-8">
-        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} />
+        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} />
       </div>
     ) : null;
   }
@@ -1158,7 +1171,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
           {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
           {data.rootCauses.some((g) => g.causes.length > 0) && (
-            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} />
+            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} />
           )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />
