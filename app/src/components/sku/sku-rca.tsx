@@ -188,7 +188,7 @@ const CAUSE_LBB: RootCause = {
   statusLabel: "Lost",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
-  impactLabel: "estimated revenue at risk",
+  impactLabel: "estimated revenue lost",
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
@@ -504,10 +504,12 @@ function RootCauseIssueCard({
   type,
   conversionState = "dropped",
   asin,
+  brand,
 }: {
   type: IssueCardType;
   conversionState?: ConversionState;
   asin?: string;
+  brand?: string;
 }) {
   switch (type) {
     case "lost-buy-box":
@@ -569,6 +571,7 @@ function RootCauseIssueCard({
       return (
         <CouponIssue
           asin={asin}
+          yourBrand={brand}
           scrapes={[
             {
               // Multiple coupons at the same scrape time
@@ -834,11 +837,13 @@ function RootCauseRow({
   isOpen,
   onToggle,
   asin,
+  brand,
 }: {
   cause: RootCause;
   isOpen: boolean;
   onToggle: () => void;
   asin?: string;
+  brand?: string;
 }) {
   return (
     <div>
@@ -898,6 +903,7 @@ function RootCauseRow({
                 type={cause.issueCardType}
                 conversionState={cause.conversionState}
                 asin={asin}
+                brand={brand}
               />
             </div>
           )}
@@ -942,10 +948,12 @@ function RootCauses({
   groups,
   lastChecked,
   asin,
+  brand,
 }: {
   groups: RootCauseGroup[];
   lastChecked: string;
   asin?: string;
+  brand?: string;
 }) {
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
@@ -1011,6 +1019,7 @@ function RootCauses({
                     isOpen={openIds.has(cause.id)}
                     onToggle={() => toggle(cause.id)}
                     asin={asin}
+                    brand={brand}
                   />
                 </div>
               ))}
@@ -1136,7 +1145,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
     return hasRootCauses ? (
       <div className="flex flex-col gap-8">
-        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} />
+        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
       </div>
     ) : null;
   }
@@ -1171,7 +1180,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
           {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
           {data.rootCauses.some((g) => g.causes.length > 0) && (
-            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} />
+            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
           )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />

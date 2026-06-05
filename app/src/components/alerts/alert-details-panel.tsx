@@ -217,11 +217,11 @@ function PdpHistoryDropdown({ asin }: { asin: string }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="PDP crawl history"
+        aria-label="PDP snapshots"
         className="flex h-[26px] items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
       >
         <History className="h-3.5 w-3.5 shrink-0" />
-        PDP History
+        PDP Snapshots
       </button>
 
       {/* Dropdown panel */}
@@ -229,8 +229,10 @@ function PdpHistoryDropdown({ asin }: { asin: string }) {
         <div className="absolute left-0 top-full z-50 mt-1.5 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
           {/* Header */}
           <div className="border-b border-slate-100 px-3 py-2">
-            <p className="text-xs font-semibold text-slate-500">PDP Crawl History</p>
-            <p className="font-mono text-[10px] text-slate-400">{asin}</p>
+            <p className="text-xs font-semibold text-slate-500">PDP Snapshots</p>
+            <p className="mt-1.5 text-[12px] leading-snug text-slate-400">
+              Product page snapshots saved at the time of each crawl.
+            </p>
           </div>
 
           {/* List of crawl timestamps */}
@@ -374,6 +376,7 @@ export function AlertDetailsPanel({
     skuName: alert.skuName,
     asin: alert.asin,
     category: alert.category,
+    brand: alert.brand,
     alertType,
     gapValue: alert.gapDollar,
   };
@@ -423,8 +426,12 @@ export function AlertDetailsPanel({
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
                   >
-                    <span className="text-[10px] font-bold text-amber-600">a</span>
-                    PDP Content
+                    <img
+                      src="/amazon-logo.png"
+                      alt="Amazon"
+                      className="h-3.5 w-auto shrink-0"
+                    />
+                    PDP Page
                     <ExternalLink className="h-3 w-3" />
                   </a>
                   <PdpHistoryDropdown asin={alert.asin} />

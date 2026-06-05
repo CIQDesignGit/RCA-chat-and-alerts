@@ -1,4 +1,4 @@
-import { Info, Tag, Package, Star } from "lucide-react";
+import { Info, Tag, Package, Star, ShoppingCart } from "lucide-react";
 
 // Pink/rose stars matching the screenshot
 function Stars({ rating, max = 5 }: { rating: number; max?: number }) {
@@ -24,6 +24,7 @@ const ROW_ICONS: Record<string, React.ReactNode> = {
   Price:        <Tag className="h-3.5 w-3.5 text-slate-400" />,
   Availability: <Package className="h-3.5 w-3.5 text-slate-400" />,
   Ratings:      <Star className="h-3.5 w-3.5 text-slate-400" />,
+  "LBB Rate":   <ShoppingCart className="h-3.5 w-3.5 text-slate-400" />,
 };
 
 export type LostBuyBoxProps = {
@@ -40,6 +41,8 @@ export type LostBuyBoxProps = {
 };
 
 export function LostBuyBoxIssue(p: LostBuyBoxProps) {
+  const rowLabelClass = "flex items-center gap-1.5 px-4 py-3 text-sm font-medium text-slate-500";
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* Column headers */}
@@ -64,7 +67,7 @@ export function LostBuyBoxIssue(p: LostBuyBoxProps) {
 
       {/* Price row */}
       <div className="grid grid-cols-3 border-b border-slate-200">
-        <div className="flex items-center gap-1.5 px-4 py-3 text-sm text-slate-500">
+        <div className={rowLabelClass}>
           {ROW_ICONS["Price"]} Price
         </div>
         <div className="border-l border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">{p.yourPrice}</div>
@@ -73,7 +76,7 @@ export function LostBuyBoxIssue(p: LostBuyBoxProps) {
 
       {/* Availability row */}
       <div className="grid grid-cols-3 border-b border-slate-200">
-        <div className="flex items-center gap-1.5 px-4 py-3 text-sm text-slate-500">
+        <div className={rowLabelClass}>
           {ROW_ICONS["Availability"]} Availability
         </div>
         <div className="border-l border-slate-200 px-4 py-3 text-sm text-slate-600">{p.yourAvailability}</div>
@@ -82,7 +85,7 @@ export function LostBuyBoxIssue(p: LostBuyBoxProps) {
 
       {/* Ratings row */}
       <div className="grid grid-cols-3 border-b border-slate-200">
-        <div className="flex items-center gap-1.5 px-4 py-3 text-sm text-slate-500">
+        <div className={rowLabelClass}>
           {ROW_ICONS["Ratings"]} Ratings
         </div>
         <div className="border-l border-slate-200 px-4 py-3"><Stars rating={p.yourRating} /></div>
@@ -91,8 +94,12 @@ export function LostBuyBoxIssue(p: LostBuyBoxProps) {
 
       {/* LBB Rate row */}
       <div className="grid grid-cols-3">
-        <div className="flex items-center gap-1.5 px-4 py-3 text-sm text-slate-500">
-          <span className="flex items-center gap-1">LBB Rate <Info className="h-3.5 w-3.5" /></span>
+        <div className={rowLabelClass}>
+          {ROW_ICONS["LBB Rate"]}
+          <span className="flex items-center gap-1">
+            LBB Rate
+            <Info className="h-3.5 w-3.5 text-slate-400" />
+          </span>
         </div>
         <div className="border-l border-slate-200 px-4 py-3 text-sm text-slate-600">{p.yourLbbRate}</div>
         <div className="border-l border-slate-200 px-4 py-3 text-sm text-slate-600">{p.winnerLbbRate}</div>

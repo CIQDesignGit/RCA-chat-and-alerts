@@ -19,6 +19,7 @@ export type SkuAlert = {
   skuName: string;
   asin: string;
   category: string;
+  brand?: string;
   gapValue: number;
   alertType: string;
 };
