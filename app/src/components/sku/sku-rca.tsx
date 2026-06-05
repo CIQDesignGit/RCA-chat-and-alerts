@@ -971,9 +971,9 @@ function RootCauses({
   return (
     <div className="flex flex-col gap-1">
       {/* Section heading row */}
-      <div className="mb-2 flex items-start justify-between">
+      <div className="mb-3 flex items-start justify-between">
         <div className="flex flex-col gap-0.5">
-          <h3 className="text-sm font-medium text-slate-600">
+          <h3 className="text-base font-semibold text-slate-800">
             Root causes
           </h3>
           <span className="text-xs text-slate-500">From previous 24 hours</span>

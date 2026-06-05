@@ -67,24 +67,107 @@ interface FilterBarProps {
   showBackButton?: boolean;
 }
 
-// ── Issue type options ────────────────────────────────────────────────────────
+// ── Issue type options — grouped to match Root causes accordion ───────────────
 
-const ISSUE_TYPE_OPTIONS: { id: string | null; label: string; icon?: LucideIcon; count?: number }[] = [
-  { id: null,        label: "All Issues",          icon: List,                count: 47 },
-  { id: "lbb",       label: "Buy Box",             icon: ShoppingCart,        count: 6  },
-  { id: "promo",     label: "Promo Badge",         icon: Megaphone,           count: 9  },
-  { id: "deals",     label: "Deal Page Visibility",icon: ShoppingBag,         count: 4  },
-  { id: "coupon",    label: "Coupon",              icon: Tag,                 count: 3  },
-  { id: "bsr",       label: "Best Seller Rank",    icon: Award,               count: 5  },
-  { id: "rating",    label: "Rating",              icon: Star,                count: 7  },
-  { id: "sentiment", label: "Review Sentiment",    icon: MessageSquareWarning,count: 4  },
-  { id: "oos",       label: "Out of Stock",        icon: Package,             count: 2  },
-  { id: "shipping",  label: "Shipping Speed",      icon: Truck,               count: 3  },
-  { id: "sov",       label: "Share of Voice",      icon: PieChart,            count: 2  },
-  { id: "krd",       label: "Keyword Rank",        icon: Shield,              count: 1  },
-  { id: "conversion",label: "Conversion",          icon: Funnel,              count: 2  },
-  { id: "media",     label: "Media Spend",         icon: DollarSign,          count: 1  },
+type IssueTypeOption = {
+  id: string | null;
+  label: string;
+  icon?: LucideIcon;
+  count?: number;
+};
+
+type IssueTypeGroup = {
+  label: string;
+  options: IssueTypeOption[];
+};
+
+const ALL_ISSUES_OPTION: IssueTypeOption = {
+  id: null,
+  label: "All Issues",
+  icon: List,
+  count: 47,
+};
+
+const ISSUE_TYPE_GROUPS: IssueTypeGroup[] = [
+  {
+    label: "PDP & Promos",
+    options: [
+      { id: "lbb",    label: "Buy Box",              icon: ShoppingCart, count: 6 },
+      { id: "promo",  label: "Promo Badge",          icon: Megaphone,    count: 9 },
+      { id: "deals",  label: "Deal Page Visibility", icon: ShoppingBag,  count: 4 },
+      { id: "coupon", label: "Coupon",               icon: Tag,          count: 3 },
+    ],
+  },
+  {
+    label: "Product Reputation",
+    options: [
+      { id: "bsr",       label: "Best Seller Rank",  icon: Award,                count: 5 },
+      { id: "rating",    label: "Rating",            icon: Star,                 count: 7 },
+      { id: "sentiment", label: "Review Sentiment",  icon: MessageSquareWarning, count: 4 },
+    ],
+  },
+  {
+    label: "Fulfilment",
+    options: [
+      { id: "oos",      label: "Out of Stock",   icon: Package, count: 2 },
+      { id: "shipping", label: "Shipping Speed", icon: Truck,   count: 3 },
+    ],
+  },
+  {
+    label: "Search & Traffic",
+    options: [
+      { id: "sov",        label: "Share of Voice", icon: PieChart,  count: 2 },
+      { id: "krd",        label: "Keyword Rank",   icon: Shield,    count: 1 },
+      { id: "conversion", label: "Conversion",     icon: Funnel,    count: 2 },
+      { id: "media",      label: "Media Spend",    icon: DollarSign,count: 1 },
+    ],
+  },
 ];
+
+// Flat list — used for selected/loading label lookups
+const ISSUE_TYPE_OPTIONS: IssueTypeOption[] = [
+  ALL_ISSUES_OPTION,
+  ...ISSUE_TYPE_GROUPS.flatMap((g) => g.options),
+];
+
+function findIssueTypeOption(id: string | null): IssueTypeOption | undefined {
+  return ISSUE_TYPE_OPTIONS.find((o) => o.id === id);
+}
+
+function IssueTypeOptionButton({
+  option,
+  isSelected,
+  onSelect,
+}: {
+  option: IssueTypeOption;
+  isSelected: boolean;
+  onSelect: (option: IssueTypeOption) => void;
+}) {
+  const Icon = option.icon;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(option)}
+      className={cn(
+        "flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors hover:bg-slate-50",
+        isSelected ? "text-brand-600" : "text-slate-700",
+      )}
+    >
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400">
+        {Icon && <Icon className="h-3.5 w-3.5" />}
+      </span>
+      <span className="flex items-center gap-1">
+        <span>{option.label}</span>
+        {option.count !== undefined && (
+          <span className="text-xs text-slate-500">({option.count})</span>
+        )}
+      </span>
+      <span className="flex-1" />
+      {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />}
+    </button>
+  );
+}
 
 // ── FilterBar ─────────────────────────────────────────────────────────────────
 
@@ -244,7 +327,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
             disabled
             className="flex items-center gap-1.5 rounded-md border border-brand-300 bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-700 opacity-80"
           >
-            {ISSUE_TYPE_OPTIONS.find((o) => o.id === pendingIssueType)?.label ?? "All Issues"}
+            {findIssueTypeOption(pendingIssueType ?? null)?.label ?? "All Issues"}
             <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-500" />
           </button>
         ) : selectedIssueType ? (
@@ -254,7 +337,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
               onClick={() => setIsIssueTypeOpen((p) => !p)}
               className="text-brand-700 hover:text-brand-800"
             >
-              {ISSUE_TYPE_OPTIONS.find((o) => o.id === selectedIssueType)?.label}
+              {findIssueTypeOption(selectedIssueType)?.label}
             </button>
             <button
               onClick={() => {
@@ -286,59 +369,52 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
 
         {/* Dropdown panel */}
         {isIssueTypeOpen && (
-          <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg" style={{ maxHeight: "450px", overflowY: "auto" }}>
-            {ISSUE_TYPE_OPTIONS.map((option, i) => {
-              const Icon = option.icon;
-              const isSelected = option.id === selectedIssueType || (option.id === null && selectedIssueType === null);
-              return (
-                <button
-                  key={option.id ?? "all"}
-                  type="button"
-                  onClick={() => {
-                    setIsIssueTypeOpen(false);
-                    // Clicking the already-selected option deselects it
-                    if (option.id === selectedIssueType) {
-                      setSelectedIssueType(null);
-                      return;
-                    }
-                    // "All Issues" (null) just clears the selection
-                    if (option.id === null) {
-                      setSelectedIssueType(null);
-                      return;
-                    }
-                    setPendingIssueType(option.id);
-                    setIsIssueTypeLoading(true);
-                    setTimeout(() => {
-                      setSelectedIssueType(option.id);
-                      setIsIssueTypeLoading(false);
-                      setPendingIssueType(undefined);
-                    }, 2000);
-                  }}
-                  className={cn(
-                    "flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors hover:bg-slate-50",
-                    isSelected ? "text-brand-600" : "text-slate-700",
-                    i > 0 && "border-t border-slate-100",
-                  )}
-                >
-                  {/* Icon */}
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400">
-                    {Icon && <Icon className="h-3.5 w-3.5" />}
-                  </span>
+          <div className="absolute left-0 top-10 z-50 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+            <IssueTypeOptionButton
+              option={ALL_ISSUES_OPTION}
+              isSelected={selectedIssueType === null}
+              onSelect={() => {
+                setIsIssueTypeOpen(false);
+                setSelectedIssueType(null);
+                setIsIssueTypeLoading(false);
+                setPendingIssueType(undefined);
+              }}
+            />
 
-                  {/* Label + count sit together, then spacer pushes checkmark right */}
-                  <span className="flex items-center gap-1">
-                    <span>{option.label}</span>
-                    {option.count !== undefined && (
-                      <span className="text-xs text-slate-500">({option.count})</span>
-                    )}
+            {ISSUE_TYPE_GROUPS.map((group) => (
+              <div key={group.label} className="border-t border-slate-200">
+                <div className="bg-slate-50 px-4 pb-1.5 pt-1">
+                  <span className="text-xs font-bold tracking-wide text-slate-600">
+                    {group.label}
                   </span>
-
-                  {/* Spacer + checkmark when selected */}
-                  <span className="flex-1" />
-                  {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />}
-                </button>
-              );
-            })}
+                </div>
+                {group.options.map((option) => (
+                  <IssueTypeOptionButton
+                    key={option.id}
+                    option={option}
+                    isSelected={option.id === selectedIssueType}
+                    onSelect={(opt) => {
+                      setIsIssueTypeOpen(false);
+                      if (opt.id === selectedIssueType) {
+                        setSelectedIssueType(null);
+                        return;
+                      }
+                      if (opt.id === null) {
+                        setSelectedIssueType(null);
+                        return;
+                      }
+                      setPendingIssueType(opt.id);
+                      setIsIssueTypeLoading(true);
+                      setTimeout(() => {
+                        setSelectedIssueType(opt.id);
+                        setIsIssueTypeLoading(false);
+                        setPendingIssueType(undefined);
+                      }, 2000);
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
         )}
       </div>
