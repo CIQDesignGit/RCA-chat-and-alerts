@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
+  AlertTriangle,
   Award,
   Check,
   ChevronDown,
@@ -26,6 +27,11 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   ReadFilterGroup,
   BrandSummaryChip,
@@ -74,6 +80,8 @@ type IssueTypeOption = {
   label: string;
   icon?: LucideIcon;
   count?: number;
+  /** false = shown in list but cannot be selected as a filter yet */
+  filterable?: boolean;
 };
 
 type IssueTypeGroup = {
@@ -109,8 +117,8 @@ const ISSUE_TYPE_GROUPS: IssueTypeGroup[] = [
   {
     label: "Fulfilment",
     options: [
-      { id: "oos",      label: "Out of Stock",   icon: Package, count: 2 },
-      { id: "shipping", label: "Shipping Speed", icon: Truck,   count: 3 },
+      { id: "oos",      label: "Out of Stock",   icon: Package, count: 2, filterable: false },
+      { id: "shipping", label: "Shipping Speed", icon: Truck,   count: 3, filterable: false },
     ],
   },
   {
@@ -144,6 +152,52 @@ function IssueTypeOptionButton({
   onSelect: (option: IssueTypeOption) => void;
 }) {
   const Icon = option.icon;
+  const isFilterable = option.filterable !== false;
+
+  const row = (
+    <>
+      <span
+        className={cn(
+          "flex h-5 w-5 shrink-0 items-center justify-center",
+          isFilterable ? "text-slate-400" : "text-slate-300",
+        )}
+      >
+        {Icon && <Icon className="h-3.5 w-3.5" />}
+      </span>
+      <span className="flex items-center gap-1">
+        <span>{option.label}</span>
+        {option.count !== undefined && (
+          <span className={cn("text-xs", isFilterable ? "text-slate-500" : "text-slate-400")}>
+            ({option.count})
+          </span>
+        )}
+      </span>
+      <span className="flex-1" />
+      {!isFilterable ? (
+        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden />
+      ) : (
+        isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />
+      )}
+    </>
+  );
+
+  if (!isFilterable) {
+    return (
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <div
+              role="presentation"
+              className="flex w-full cursor-default items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-400 opacity-60"
+            />
+          }
+        >
+          {row}
+        </TooltipTrigger>
+        <TooltipContent side="right">Filtering not available</TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <button
@@ -154,17 +208,7 @@ function IssueTypeOptionButton({
         isSelected ? "text-brand-600" : "text-slate-700",
       )}
     >
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400">
-        {Icon && <Icon className="h-3.5 w-3.5" />}
-      </span>
-      <span className="flex items-center gap-1">
-        <span>{option.label}</span>
-        {option.count !== undefined && (
-          <span className="text-xs text-slate-500">({option.count})</span>
-        )}
-      </span>
-      <span className="flex-1" />
-      {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />}
+      {row}
     </button>
   );
 }
@@ -384,7 +428,7 @@ export function FilterBar({ onFiltersChange, initialFilters, onBack, isExpanded 
             {ISSUE_TYPE_GROUPS.map((group) => (
               <div key={group.label} className="border-t border-slate-200">
                 <div className="bg-slate-50 px-4 pb-1.5 pt-1">
-                  <span className="text-xs font-bold tracking-wide text-slate-600">
+                  <span className="text-xs font-semibold tracking-wide text-slate-600">
                     {group.label}
                   </span>
                 </div>

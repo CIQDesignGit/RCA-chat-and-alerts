@@ -127,11 +127,15 @@ type RcaData = {
 
 // ─── Text-only root causes (no issue card designed) ───────────────────────────
 
+// Shared suffix shown next to the dollar impact in each root cause row
+const REVENUE_LOST_LABEL = "estimated revenue lost";
+
 const CAUSE_BSR: RootCause = {
   id: "bsr",
   icon: <Award className="h-4 w-4" />,
   label: "Best Seller Rank",
-  impact: null,
+  impact: "−$18.4K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -143,7 +147,8 @@ const CAUSE_MEDIA: RootCause = {
   id: "media",
   icon: <DollarSign className="h-4 w-4" />,
   label: "Media Spend",
-  impact: null,
+  impact: "−$42.3K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Threshold Breached",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -156,7 +161,8 @@ const CAUSE_OOS: RootCause = {
   id: "oos",
   icon: <Package className="h-4 w-4" />,
   label: "Out of Stock",
-  impact: null,
+  impact: "−$8.2K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "At Risk",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
@@ -188,7 +194,7 @@ const CAUSE_LBB: RootCause = {
   statusLabel: "Lost",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
-  impactLabel: "estimated revenue lost",
+  impactLabel: REVENUE_LOST_LABEL,
   description:
     "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
   issueCardType: "lost-buy-box",
@@ -200,7 +206,8 @@ const CAUSE_PROMO_BADGE: RootCause = {
   id: "deal",
   icon: <Megaphone className="h-4 w-4" />,
   label: "Promo Badge",
-  impact: null,
+  impact: "−$4.2K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Missing",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -215,7 +222,8 @@ const CAUSE_DEALS_PAGE: RootCause = {
   id: "deals",
   icon: <ShoppingBag className="h-4 w-4" />,
   label: "Deal Page Visibility",
-  impact: null,
+  impact: "−$12.6K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Missing",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -229,7 +237,8 @@ const CAUSE_COUPON: RootCause = {
   id: "coupon",
   icon: <Tag className="h-4 w-4" />,
   label: "Coupon",
-  impact: null,
+  impact: "−$3.8K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Detected",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
@@ -242,7 +251,8 @@ const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
   label: "Rating and Reviews",
-  impact: null,
+  impact: "−$24.5K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -256,7 +266,8 @@ const CAUSE_KRD: RootCause = {
   id: "krd",
   icon: <Shield className="h-4 w-4" />,
   label: "Keyword Rank",
-  impact: null,
+  impact: "−$31.2K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -270,7 +281,8 @@ const CAUSE_SOV: RootCause = {
   id: "sov",
   icon: <PieChart className="h-4 w-4" />,
   label: "Share of Voice",
-  impact: null,
+  impact: "−$28.4K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -284,7 +296,8 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   id: "conversion-dropped",
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
-  impact: null,
+  impact: "−$56.8K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -297,7 +310,8 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   id: "conversion-dropping",
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
-  impact: null,
+  impact: "−$22.1K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropping Fast",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
@@ -324,7 +338,8 @@ const CAUSE_ORGANIC: RootCause = {
   id: "organic",
   icon: <TrendingDown className="h-4 w-4" />,
   label: "Organic Keyword Issue",
-  impact: null,
+  impact: "−$19.7K",
+  impactLabel: REVENUE_LOST_LABEL,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -869,9 +884,9 @@ function RootCauseRow({
         {cause.impact && (
           <span className="ml-4 flex items-baseline gap-1.5">
             <span className="text-sm font-medium text-slate-700">{cause.impact}</span>
-            {cause.impactLabel && (
-              <span className="text-sm text-slate-500">{cause.impactLabel}</span>
-            )}
+            <span className="text-sm text-slate-500">
+              {cause.impactLabel ?? REVENUE_LOST_LABEL}
+            </span>
           </span>
         )}
 
