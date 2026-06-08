@@ -32,8 +32,11 @@ import {
 } from "recharts";
 import type { SkuAlert } from "@/components/home/alerts-panel";
 import { LostBuyBoxIssue }           from "@/components/alerts/issues/lost-buy-box";
+import { OutOfStockIssue }         from "@/components/alerts/issues/out-of-stock";
 import { PromoBadgeIssue }           from "@/components/alerts/issues/promo-badge";
 import { SovDropIssue }              from "@/components/alerts/issues/sov-drop";
+import { BestSellerRankIssue }       from "@/components/alerts/issues/best-seller-rank";
+import { DealPageVisibilityIssue }   from "@/components/alerts/issues/deal-page-visibility";
 import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-rank-drop";
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
 import { LastWeekTrendBuyBox }       from "@/components/alerts/issues/last-week-trend-buy-box";
@@ -53,19 +56,20 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 // All issue types that have a designed card.
-// "deals-page" and "organic-keyword" share a renderer with "promo-badge"
-// and "keyword-rank-drop" respectively until dedicated components are built.
+// "organic-keyword" shares a renderer with "keyword-rank-drop" until a dedicated component is built.
 type IssueCardType =
   | "lost-buy-box"       // LostBuyBoxIssue
   | "promo-badge"        // PromoBadgeIssue
-  | "deals-page"         // PromoBadgeIssue (reused)
+  | "deals-page"         // DealPageVisibilityIssue
   | "star-rating"        // StarRatingIssue
+  | "best-seller-rank"   // BestSellerRankIssue
   | "keyword-rank-drop"  // KeywordRankDropIssue
   | "sov-drop"           // SovDropIssue
   | "organic-keyword"    // KeywordRankDropIssue (reused)
   | "coupon"             // CouponIssue
   | "conversion"         // ConversionIssue
-  | "media-spend";       // MediaSpendIssue
+  | "media-spend"        // MediaSpendIssue
+  | "out-of-stock";      // OutOfStockIssue
 
 type KpiStat = {
   label: string;
@@ -139,8 +143,8 @@ const CAUSE_BSR: RootCause = {
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
-  description:
-    "BSR dropped from #12 → #31 in Vacuum Cleaners over the past two weeks, reducing category browse visibility.",
+  description: "",
+  issueCardType: "best-seller-rank",
 };
 
 const CAUSE_MEDIA: RootCause = {
@@ -166,7 +170,8 @@ const CAUSE_OOS: RootCause = {
   statusLabel: "At Risk",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
-  description: "No stock issues last week — 0% rep OOS and 0% unavailability.",
+  description: "SKU is out of stock nationally. Revenue loss accumulating.",
+  issueCardType: "out-of-stock",
 };
 
 const CAUSE_SHIP: RootCause = {
@@ -227,8 +232,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   statusLabel: "Missing",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
-  description:
-    "Active Lightning Deal is not surfacing on the Amazon Deals page, removing a high-intent discovery placement.",
+  description: "",
   issueCardType: "deals-page",
 };
 
@@ -512,8 +516,7 @@ function getRcaData(sku: SkuAlert): RcaData {
 }
 
 // ─── Issue card renderer ───────────────────────────────────────────────────────
-// "deals-page" reuses PromoBadgeIssue and "organic-keyword" reuses
-// KeywordRankDropIssue until dedicated components are built.
+// "organic-keyword" reuses KeywordRankDropIssue until a dedicated component is built.
 
 function RootCauseIssueCard({
   type,
@@ -544,7 +547,6 @@ function RootCauseIssueCard({
       );
 
     case "promo-badge":
-    case "deals-page":
       return (
         <PromoBadgeIssue
           promoDateRange="28 Apr to 10 May"
@@ -565,8 +567,20 @@ function RootCauseIssueCard({
         />
       );
 
+    case "deals-page":
+      return <DealPageVisibilityIssue />;
+
     case "star-rating":
       return <StarRatingIssue oldRating={4.3} newRating={3.2} />;
+
+    case "best-seller-rank":
+      return (
+        <BestSellerRankIssue
+          previousRank={12}
+          currentRank={31}
+          category="Vacuum Cleaners"
+        />
+      );
 
     case "keyword-rank-drop":
     case "organic-keyword":
@@ -647,6 +661,9 @@ function RootCauseIssueCard({
 
     case "media-spend":
       return <MediaSpendIssue {...getMediaSpendIssueProps()} />;
+
+    case "out-of-stock":
+      return <OutOfStockIssue />;
   }
 }
 
@@ -898,20 +915,20 @@ function RootCauseRow({
       </button>
       {isOpen && (
         <div className="border-t-2 border-slate-200 bg-slate-50 px-4 pb-4 pt-2.5">
-          {/* Description + action row — description always present to keep layout stable */}
-          <div className="flex items-start gap-10">
-            <p className="flex-1 text-sm leading-relaxed text-slate-500">
-              {cause.description
-                ? highlightDollarAmounts(cause.description)
-                : "No additional context available for this issue."}
-            </p>
-            <button
-              type="button"
-              className="hidden shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"
-            >
-              Mark as resolved
-            </button>
-          </div>
+          {/* Description — shown only when there is text (visual cards carry their own copy) */}
+          {cause.description && (
+            <div className="flex items-start gap-10">
+              <p className="flex-1 text-sm leading-relaxed text-slate-500">
+                {highlightDollarAmounts(cause.description)}
+              </p>
+              <button
+                type="button"
+                className="hidden shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-800"
+              >
+                Mark as resolved
+              </button>
+            </div>
+          )}
           {cause.issueCardType && (
             <div className={cause.description ? "mt-3" : ""}>
               <RootCauseIssueCard
