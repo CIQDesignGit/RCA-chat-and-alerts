@@ -53,7 +53,7 @@ function OosMetricCard({
   severity?: OosSeverity;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <div className="flex w-full max-w-[350px] flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
       <div className="text-sm font-medium text-slate-600">{label}</div>
       <div className="flex items-center gap-2">
         <div className="flex items-baseline gap-1">
@@ -83,7 +83,7 @@ export function OutOfStockIssue({
     <div className="grid grid-cols-[148px_1fr] gap-3">
       <OosVisualCard />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid w-fit grid-cols-[repeat(2,minmax(0,350px))] justify-self-start gap-3">
         <OosMetricCard
           label="Representative OOS%"
           value={representativeOosPct}

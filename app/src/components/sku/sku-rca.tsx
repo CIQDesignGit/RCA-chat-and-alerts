@@ -167,9 +167,9 @@ const CAUSE_OOS: RootCause = {
   label: "Out of Stock",
   impact: "−$8.2K",
   impactLabel: REVENUE_LOST_LABEL,
-  statusLabel: "At Risk",
-  statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
-  liveStatus: "warning",
+  statusLabel: "OOS",
+  statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
+  liveStatus: "bad",
   description: "SKU is out of stock. Revenue loss accumulating.",
   issueCardType: "out-of-stock",
 };
