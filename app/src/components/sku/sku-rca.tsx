@@ -33,6 +33,7 @@ import {
 import type { SkuAlert } from "@/components/home/alerts-panel";
 import { LostBuyBoxIssue }           from "@/components/alerts/issues/lost-buy-box";
 import { OutOfStockIssue }         from "@/components/alerts/issues/out-of-stock";
+import { ShippingSpeedIssue }      from "@/components/alerts/issues/shipping-speed";
 import { PromoBadgeIssue }           from "@/components/alerts/issues/promo-badge";
 import { SovDropIssue }              from "@/components/alerts/issues/sov-drop";
 import { BestSellerRankIssue }       from "@/components/alerts/issues/best-seller-rank";
@@ -69,7 +70,8 @@ type IssueCardType =
   | "coupon"             // CouponIssue
   | "conversion"         // ConversionIssue
   | "media-spend"        // MediaSpendIssue
-  | "out-of-stock";      // OutOfStockIssue
+  | "out-of-stock"       // OutOfStockIssue
+  | "shipping-speed";   // ShippingSpeedIssue
 
 type KpiStat = {
   label: string;
@@ -179,10 +181,12 @@ const CAUSE_SHIP: RootCause = {
   icon: <Truck className="h-4 w-4" />,
   label: "Shipping Speed",
   impact: null,
-  statusLabel: "OK",
-  statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
-  liveStatus: "ok",
-  description: "Prime delivery available tomorrow (May 14). No extended delay risk detected.",
+  statusLabel: "Slow",
+  statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
+  liveStatus: "warning",
+  description:
+    "Delivery is averaging 4.2 days across 5 markets — 2.2 days slower than standard Prime.",
+  issueCardType: "shipping-speed",
 };
 
 // Convenience bundle — attached to every SKU alongside its specific causes
@@ -664,6 +668,9 @@ function RootCauseIssueCard({
 
     case "out-of-stock":
       return <OutOfStockIssue />;
+
+    case "shipping-speed":
+      return <ShippingSpeedIssue />;
   }
 }
 
