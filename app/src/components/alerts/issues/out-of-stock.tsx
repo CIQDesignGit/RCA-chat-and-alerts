@@ -54,8 +54,12 @@ function OosMetricCard({
 }) {
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="text-sm font-medium text-slate-600">{label}</div>
+      <div className="text-sm font-medium text-slate-600">{label}</div>
+      <div className="flex items-center gap-2">
+        <div className="flex items-baseline gap-1">
+          <span className={`text-lg font-semibold leading-none ${valueClassName}`}>{value}</span>
+          {unit && <span className="text-sm font-medium text-slate-500">{unit}</span>}
+        </div>
         {severity && (
           <span
             className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${SEVERITY_STYLES[severity]}`}
@@ -63,10 +67,6 @@ function OosMetricCard({
             {severity}
           </span>
         )}
-      </div>
-      <div className="flex items-baseline gap-1">
-        <span className={`text-lg font-semibold leading-none ${valueClassName}`}>{value}</span>
-        {unit && <span className="text-sm font-medium text-slate-500">{unit}</span>}
       </div>
     </div>
   );
@@ -92,7 +92,7 @@ export function OutOfStockIssue({
           severity={representativeOosSeverity}
         />
         <OosMetricCard
-          label="No. of days out of stock"
+          label="No. of Days OOS"
           value={daysOutOfStock}
           unit="days"
         />

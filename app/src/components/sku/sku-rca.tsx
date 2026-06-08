@@ -170,7 +170,7 @@ const CAUSE_OOS: RootCause = {
   statusLabel: "At Risk",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
-  description: "SKU is out of stock nationally. Revenue loss accumulating.",
+  description: "SKU is out of stock. Revenue loss accumulating.",
   issueCardType: "out-of-stock",
 };
 
