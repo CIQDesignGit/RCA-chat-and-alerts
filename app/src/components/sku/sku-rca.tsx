@@ -25,11 +25,18 @@ import {
   LineChart,
   Line,
   XAxis,
+  YAxis,
   CartesianGrid,
   ReferenceLine,
   ResponsiveContainer,
-  Tooltip,
+  Tooltip as ChartTooltip,
 } from "recharts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Markdown } from "@/components/ui/markdown";
 import type { SkuAlert } from "@/components/home/alerts-panel";
 import { LostBuyBoxIssue }           from "@/components/alerts/issues/lost-buy-box";
 import { OutOfStockIssue }         from "@/components/alerts/issues/out-of-stock";
@@ -125,6 +132,7 @@ type RcaData = {
   chartData: { week: string; plan: number; actual: number | null }[];
   chartCaption: string;
   rootCauses: RootCauseGroup[];
+  issuesSummary: string;
   rootCausesLastChecked: string;
   analysisBlocks: AnalysisBlock[];
   recommendations: Recommendation[];
@@ -133,15 +141,15 @@ type RcaData = {
 
 // ─── Text-only root causes (no issue card designed) ───────────────────────────
 
-// Shared suffix shown next to the dollar impact in each root cause row
-const REVENUE_LOST_LABEL = "estimated revenue lost";
+// Tooltip shown when hovering the dollar impact chip on each issue row
+const REVENUE_IMPACT_TOOLTIP = "Estimated revenue impacted";
 
 const CAUSE_BSR: RootCause = {
   id: "bsr",
   icon: <Award className="h-4 w-4" />,
   label: "Best Seller Rank",
   impact: "−$18.4K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -154,7 +162,7 @@ const CAUSE_MEDIA: RootCause = {
   icon: <DollarSign className="h-4 w-4" />,
   label: "Media Spend",
   impact: "−$42.3K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Threshold Breached",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -168,7 +176,7 @@ const CAUSE_OOS: RootCause = {
   icon: <Package className="h-4 w-4" />,
   label: "Out of Stock",
   impact: "−$8.2K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "OOS",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -203,9 +211,9 @@ const CAUSE_LBB: RootCause = {
   statusLabel: "Lost",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   description:
-    "100% buy box loss May 3–9 — SAS price at $529.99 ceded every impression to 3P sellers at $344–$379.",
+    "You've lost the Buy Box on an important SKU.",
   issueCardType: "lost-buy-box",
   showBuyBoxTrend: true,
 };
@@ -216,7 +224,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
   icon: <Megaphone className="h-4 w-4" />,
   label: "Promo Badge",
   impact: "−$4.2K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Missing",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -232,7 +240,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   icon: <ShoppingBag className="h-4 w-4" />,
   label: "Deal Page Visibility",
   impact: "−$12.6K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Missing",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -246,7 +254,7 @@ const CAUSE_COUPON: RootCause = {
   icon: <Tag className="h-4 w-4" />,
   label: "Coupon",
   impact: "−$3.8K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Detected",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
@@ -260,7 +268,7 @@ const CAUSE_STAR_RATING: RootCause = {
   icon: <Star className="h-4 w-4" />,
   label: "Rating and Reviews",
   impact: "−$24.5K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -275,7 +283,7 @@ const CAUSE_KRD: RootCause = {
   icon: <Shield className="h-4 w-4" />,
   label: "Keyword Rank",
   impact: "−$31.2K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -290,7 +298,7 @@ const CAUSE_SOV: RootCause = {
   icon: <PieChart className="h-4 w-4" />,
   label: "Share of Voice",
   impact: "−$28.4K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -305,7 +313,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
   impact: "−$56.8K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -319,7 +327,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   icon: <Funnel className="h-4 w-4" />,
   label: "Conversion",
   impact: "−$22.1K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropping Fast",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
   liveStatus: "warning",
@@ -347,7 +355,7 @@ const CAUSE_ORGANIC: RootCause = {
   icon: <TrendingDown className="h-4 w-4" />,
   label: "Organic Keyword Issue",
   impact: "−$19.7K",
-  impactLabel: REVENUE_LOST_LABEL,
+  impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
@@ -454,8 +462,7 @@ function getRcaData(sku: SkuAlert): RcaData {
       { label: "Deal Visibility", value: "Badge Missing",            status: "warning" },
       { label: "Shipping Speed",  value: "Thu May 14 (Prime)",       status: "info"    },
     ],
-    alertBanner:
-      "Unresolved today: Active promo badge missing on PDP — Matching event at $349.99 (May 10–30) launched without badge visibility. No badge detected on any scrape from May 10–13.",
+    alertBanner: null,
     chartData: [
       { week: "Mar 24", plan: 285, actual: 272  },
       { week: "Mar 31", plan: 288, actual: 295  },
@@ -469,23 +476,24 @@ function getRcaData(sku: SkuAlert): RcaData {
     chartCaption:
       "Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.",
     rootCauses: buildGroups(sku),
-    rootCausesLastChecked: "Today, 9:42 AM",
+    issuesSummary: `Revenue collapsed after SAS price jumped to **$529.99** on May 3, losing the buy box for the full week. Recovery has started this week, but a missing deal badge is still limiting conversion.
+
+- **~$120K** shifted to 3P sellers (~53% of the gap)
+- Top keywords saw **WoW ad spend cuts** while buy box was lost
+- Buy box **reclaimed at $349.99** — deal badge absent May 10–13`,
+    rootCausesLastChecked: "11:35 AM today (2h ago)",
     analysisBlocks: [
       {
-        heading: "Primary cause — 100% Lost Buy Box all 7 days (May 3–9)",
-        body: "The SAS price was raised sharply to $529.99 on May 3 (from ~$300 the prior weeks), opening a $150–$170 gap vs. 3P sellers offering $344–$379. amazon.com lost every buy box impression for the entire week. The estimated revenue captured by 3P sellers is $119,708 — approximately 53% of the $227.7K plan-vs-actual gap by deterministic SQI attribution. Only 2 units ($846) were sold through the first-party channel for the entire week.",
+        heading: "Primary cause — Lost Buy Box (May 3–9)",
+        body: "SAS price jumped to $529.99 on May 3 — ~$170 above 3P sellers at $344–$379. amazon.com lost the buy box all week; 3P captured ~$120K (~53% of the gap).",
       },
       {
-        heading: "Price trajectory context",
-        body: "Prior weeks (Apr 5–19) show ASP around $299,999, consistent with a lower promotional price, and units of 1,100–1,200/week. The Apr 26 week also showed LBB (avg winning 3P price $376.94 vs. SAS $529.99), with 231 units at $303.98 ASP — suggesting 3P pressure was already building before the full collapse in May 3.",
+        heading: "Secondary cause — media spend cuts",
+        body: "Top keywords saw WoW spend cuts, including 'vacuum cleaners for home' (−$1.7K spend, −$37K ad sales). Less paid traffic while buy box was lost removed any recovery path.",
       },
       {
-        heading: "Secondary cause — media spend cuts amplified the traffic loss",
-        body: "Every top-10 keyword by ad spend saw a WoW cut. The highest-volume term 'vacuum cleaners for home' (SFR 6,346) lost $1,715 in spend and $37.3K in ad-attributed sales WoW. Organic rank on 'shark lift away' worsened by 8 positions. With the buy box already lost, reduced paid visibility removed any recovery path.",
-      },
-      {
-        heading: "Current week recovery context",
-        body: "amazon.com has reclaimed the buy box at $349.99 and the current-week RTS projects $258.3K (+12.9% above plan). However, a Matching event badge has not appeared on the PDP on any day from May 10–13, constituting a live promo visibility failure that is suppressing the conversion benefit of the $180 price reduction vs. list.",
+        heading: "This week — recovery in progress",
+        body: "Buy box reclaimed at $349.99; RTS projects $258K (+13% vs plan). Deal badge still missing May 10–13, limiting conversion on the $180 price cut.",
       },
     ],
     recommendations: [
@@ -538,7 +546,7 @@ function RootCauseIssueCard({
       return (
         <LostBuyBoxIssue
           yourBrand="Shark"
-          winnerBrand="dyson"
+          winnerBrand="Choice Electronics"
           yourPrice="$18.99"
           winnerPrice="$17.49"
           yourAvailability="In Stock"
@@ -700,7 +708,7 @@ const LBB_TREND_ROWS = [
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="mb-4 text-sm font-medium text-slate-600">
+    <h3 className="text-base font-semibold text-slate-900">
       {children}
     </h3>
   );
@@ -724,7 +732,9 @@ function EmptyRcaState() {
 
 function KpiRow({ kpis }: { kpis: KpiStat[] }) {
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="flex flex-col gap-4">
+      <SectionHeading>SKU Root Cause Analysis</SectionHeading>
+      <div className="grid grid-cols-3 gap-4">
       {kpis.map((k) => (
         <div key={k.label} className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           {/* Title row */}
@@ -750,6 +760,7 @@ function KpiRow({ kpis }: { kpis: KpiStat[] }) {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }
@@ -802,17 +813,24 @@ function RevenueChart({ data, caption }: { data: RcaData["chartData"]; caption: 
 
   return (
     <div className="flex flex-col gap-2">
-      <SectionHeading>8-Week Revenue Trend vs. Plan</SectionHeading>
+      <SectionHeading>8 Week Revenue Trend</SectionHeading>
       <ResponsiveContainer width="100%" height={180}>
-        <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+        <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f4" vertical={false} />
+          <YAxis
+            tickFormatter={fmtK}
+            width={44}
+            tick={{ fontSize: 10, fill: "#a1a1aa" }}
+            axisLine={false}
+            tickLine={false}
+          />
           <XAxis
             dataKey="week"
             tick={{ fontSize: 10, fill: "#a1a1aa" }}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip
+          <ChartTooltip
             formatter={(value, name) => [
               typeof value === "number" ? fmtK(value) : value,
               name === "plan" ? "Plan" : "Actual",
@@ -904,14 +922,23 @@ function RootCauseRow({
           </span>
         </span>
 
-        {/* Group 2: impact value + explanatory label */}
+        {/* Group 2: impact chip — tooltip explains what the dollar figure means */}
         {cause.impact && (
-          <span className="ml-4 flex items-baseline gap-1.5">
-            <span className="text-sm font-medium text-slate-700">{cause.impact}</span>
-            <span className="text-sm text-slate-500">
-              {cause.impactLabel ?? REVENUE_LOST_LABEL}
-            </span>
-          </span>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <span
+                  className="ml-4 bg-slate-100 px-1 py-0.5 text-sm font-medium text-slate-700"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {cause.impact}
+                </span>
+              }
+            />
+            <TooltipContent side="top">
+              {cause.impactLabel ?? REVENUE_IMPACT_TOOLTIP}
+            </TooltipContent>
+          </Tooltip>
         )}
 
         {/* spacer pushes chevron to the far right */}
@@ -983,13 +1010,18 @@ function RootCauseRow({
   );
 }
 
+const ISSUES_SUMMARY_MARKDOWN_CLASS =
+  "prose prose-sm prose-slate max-w-none text-sm leading-relaxed text-slate-600 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:marker:text-slate-400 [&_strong]:font-semibold [&_strong]:text-slate-700";
+
 function RootCauses({
   groups,
+  summary,
   lastChecked,
   asin,
   brand,
 }: {
   groups: RootCauseGroup[];
+  summary: string;
   lastChecked: string;
   asin?: string;
   brand?: string;
@@ -1009,33 +1041,14 @@ function RootCauses({
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Section heading row */}
-      <div className="mb-3 flex items-start justify-between">
+      {/* Summary + section heading */}
+      <div className="mb-3 flex flex-col gap-3">
+        {summary && (
+          <Markdown className={ISSUES_SUMMARY_MARKDOWN_CLASS}>{summary}</Markdown>
+        )}
         <div className="flex flex-col gap-0.5">
-          <h3 className="text-base font-semibold text-slate-800">
-            Root causes
-          </h3>
-          <span className="text-xs text-slate-500">From previous 24 hours</span>
-        </div>
-        {/* Live status legend */}
-        <div className="flex flex-col items-end gap-0.5">
-          <div className="flex items-center gap-3 text-xs text-slate-600">
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-rose-500" />
-              Ongoing Issue
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
-              Warning
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              OK
-            </span>
-          </div>
-          <span className="text-xs text-slate-500">
-            As of <span className="font-medium text-slate-600">{lastChecked}</span>
-          </span>
+          <SectionHeading>Issues</SectionHeading>
+          <p className="text-sm text-slate-500">Last updated {lastChecked}</p>
         </div>
       </div>
 
@@ -1090,7 +1103,8 @@ function AnalysisSection({ blocks }: { blocks: AnalysisBlock[] }) {
 
 function RecommendationsSection({ recs }: { recs: Recommendation[] }) {
   return (
-    <div className="flex flex-col gap-3">
+    // Hidden for now — remove `hidden` to show again
+    <div className="hidden flex flex-col gap-3">
       <SectionHeading>Recommendations</SectionHeading>
       <ol className="flex flex-col gap-3">
         {recs.map((r, i) => (
@@ -1184,7 +1198,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
     return hasRootCauses ? (
       <div className="flex flex-col gap-8">
-        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
+        <RootCauses groups={data.rootCauses} summary={data.issuesSummary} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
       </div>
     ) : null;
   }
@@ -1219,7 +1233,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
           {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
           {data.rootCauses.some((g) => g.causes.length > 0) && (
-            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
+            <RootCauses groups={data.rootCauses} summary={data.issuesSummary} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
           )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />

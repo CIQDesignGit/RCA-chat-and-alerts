@@ -39,7 +39,7 @@ function IssueBody({ issue }: { issue: Issue }) {
       return (
         <LostBuyBoxIssue
           yourBrand="Shark"
-          winnerBrand="dyson"
+          winnerBrand="Choice Electronics"
           yourPrice="$18.99"
           winnerPrice="$17.49"
           yourAvailability="In Stock"
