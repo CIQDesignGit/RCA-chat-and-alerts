@@ -92,9 +92,9 @@ function IssueBody({ issue }: { issue: Issue }) {
       return (
         <KeywordRankDropIssue
           keywords={[
-            { keyword: "food processor 8 cup", previousRank: 3, currentRank: 9, searchVolume: "180K / mo" },
-            { keyword: "digital food processor", previousRank: 5, currentRank: 12, searchVolume: "74K / mo" },
-            { keyword: "food chopper electric", previousRank: 7, currentRank: 15, searchVolume: "52K / mo" },
+            { keyword: "food processor 8 cup", previousRank: 3, currentRank: 9 },
+            { keyword: "digital food processor", previousRank: 8, currentRank: 12 },
+            { keyword: "food chopper electric", previousRank: 12, currentRank: 15 },
           ]}
         />
       );

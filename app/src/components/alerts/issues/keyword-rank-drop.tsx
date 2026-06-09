@@ -1,72 +1,62 @@
-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+const RANK_DROP_THRESHOLD = 5;
 
 type KeywordRow = {
   keyword: string;
   previousRank: number;
   currentRank: number;
-  searchVolume: string; // e.g. "180K / mo"
 };
+
+function isThresholdBreached(previousRank: number, currentRank: number) {
+  return currentRank - previousRank >= RANK_DROP_THRESHOLD;
+}
 
 type KeywordRankDropProps = {
   keywords: KeywordRow[];
 };
 
-function RankDelta({ prev, curr }: { prev: number; curr: number }) {
-  const delta = curr - prev; // positive = dropped (rank number went up = worse)
-  if (delta === 0) return <Minus className="h-3.5 w-3.5 text-slate-400" />;
-  if (delta > 0)
-    return (
-      <span className="flex items-center gap-0.5 text-[11px] font-semibold text-red-500">
-        <ArrowDown className="h-3 w-3" />
-        {delta}
-      </span>
-    );
+function KeywordRankCard({ row }: { row: KeywordRow }) {
+  const breached = isThresholdBreached(row.previousRank, row.currentRank);
+
   return (
-    <span className="flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600">
-      <ArrowUp className="h-3 w-3" />
-      {Math.abs(delta)}
-    </span>
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+      {/* Keyword + optional threshold badge */}
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <span className="text-sm text-slate-700">&quot;{row.keyword}&quot;</span>
+        {breached && (
+          <span className="shrink-0 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-[11px] font-medium text-rose-600">
+            Threshold Breached
+          </span>
+        )}
+      </div>
+
+      {/* Rank transition — old → new */}
+      <div className="flex shrink-0 items-center gap-2 text-sm">
+        <span className="font-medium text-slate-700">#{row.previousRank}</span>
+        <span className="text-slate-400">→</span>
+        <span className="font-bold text-rose-500">#{row.currentRank}</span>
+      </div>
+    </div>
   );
 }
 
 export function KeywordRankDropIssue({ keywords }: KeywordRankDropProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-slate-200 bg-slate-100 text-xs font-semibold text-slate-500">
-            <th className="px-4 py-2.5 text-left">Keyword</th>
-            <th className="w-32 px-4 py-2.5 text-center">Prev Rank</th>
-            <th className="w-32 px-4 py-2.5 text-center">Current</th>
-          </tr>
-        </thead>
-        <tbody>
-          {keywords.map((row) => (
-            <tr key={row.keyword} className="border-b border-slate-100 last:border-b-0 text-sm">
-              {/* Keyword + volume */}
-              <td className="px-4 py-2.5 align-top">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-medium text-slate-700">{row.keyword}</span>
-                  <span className="text-[10px] text-slate-400">{row.searchVolume}</span>
-                </div>
-              </td>
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
+        {keywords.map((row) => (
+          <KeywordRankCard key={row.keyword} row={row} />
+        ))}
+      </div>
 
-              {/* Previous rank */}
-              <td className="px-4 py-2.5 text-center text-slate-500">
-                #{row.previousRank}
-              </td>
-
-              {/* Current rank + delta */}
-              <td className="px-4 py-2.5">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="font-bold text-red-500">#{row.currentRank}</span>
-                  <RankDelta prev={row.previousRank} curr={row.currentRank} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs leading-relaxed text-slate-500">
+          <span className="font-medium text-slate-600">Threshold Breached:</span>{" "}
+          Organic keyword rank crossed the defined threshold of 5 ranks.
+        </p>
+        <p className="text-xs leading-relaxed text-slate-400">
+          Previous ranks are calculated based on the available data from the previous 7 days.
+        </p>
+      </div>
     </div>
   );
 }
