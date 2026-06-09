@@ -273,7 +273,7 @@ const CAUSE_STAR_RATING: RootCause = {
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
   liveStatus: "bad",
   description:
-    "Rating fell from 4.3 → 3.2 over 3 weeks following a batch of defect-related negative reviews.",
+    "Your rating has dropped in the last 24 hours",
   issueCardType: "star-rating",
 };
 
@@ -553,8 +553,6 @@ function RootCauseIssueCard({
           winnerAvailability="In Stock"
           yourRating={3.2}
           winnerRating={4.3}
-          yourLbbRate="1/4"
-          winnerLbbRate="2/4"
         />
       );
 
@@ -590,7 +588,7 @@ function RootCauseIssueCard({
         <BestSellerRankIssue
           previousRank={12}
           currentRank={31}
-          category="Vacuum Cleaners"
+          category="Food Processors"
         />
       );
 

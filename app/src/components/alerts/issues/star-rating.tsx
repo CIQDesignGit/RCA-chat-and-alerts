@@ -1,5 +1,26 @@
-import { Star, ArrowRight } from "lucide-react";
+import { ArrowRight, Info, Star } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { LastWeekSnapshotRating } from "./last-week-snapshot-rating";
+
+function RatingLabel({ label, tooltip }: { label: string; tooltip: string }) {
+  return (
+    <div className="inline-flex w-fit items-center gap-1">
+      <span className="text-xs text-slate-400">{label}</span>
+      <Tooltip>
+        <TooltipTrigger className="cursor-help">
+          <Info className="h-3 w-3 shrink-0 text-slate-400" />
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-56 leading-snug">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
 
 function Stars({
   rating,
@@ -38,24 +59,30 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
       {/* Old → New rating comparison */}
       <div className="flex items-center gap-4">
         {/* Old rating box — grey, neutral */}
-        <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
+        <div className="flex w-fit flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
+          <RatingLabel
+            label="Old Rating"
+            tooltip="Average star rating from the previous 7 days."
+          />
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold text-slate-400">{oldRating.toFixed(1)}</span>
             <Stars rating={oldRating} active={false} />
           </div>
-          <span className="text-xs text-slate-400">Old</span>
         </div>
 
         {/* Arrow */}
         <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
 
         {/* New rating box — rose/pink, indicates the drop */}
-        <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-white px-5 py-4">
+        <div className="flex w-fit flex-col gap-2 rounded-xl border border-rose-100 bg-white px-5 py-4">
+          <RatingLabel
+            label="New Rating"
+            tooltip="Current star rating from the latest PDP crawl."
+          />
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
             <Stars rating={newRating} active={true} />
           </div>
-          <span className="text-xs text-slate-400">New</span>
         </div>
       </div>
 
@@ -67,7 +94,6 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
         oneStarPct={14}
         twoStarPct={4}
         belowBenchmark={false}
-        benchmarkRating={3.5}
       />
     </div>
   );

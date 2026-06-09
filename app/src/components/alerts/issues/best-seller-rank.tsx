@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { ArrowRight } from "lucide-react";
 import {
   Tooltip,
@@ -15,6 +16,11 @@ export type BestSellerRankProps = {
   currentLabel?: string;
 };
 
+const SHIELD_PATH =
+  "M48 5 L81 19 Q86 21 86 26 L86 59 C86 79 48 101 48 101 C48 101 10 79 10 59 L10 26 Q10 21 15 19 L48 5 Z";
+// Scales the path inward from the shield centroid for the inner highlight rim
+const SHIELD_INSET_TRANSFORM = "translate(48 53) scale(0.86) translate(-48 -53)";
+
 // Vertical shield outline used for both rank states
 function RankShield({
   rank,
@@ -29,6 +35,7 @@ function RankShield({
 }) {
   const isPrevious = variant === "previous";
   const textColor = isPrevious ? "text-slate-800" : "text-rose-500";
+  const shadowId = useId();
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -37,11 +44,19 @@ function RankShield({
           viewBox="0 0 96 112"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-0 h-full w-full drop-shadow-sm"
           aria-hidden
         >
+          <defs>
+            <filter id={shadowId} x="-15%" y="-10%" width="130%" height="130%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#64748b" floodOpacity="0.14" />
+            </filter>
+          </defs>
+
+          {/* Base fill + outer stroke */}
           <path
-            d="M48 5 L81 19 Q86 21 86 26 L86 59 C86 79 48 101 48 101 C48 101 10 79 10 59 L10 26 Q10 21 15 19 L48 5 Z"
+            d={SHIELD_PATH}
+            filter={`url(#${shadowId})`}
             className={
               isPrevious
                 ? "fill-white stroke-slate-300"
@@ -50,13 +65,30 @@ function RankShield({
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
+
+          {/* Inset rim — grey on previous shield, white on current */}
+          <path
+            d={SHIELD_PATH}
+            transform={SHIELD_INSET_TRANSFORM}
+            fill="none"
+            className={isPrevious ? "stroke-slate-200" : "stroke-rose-300"}
+            strokeWidth="1"
+            strokeLinejoin="round"
+            opacity={isPrevious ? 1 : 0.75}
+          />
         </svg>
 
-        {/* Stack "Rank" / "#N" — single-line "Rank #12" overflows a narrow shield */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-2 text-center">
-          <span className={`text-xs font-semibold leading-none ${textColor}`}>Rank</span>
-          <span className={`text-base font-bold leading-none ${textColor}`}>#{rank}</span>
-        </div>
+        {/* "Rank" sits near the top; "#N" is optically centered in the shield body */}
+        <span
+          className={`absolute left-1/2 top-[22%] -translate-x-1/2 text-xs font-semibold leading-none ${textColor}`}
+        >
+          Rank
+        </span>
+        <span
+          className={`absolute left-1/2 top-[48%] -translate-x-1/2 -translate-y-1/2 text-xl font-bold leading-none ${textColor}`}
+        >
+          #{rank}
+        </span>
       </div>
 
       {labelDotted ? (
@@ -87,12 +119,9 @@ export function BestSellerRankIssue({
   currentLabel = "New",
 }: BestSellerRankProps) {
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white px-5 py-5">
+    <div className="flex flex-col gap-5">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h4 className="text-base font-semibold text-slate-800">
-          Bestseller Rank Issue
-        </h4>
         <p className="text-sm text-slate-500">
           Your product&apos;s rank has dropped in{" "}
           <span className="font-semibold text-slate-700">{category}</span>.

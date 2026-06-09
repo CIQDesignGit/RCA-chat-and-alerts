@@ -1,5 +1,5 @@
 // Snapshot card showing last-week star rating health at a glance.
-// Shows avg rating, review count, negative-review percentages, and benchmark flag.
+// Shows avg rating, review count, and negative-review percentages in one row.
 // Day-wise trend table is not included yet — will be added in a later iteration.
 
 type RatingStatus = "healthy" | "at-risk" | "critical";
@@ -50,8 +50,6 @@ export type LastWeekSnapshotRatingProps = {
   twoStarPct: number;
   /** True when avg rating falls below the configured benchmark */
   belowBenchmark: boolean;
-  /** The benchmark threshold to show in the header — e.g. 3.5 */
-  benchmarkRating?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -64,7 +62,6 @@ export function LastWeekSnapshotRating({
   oneStarPct,
   twoStarPct,
   belowBenchmark,
-  benchmarkRating,
 }: LastWeekSnapshotRatingProps) {
   // Derive visual status from the data signals
   const status: RatingStatus = belowBenchmark
@@ -76,23 +73,15 @@ export function LastWeekSnapshotRating({
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[status]}`} />
-          <span className="text-xs font-medium text-slate-500">
-            Last week snapshot · Rating ({period})
-          </span>
-        </div>
-        {/* Benchmark threshold — gives reviewers instant context */}
-        {benchmarkRating !== undefined && (
-          <span className="text-[10px] text-slate-400">
-            Benchmark: {benchmarkRating.toFixed(1)}★
-          </span>
-        )}
+      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
+        <span className={`h-2 w-2 shrink-0 rounded-full ${STATUS_DOT[status]}`} />
+        <span className="text-xs font-medium text-slate-500">
+          Last week snapshot · Rating ({period})
+        </span>
       </div>
 
-      {/* ── Row 1: Avg Rating · Review Count · Below-Benchmark Flag ── */}
-      <div className="grid grid-cols-3 gap-0 border-b border-slate-100 px-4 py-3">
+      {/* ── Metrics: Avg Rating · Review Count · 1-Star % · 2-Star % ── */}
+      <div className="grid grid-cols-4 gap-0 px-4 py-3">
         <StatCell
           label="Avg Rating"
           value={`${avgRating.toFixed(1)} / ${maxRating.toFixed(1)}`}
@@ -103,21 +92,10 @@ export function LastWeekSnapshotRating({
           value={reviewCount.toLocaleString()}
         />
         <StatCell
-          label="Below-Benchmark Flag"
-          value={belowBenchmark ? "Yes" : "No"}
-          valueClass={belowBenchmark ? "text-rose-600" : "text-emerald-600"}
-        />
-      </div>
-
-      {/* ── Row 2: Negative-review breakdown ── */}
-      <div className="grid grid-cols-3 gap-0 px-4 py-3">
-        {/* 1-star % ≥ 10 is a concern — highlight in red */}
-        <StatCell
           label="1-Star %"
           value={`${oneStarPct}%`}
           valueClass={oneStarPct >= 10 ? "text-rose-600" : "text-slate-800"}
         />
-        {/* 2-star % ≥ 8 is a concern — highlight in amber */}
         <StatCell
           label="2-Star %"
           value={`${twoStarPct}%`}

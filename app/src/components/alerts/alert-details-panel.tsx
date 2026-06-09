@@ -46,8 +46,6 @@ function IssueBody({ issue }: { issue: Issue }) {
           winnerAvailability="In Stock"
           yourRating={3.2}
           winnerRating={4.3}
-          yourLbbRate="1/4"
-          winnerLbbRate="2/4"
         />
       );
     case "star-rating":
