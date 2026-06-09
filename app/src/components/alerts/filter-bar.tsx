@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
-  AlertTriangle,
   Award,
   Check,
   ChevronDown,
@@ -27,11 +26,6 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   ReadFilterGroup,
   BrandSummaryChip,
@@ -173,29 +167,20 @@ function IssueTypeOptionButton({
         )}
       </span>
       <span className="flex-1" />
-      {!isFilterable ? (
-        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden />
-      ) : (
-        isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />
+      {isFilterable && isSelected && (
+        <Check className="h-3.5 w-3.5 shrink-0 text-brand-500" />
       )}
     </>
   );
 
   if (!isFilterable) {
     return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <div
-              role="presentation"
-              className="flex w-full cursor-default items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-400 opacity-60"
-            />
-          }
-        >
-          {row}
-        </TooltipTrigger>
-        <TooltipContent side="right">Filtering not available</TooltipContent>
-      </Tooltip>
+      <div
+        role="presentation"
+        className="flex w-full cursor-default items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-400 opacity-60"
+      >
+        {row}
+      </div>
     );
   }
 

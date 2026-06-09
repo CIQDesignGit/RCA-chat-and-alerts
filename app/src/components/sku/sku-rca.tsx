@@ -708,7 +708,7 @@ const LBB_TREND_ROWS = [
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-base font-semibold text-slate-900">
+    <h3 className="text-base font-medium text-slate-800">
       {children}
     </h3>
   );
