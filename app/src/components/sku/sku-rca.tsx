@@ -49,6 +49,8 @@ import { KeywordRankDropIssue }      from "@/components/alerts/issues/keyword-ra
 import { StarRatingIssue }           from "@/components/alerts/issues/star-rating";
 import { LastWeekTrendBuyBox }       from "@/components/alerts/issues/last-week-trend-buy-box";
 import { LastWeekTrendPromoBadge }   from "@/components/alerts/issues/last-week-trend-promo-badge";
+import { LastWeekTrendDealPage }     from "@/components/alerts/issues/last-week-trend-deal-page";
+import { LastWeekTrendCoupon }       from "@/components/alerts/issues/last-week-trend-coupon";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -116,6 +118,10 @@ type RootCause = {
   showBuyBoxTrend?: boolean;
   // When true, renders the merged LastWeekTrendPromoBadge widget
   showPromoBadgeTrend?: boolean;
+  // When true, renders the merged LastWeekTrendDealPage widget
+  showDealPageTrend?: boolean;
+  // When true, renders the merged LastWeekTrendCoupon widget
+  showCouponTrend?: boolean;
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -246,6 +252,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
   liveStatus: "bad",
   description: "",
   issueCardType: "deals-page",
+  showDealPageTrend: true,
 };
 
 // 4. Coupon detected on PDP
@@ -260,6 +267,7 @@ const CAUSE_COUPON: RootCause = {
   liveStatus: "warning",
   description: "Coupon history for this SKU's PDP is available below, detailing status changes and coupon values.",
   issueCardType: "coupon",
+  showCouponTrend: true,
 };
 
 // 5. Review rating dropped
@@ -681,25 +689,48 @@ function RootCauseIssueCard({
 }
 
 // Mock rows for the Promo Badge 7-day trend table.
+// Mock days for the Promo Badge 7-day trend table (dates = columns, metrics = rows).
 const PROMO_BADGE_TREND_ROWS = [
-  { date: "May 10", badgeMissing: true,  estRevenueImpact: "-$710", listPriceShown: false, strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
-  { date: "May 11", badgeMissing: true,  estRevenueImpact: "-$680", listPriceShown: false, strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
-  { date: "May 12", badgeMissing: false, estRevenueImpact: "$0",    listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$299.99", expectedSellingPrice: "$299.99" },
-  { date: "May 13", badgeMissing: true,  estRevenueImpact: "-$620", listPriceShown: false, strikethroughOnMsrp: false, sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
-  { date: "May 14", badgeMissing: true,  estRevenueImpact: "-$710", listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
-  { date: "May 15", badgeMissing: false, estRevenueImpact: "$0",    listPriceShown: true,  strikethroughOnMsrp: true,  sellingPriceShown: "$299.99", expectedSellingPrice: "$299.99" },
-  { date: "May 16", badgeMissing: true,  estRevenueImpact: "-$605", listPriceShown: false, strikethroughOnMsrp: false, sellingPriceShown: "$349.99", expectedSellingPrice: "$299.99" },
+  { date: "May 10", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6, estRevenueImpact: "-$710" },
+  { date: "May 11", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6, estRevenueImpact: "-$680" },
+  { date: "May 12", badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6, estRevenueImpact: null    },
+  { date: "May 13", badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6, estRevenueImpact: "-$620" },
+  { date: "May 14", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6, estRevenueImpact: "-$710" },
+  { date: "May 15", badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6, estRevenueImpact: null    },
+  { date: "May 16", badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6, estRevenueImpact: "-$605" },
 ];
 
-// Mock rows for the Buy Box 7-day trend table.
+// Mock days for the Coupon 7-day trend table (dates = columns, metrics = rows).
+const COUPON_TREND_ROWS = [
+  { date: "Jun 1", couponDetected: true,  couponValue: "$2.95" },
+  { date: "Jun 2", couponDetected: false, couponValue: null    },
+  { date: "Jun 3", couponDetected: true,  couponValue: "$2.95" },
+  { date: "Jun 4", couponDetected: true,  couponValue: "$3.00" },
+  { date: "Jun 5", couponDetected: false, couponValue: null    },
+  { date: "Jun 6", couponDetected: true,  couponValue: "$2.95" },
+  { date: "Jun 7", couponDetected: false, couponValue: null    },
+];
+
+// Mock days for the Deal Page 7-day trend table (dates = columns, metrics = rows).
+const DEAL_PAGE_TREND_ROWS = [
+  { date: "Jun 1", visibleOnDealsPage: false },
+  { date: "Jun 2", visibleOnDealsPage: true  },
+  { date: "Jun 3", visibleOnDealsPage: false },
+  { date: "Jun 4", visibleOnDealsPage: true  },
+  { date: "Jun 5", visibleOnDealsPage: false },
+  { date: "Jun 6", visibleOnDealsPage: false },
+  { date: "Jun 7", visibleOnDealsPage: true  },
+];
+
+// Mock days for the Buy Box 7-day trend table (dates = columns, metrics = rows).
 const LBB_TREND_ROWS = [
-  { date: "May 3",  buyBoxWinner: "Shark",      isYou: true,  revenueImpact: null,      yourPrice: "$379.99", competitorPrice: "$389.00", priceDiff: "+$9.01"   },
-  { date: "May 4",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$17.2K", yourPrice: "$529.99", competitorPrice: "$364.99", priceDiff: "-$165.00" },
-  { date: "May 5",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$16.8K", yourPrice: "$529.99", competitorPrice: "$359.49", priceDiff: "-$170.50" },
-  { date: "May 6",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$17.9K", yourPrice: "$529.99", competitorPrice: "$361.50", priceDiff: "-$168.49" },
-  { date: "May 7",  buyBoxWinner: "Shark",      isYou: true,  revenueImpact: null,      yourPrice: "$369.99", competitorPrice: "$371.00", priceDiff: "+$1.01"   },
-  { date: "May 8",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$19.1K", yourPrice: "$529.99", competitorPrice: "$357.99", priceDiff: "-$172.00" },
-  { date: "May 9",  buyBoxWinner: "Dyson (3P)", isYou: false, revenueImpact: "-$15.0K", yourPrice: "$529.99", competitorPrice: "$366.49", priceDiff: "-$163.50" },
+  { date: "May 3", winRateWins: 6, winRateCrawls: 6, priceDiff: "+$9.01",   revenueImpact: null      },
+  { date: "May 4", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$165.00", revenueImpact: "-$17.2K" },
+  { date: "May 5", winRateWins: 0, winRateCrawls: 6, priceDiff: "-$170.50", revenueImpact: "-$16.8K" },
+  { date: "May 6", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$168.49", revenueImpact: "-$17.9K" },
+  { date: "May 7", winRateWins: 5, winRateCrawls: 6, priceDiff: "+$1.01",   revenueImpact: null      },
+  { date: "May 8", winRateWins: 0, winRateCrawls: 6, priceDiff: "-$172.00", revenueImpact: "-$19.1K" },
+  { date: "May 9", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$163.50", revenueImpact: "-$15.0K" },
 ];
 
 // ─── Section heading ──────────────────────────────────────────────────────────
@@ -982,7 +1013,6 @@ function RootCauseRow({
                 yourAvgPrice="$529.99"
                 competitorAvgPrice="$362.09"
                 avgPriceGap="-$167.90"
-                status="lost"
                 rows={LBB_TREND_ROWS}
               />
             </div>
@@ -1000,6 +1030,16 @@ function RootCauseRow({
                 badgeShowing={false}
                 rows={PROMO_BADGE_TREND_ROWS}
               />
+            </div>
+          )}
+          {cause.showDealPageTrend && (
+            <div className="mt-3">
+              <LastWeekTrendDealPage period="Jun 1–7" rows={DEAL_PAGE_TREND_ROWS} />
+            </div>
+          )}
+          {cause.showCouponTrend && (
+            <div className="mt-3">
+              <LastWeekTrendCoupon period="Jun 1–7" rows={COUPON_TREND_ROWS} />
             </div>
           )}
         </div>

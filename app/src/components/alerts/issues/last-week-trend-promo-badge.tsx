@@ -2,8 +2,6 @@
 // Combines the snapshot metric tiles and the 7-day visibility trend table
 // into one card, rendered inside the expanded Promo Badge root cause row.
 
-import { Check, X } from "lucide-react";
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type StatCellProps = {
@@ -32,38 +30,77 @@ function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps
   );
 }
 
-export type PromoBadgeTrendRow = {
+export type PromoBadgeTrendDay = {
   date: string;
-  badgeMissing: boolean;         // true = badge NOT showing (bad)
-  estRevenueImpact: string;      // e.g. "-$710"
-  listPriceShown: boolean;       // true = list price (MSRP) visible
-  strikethroughOnMsrp: boolean;  // true = strikethrough shown on MSRP
-  sellingPriceShown: string;     // actual price shoppers see
-  expectedSellingPrice: string;  // intended promo price
+  badgeMissingCrawls: number;
+  strikethroughMissingCrawls: number;
+  totalCrawls: number;
+  estRevenueImpact: string | null;
 };
 
-const TH = ({ children, right }: { children: React.ReactNode; right?: boolean }) => (
+const TH = ({
+  children,
+  align = "right",
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right";
+}) => (
   <th
     scope="col"
-    className={`whitespace-nowrap px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 ${right ? "text-right" : "text-left"}`}
+    className={`whitespace-nowrap px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 ${
+      align === "left" ? "text-left" : "text-right"
+    }`}
   >
     {children}
   </th>
 );
 
-const TD = ({ children, right, className = "" }: { children: React.ReactNode; right?: boolean; className?: string }) => (
-  <td className={`whitespace-nowrap px-5 py-2.5 text-xs ${right ? "text-right" : ""} ${className}`}>
+const TD = ({
+  children,
+  className = "",
+  align = "right",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  align?: "left" | "right";
+}) => (
+  <td
+    className={`whitespace-nowrap px-4 py-2.5 text-xs ${
+      align === "left" ? "text-left" : "text-right"
+    } ${className}`}
+  >
     {children}
   </td>
 );
 
-// Green check or red X for boolean columns
-function BoolCell({ value, trueIsGood = true }: { value: boolean; trueIsGood?: boolean }) {
-  const isGood = trueIsGood ? value : !value;
+type CellTone = "good" | "bad" | "neutral";
+
+const CELL_TONE_BG: Record<CellTone, string> = {
+  good:    "bg-emerald-50",
+  bad:     "bg-rose-50",
+  neutral: "",
+};
+
+// Zero missing crawls = healthy; any missing = problem.
+function getMissingCrawlsTone(missing: number): CellTone {
+  return missing === 0 ? "good" : "bad";
+}
+
+function getRevenueTone(impact: string | null): CellTone {
+  if (!impact || impact === "—" || impact === "$0") return "neutral";
+  if (impact.startsWith("-")) return "bad";
+  return "good";
+}
+
+function TrendValueCell({ value, tone }: { value: string; tone: CellTone }) {
   return (
-    <span className={`inline-flex items-center ${isGood ? "text-emerald-500" : "text-rose-500"}`}>
-      {isGood ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
-    </span>
+    <TD className={CELL_TONE_BG[tone]}>
+      <span
+        className={`font-medium ${tone === "neutral" && value === "—" ? "text-slate-400" : "text-slate-800"}`}
+      >
+        {value}
+      </span>
+    </TD>
   );
 }
 
@@ -78,7 +115,7 @@ export type LastWeekTrendPromoBadgeProps = {
   listPriceVisibility: string;  // e.g. "2 / 7 days"
   noStrikethroughOnMsrp: string; // e.g. "7 / 7 days"
   badgeShowing: boolean;        // false = badge not showing (problem state)
-  rows: PromoBadgeTrendRow[];
+  rows: PromoBadgeTrendDay[];
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -97,9 +134,7 @@ export function LastWeekTrendPromoBadge({
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* ── Header ── */}
       <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        {/* Status dot: rose when badge is missing */}
-        <span className="h-2 w-2 shrink-0 rounded-full bg-rose-500" />
-        <span className="text-xs font-medium text-slate-600">Last week trend · Promo Badge</span>
+        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
         <span className="text-xs text-slate-400">({period})</span>
       </div>
 
@@ -121,42 +156,59 @@ export function LastWeekTrendPromoBadge({
         <StatCell label="No Strikethrough on MSRP" value={noStrikethroughOnMsrp} />
       </div>
 
-      {/* ── 7-day trend table ── */}
-      <div className="overflow-x-auto border-t border-slate-300">
+      {/* ── 7-day trend table — dates as columns, metrics as rows ── */}
+      <div className="overflow-x-auto border-t border-slate-200">
         <table className="w-full min-w-max border-collapse">
           <thead>
             <tr className="border-b border-slate-100">
-              <TH>Date</TH>
-              <TH>Badge Missing</TH>
-              <TH right>Est. Rev. Impact</TH>
-              <TH>List Price Shown</TH>
-              <TH>Strike-through</TH>
-              <TH right>Selling Price</TH>
-              <TH right>Expected Selling Price</TH>
+              <TH align="left">Metric</TH>
+              {rows.map((day) => (
+                <TH key={day.date}>{day.date}</TH>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.map((row) => (
-              <tr key={row.date}>
-                <TD className="font-medium text-slate-600">{row.date}</TD>
-                <TD>
-                  <BoolCell value={row.badgeMissing} trueIsGood={false} />
-                </TD>
-                <TD right className={row.estRevenueImpact !== "$0" ? "font-medium text-rose-600" : "text-slate-400"}>
-                  {row.estRevenueImpact}
-                </TD>
-                <TD>
-                  <BoolCell value={row.listPriceShown} trueIsGood={true} />
-                </TD>
-                <TD>
-                  <BoolCell value={row.strikethroughOnMsrp} trueIsGood={true} />
-                </TD>
-                <TD right className={row.sellingPriceShown !== row.expectedSellingPrice ? "font-medium text-rose-600" : "text-slate-700"}>
-                  {row.sellingPriceShown}
-                </TD>
-                <TD right className="text-slate-500">{row.expectedSellingPrice}</TD>
-              </tr>
-            ))}
+            {/* Row 1: Badge missing crawls */}
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                Badge Missing (crawls)
+              </TD>
+              {rows.map((day) => (
+                <TrendValueCell
+                  key={day.date}
+                  value={`${day.badgeMissingCrawls}/${day.totalCrawls}`}
+                  tone={getMissingCrawlsTone(day.badgeMissingCrawls)}
+                />
+              ))}
+            </tr>
+
+            {/* Row 2: MSRP strikethrough missing crawls */}
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                MSRP Strikethrough Missing (crawls)
+              </TD>
+              {rows.map((day) => (
+                <TrendValueCell
+                  key={day.date}
+                  value={`${day.strikethroughMissingCrawls}/${day.totalCrawls}`}
+                  tone={getMissingCrawlsTone(day.strikethroughMissingCrawls)}
+                />
+              ))}
+            </tr>
+
+            {/* Row 3: Est. revenue impact */}
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                Est. Revenue Impact
+              </TD>
+              {rows.map((day) => (
+                <TrendValueCell
+                  key={day.date}
+                  value={day.estRevenueImpact ?? "—"}
+                  tone={getRevenueTone(day.estRevenueImpact)}
+                />
+              ))}
+            </tr>
           </tbody>
         </table>
       </div>

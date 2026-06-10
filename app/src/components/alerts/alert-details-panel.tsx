@@ -193,7 +193,32 @@ const MOCK_CRAWL_HISTORY = [
   { label: "May 24, 2026 · 3:00 PM", url: "https://www.amazon.com/dp/B00I0DI0Z6" },
 ];
 
-function PdpHistoryDropdown({ asin }: { asin: string }) {
+function PdpPageLink({ asin }: { asin: string }) {
+  return (
+    <a
+      href={`https://www.amazon.com/dp/${asin}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+    >
+      <img
+        src="/amazon-logo.png"
+        alt="Amazon"
+        className="h-3.5 w-auto shrink-0"
+      />
+      PDP Page
+      <ExternalLink className="h-3 w-3" />
+    </a>
+  );
+}
+
+function PdpHistoryDropdown({
+  asin,
+  align = "left",
+}: {
+  asin: string;
+  align?: "left" | "right";
+}) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -224,7 +249,11 @@ function PdpHistoryDropdown({ asin }: { asin: string }) {
 
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1.5 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+        <div
+          className={`absolute top-full z-50 mt-1.5 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ${
+            align === "right" ? "right-0" : "left-0"
+          }`}
+        >
           {/* Header */}
           <div className="border-b border-slate-100 px-3 py-2">
             <p className="text-xs font-semibold text-slate-500">PDP Snapshots</p>
@@ -391,9 +420,14 @@ export function AlertDetailsPanel({
               alt={alert.skuName}
               className="h-8 w-8 shrink-0 rounded-md border border-slate-200 object-cover"
             />
-            <h2 className="truncate text-sm font-semibold text-slate-900">
+            <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">
               {alert.skuName}
             </h2>
+            {/* Buttons sit right of the title, left of the close icon — 32px min gap */}
+            <div className="ml-8 flex shrink-0 items-center gap-1">
+              <PdpPageLink asin={alert.asin} />
+              <PdpHistoryDropdown asin={alert.asin} align="right" />
+            </div>
           </div>
         ) : (
           <div className="flex items-start gap-4 px-6 py-4 pr-14">
@@ -418,20 +452,7 @@ export function AlertDetailsPanel({
               <div className="flex flex-wrap items-center gap-3">
                 {/* PDP link + history button grouped tightly — they belong together */}
                 <div className="flex items-center gap-1">
-                  <a
-                    href={`https://www.amazon.com/dp/${alert.asin}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
-                  >
-                    <img
-                      src="/amazon-logo.png"
-                      alt="Amazon"
-                      className="h-3.5 w-auto shrink-0"
-                    />
-                    PDP Page
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  <PdpPageLink asin={alert.asin} />
                   <PdpHistoryDropdown asin={alert.asin} />
                 </div>
                 <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
