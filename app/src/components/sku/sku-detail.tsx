@@ -12,11 +12,12 @@ import { SkuRca } from "./sku-rca";
 
 // Color for the alert type badge — same map as alerts-panel
 const ALERT_BADGE: Record<string, string> = {
-  "Lost Buy Box":     "bg-red-100 text-red-700",
-  "Predictive OOS":   "bg-red-100 text-red-700",
+  "Buy Box":          "bg-red-100 text-red-700",
+  "Stock":            "bg-red-100 text-red-700",
+  "Keyword Rank":     "bg-blue-100 text-blue-600",
+  "SOV":              "bg-blue-100 text-blue-600",
+  "Rating":           "bg-amber-100 text-amber-700",
   "Sales Drop":       "bg-orange-100 text-orange-700",
-  "Search Exit Pg 1": "bg-amber-100 text-amber-700",
-  "Content Change":   "bg-blue-100 text-blue-600",
   "PO Discrepancy":   "bg-purple-100 text-purple-700",
 };
 

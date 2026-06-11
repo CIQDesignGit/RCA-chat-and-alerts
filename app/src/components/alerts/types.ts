@@ -27,7 +27,7 @@ export type AlertItem = {
   brand: string;
   gapDollar: number;  // e.g. -46500
   gapUnits: number;   // e.g. -150
-  tags: string[];     // e.g. ["Lost Buy Box", "Promo Badge"]
+  tags: string[];     // e.g. ["Buy Box", "Promo Badge"] — see issue-names.ts
   date: string;       // e.g. "Today, 12 Apr"
   hasUnread?: boolean;
   issues: Issue[];

@@ -13,7 +13,6 @@ import {
   List,
   Loader2,
   Megaphone,
-  MessageSquareWarning,
   Package,
   PieChart,
   Search,
@@ -43,6 +42,7 @@ import {
   SKU_DATA,
   PORTFOLIO_SUMMARY,
 } from "./filter-mock-data";
+import { ISSUE_NAME } from "./issue-names";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -94,34 +94,33 @@ const ISSUE_TYPE_GROUPS: IssueTypeGroup[] = [
   {
     label: "PDP & Promos",
     options: [
-      { id: "lbb",    label: "Buy Box",              icon: ShoppingCart, count: 6 },
-      { id: "promo",  label: "Promo Badge",          icon: Megaphone,    count: 9 },
-      { id: "deals",  label: "Deal Page Visibility", icon: ShoppingBag,  count: 4 },
-      { id: "coupon", label: "Coupon",               icon: Tag,          count: 3 },
+      { id: "lbb",    label: ISSUE_NAME.LOST_BUY_BOX.filter, icon: ShoppingCart, count: 6 },
+      { id: "promo",  label: ISSUE_NAME.PROMO_BADGE.filter,  icon: Megaphone,    count: 9 },
+      { id: "deals",  label: ISSUE_NAME.DEAL_PAGE.filter,    icon: ShoppingBag,  count: 4 },
+      { id: "coupon", label: ISSUE_NAME.COUPON.filter,       icon: Tag,          count: 3 },
     ],
   },
   {
     label: "Product Reputation",
     options: [
-      { id: "bsr",       label: "Best Seller Rank",  icon: Award,                count: 5 },
-      { id: "rating",    label: "Rating",            icon: Star,                 count: 7 },
-      { id: "sentiment", label: "Review Sentiment",  icon: MessageSquareWarning, count: 4 },
+      { id: "bsr",    label: ISSUE_NAME.BSR.filter,    icon: Award, count: 5 },
+      { id: "rating", label: ISSUE_NAME.RATING.filter, icon: Star,  count: 7 },
     ],
   },
   {
     label: "Fulfilment",
     options: [
-      { id: "oos",      label: "Out of Stock",   icon: Package, count: 2, filterable: false },
-      { id: "shipping", label: "Shipping Speed", icon: Truck,   count: 3, filterable: false },
+      { id: "oos",      label: ISSUE_NAME.STOCK.filter,    icon: Package, count: 2, filterable: false },
+      { id: "shipping", label: ISSUE_NAME.SHIPPING.filter, icon: Truck,   count: 3, filterable: false },
     ],
   },
   {
     label: "Search & Traffic",
     options: [
-      { id: "sov",        label: "Share of Voice", icon: PieChart,  count: 2 },
-      { id: "krd",        label: "Keyword Rank",   icon: Shield,    count: 1 },
-      { id: "conversion", label: "Conversion",     icon: Funnel,    count: 2 },
-      { id: "media",      label: "Media Spend",    icon: DollarSign,count: 1 },
+      { id: "sov",        label: ISSUE_NAME.SOV.filter,        icon: PieChart,   count: 2 },
+      { id: "krd",        label: ISSUE_NAME.KEYWORD_RANK.filter, icon: Shield,     count: 1 },
+      { id: "conversion", label: ISSUE_NAME.CONVERSION.filter,   icon: Funnel,     count: 2 },
+      { id: "media",      label: ISSUE_NAME.MEDIA_SPEND.filter,  icon: DollarSign, count: 1 },
     ],
   },
 ];
@@ -158,10 +157,15 @@ function IssueTypeOptionButton({
       >
         {Icon && <Icon className="h-3.5 w-3.5" />}
       </span>
-      <span className="flex items-center gap-1">
-        <span>{option.label}</span>
+      <span className="flex items-center gap-2">
+        <span className="text-sm text-slate-600 font-medium">{option.label}</span>
         {option.count !== undefined && (
-          <span className={cn("text-xs", isFilterable ? "text-slate-500" : "text-slate-400")}>
+          <span
+            className={cn(
+              "text-xs font-medium ",
+              isFilterable ? "text-brand-500" : "text-slate-400",
+            )}
+          >
             ({option.count})
           </span>
         )}

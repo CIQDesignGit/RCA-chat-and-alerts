@@ -199,7 +199,7 @@ function PdpPageLink({ asin }: { asin: string }) {
       href={`https://www.amazon.com/dp/${asin}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+      className="flex h-8 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
     >
       <img
         src="/amazon-logo.png"
@@ -241,7 +241,7 @@ function PdpHistoryDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="PDP snapshots"
-        className="flex h-[26px] items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+        className="flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
       >
         <History className="h-3.5 w-3.5 shrink-0" />
         PDP Snapshots

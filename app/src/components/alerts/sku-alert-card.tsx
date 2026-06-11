@@ -1,6 +1,5 @@
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { AlertItem, IssueType } from "./types";
+import type { AlertItem } from "./types";
 import { GapBadge } from "./gap-badge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -16,31 +15,12 @@ type SkuAlertCardProps = {
    * full — alerts page panel.
    *   Overline: ASIN · accountId · category | unread dot + Gap badge
    *   Middle:   thumbnail + SKU name
-   *   Bottom:   all tags with resolved checkmarks (full-width)
+   *   Bottom:   all tags (full-width)
    */
   variant: "compact" | "full";
   isActive?: boolean;
   onClick?: () => void;
 };
-
-// Maps tag labels → issue types to look up resolution status
-const TAG_TO_ISSUE_TYPE: Record<string, IssueType> = {
-  "Lost Buy Box":      "lost-buy-box",
-  "Promo Badge":       "promo-badge",
-  "Keyword Rank Drop": "keyword-rank-drop",
-  "Star Rating":       "star-rating",
-  "SoV Drop":          "sov-drop",
-  "SOV Drop":          "sov-drop",
-  "Share of Voice":    "sov-drop",
-  "Conversion":        "conversion",
-};
-
-function isTagResolved(alert: AlertItem, tag: string): boolean {
-  const issueType = TAG_TO_ISSUE_TYPE[tag];
-  if (!issueType) return false;
-  return alert.issues.some((i) => i.type === issueType && i.status === "resolved");
-}
-
 
 function cardShell(isActive?: boolean) {
   return cn(
@@ -53,11 +33,9 @@ function cardShell(isActive?: boolean) {
 
 // ─── Shared tag chip ──────────────────────────────────────────────────────────
 
-function TagChip({ alert, tag }: { alert: AlertItem; tag: string }) {
-  const resolved = isTagResolved(alert, tag);
+function TagChip({ tag }: { tag: string }) {
   return (
-    <span className="flex items-center gap-0.5 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-500">
-      {resolved && <Check className="h-2.5 w-2.5 text-emerald-500" />}
+    <span className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-500">
       {tag}
     </span>
   );
@@ -101,7 +79,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
           {alert.tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-1">
               {alert.tags.map((tag) => (
-                <TagChip key={tag} alert={alert} tag={tag} />
+                <TagChip key={tag} tag={tag} />
               ))}
             </div>
           )}
@@ -149,7 +127,7 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
         {alert.tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">
             {alert.tags.map((tag) => (
-              <TagChip key={tag} alert={alert} tag={tag} />
+              <TagChip key={tag} tag={tag} />
             ))}
           </div>
         )}

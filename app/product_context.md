@@ -133,6 +133,30 @@ All users are **brand-side ecommerce professionals** at CPG / consumer goods com
 | Insight | Finding / Result |
 | Recommendation | Suggestion |
 
+### RCA Issue Names — Three UI Locations
+
+Each RCA issue type has **three display names** depending on where it appears. Canonical source: `app/src/components/alerts/issue-names.ts`.
+
+| Filter dropdown | Left-panel chip | RCA right pane |
+|---|---|---|
+| Lost Buy Box | Buy Box | Buy Box |
+| Promo Badge | Promo Badge | Promo Badge |
+| Deal Page Visibility | Deal Page | Deal Page Visibility |
+| Coupon | Coupon | Coupon |
+| Best Seller Rank | Best Seller Rank | Best Seller Rank |
+| Rating & Reviews | Rating | Rating & Reviews |
+| Stock Availability | Stock | Stock Availability |
+| Shipping Speed | Shipping | Shipping Speed |
+| Sponsored Share of Voice | SOV | Sponsored Share of Voice |
+| Keyword Rank | Keyword Rank | Keyword Rank |
+| Media Spend | Media Spend | Media Spend |
+| Conversion Drop | Conversion | Conversion |
+
+**Rules:**
+- **Filter dropdown** — full descriptive names (e.g. "Lost Buy Box", "Conversion Drop").
+- **Left-panel chips** — short labels for space (e.g. "Buy Box", "SOV", "Deal Page").
+- **RCA right pane** — issue row titles in the root-cause accordion (e.g. "Deal Page Visibility", "Sponsored Share of Voice").
+
 ---
 
 ## Design Principles (derived from this context)

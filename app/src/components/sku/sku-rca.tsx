@@ -36,8 +36,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Markdown } from "@/components/ui/markdown";
 import type { SkuAlert } from "@/components/home/alerts-panel";
+import { ISSUE_NAME } from "@/components/alerts/issue-names";
 import { LostBuyBoxIssue }           from "@/components/alerts/issues/lost-buy-box";
 import { OutOfStockIssue }         from "@/components/alerts/issues/out-of-stock";
 import { ShippingSpeedIssue }      from "@/components/alerts/issues/shipping-speed";
@@ -51,6 +51,7 @@ import { LastWeekTrendBuyBox }       from "@/components/alerts/issues/last-week-
 import { LastWeekTrendPromoBadge }   from "@/components/alerts/issues/last-week-trend-promo-badge";
 import { LastWeekTrendDealPage }     from "@/components/alerts/issues/last-week-trend-deal-page";
 import { LastWeekTrendCoupon }       from "@/components/alerts/issues/last-week-trend-coupon";
+import { LastWeekTrendBestSellerRank } from "@/components/alerts/issues/last-week-trend-best-seller-rank";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -122,6 +123,8 @@ type RootCause = {
   showDealPageTrend?: boolean;
   // When true, renders the merged LastWeekTrendCoupon widget
   showCouponTrend?: boolean;
+  // When true, renders the merged LastWeekTrendBestSellerRank widget
+  showBsrTrend?: boolean;
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -138,7 +141,7 @@ type RcaData = {
   chartData: { week: string; plan: number; actual: number | null }[];
   chartCaption: string;
   rootCauses: RootCauseGroup[];
-  issuesSummary: string;
+  rcaSummary: string;
   rootCausesLastChecked: string;
   analysisBlocks: AnalysisBlock[];
   recommendations: Recommendation[];
@@ -153,7 +156,7 @@ const REVENUE_IMPACT_TOOLTIP = "Estimated revenue impacted";
 const CAUSE_BSR: RootCause = {
   id: "bsr",
   icon: <Award className="h-4 w-4" />,
-  label: "Best Seller Rank",
+  label: ISSUE_NAME.BSR.rca,
   impact: "−$18.4K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
@@ -161,12 +164,13 @@ const CAUSE_BSR: RootCause = {
   liveStatus: "bad",
   description: "",
   issueCardType: "best-seller-rank",
+  showBsrTrend: true,
 };
 
 const CAUSE_MEDIA: RootCause = {
   id: "media",
   icon: <DollarSign className="h-4 w-4" />,
-  label: "Media Spend",
+  label: ISSUE_NAME.MEDIA_SPEND.rca,
   impact: "−$42.3K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Threshold Breached",
@@ -180,7 +184,7 @@ const CAUSE_MEDIA: RootCause = {
 const CAUSE_OOS: RootCause = {
   id: "oos",
   icon: <Package className="h-4 w-4" />,
-  label: "Out of Stock",
+  label: ISSUE_NAME.STOCK.rca,
   impact: "−$8.2K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "OOS",
@@ -193,7 +197,7 @@ const CAUSE_OOS: RootCause = {
 const CAUSE_SHIP: RootCause = {
   id: "ship",
   icon: <Truck className="h-4 w-4" />,
-  label: "Shipping Speed",
+  label: ISSUE_NAME.SHIPPING.rca,
   impact: null,
   statusLabel: "Slow",
   statusStyle: "border-amber-100 bg-amber-50/50 text-amber-600",
@@ -212,7 +216,7 @@ const COMMON_CAUSES: RootCause[] = [CAUSE_MEDIA, CAUSE_OOS, CAUSE_SHIP];
 const CAUSE_LBB: RootCause = {
   id: "lbb",
   icon: <ShoppingCart className="h-4 w-4" />,
-  label: "Buy Box",
+  label: ISSUE_NAME.LOST_BUY_BOX.rca,
   impact: "−$119.7K",
   statusLabel: "Lost",
   statusStyle: "border-rose-100 bg-rose-50/50 text-rose-600",
@@ -228,7 +232,7 @@ const CAUSE_LBB: RootCause = {
 const CAUSE_PROMO_BADGE: RootCause = {
   id: "deal",
   icon: <Megaphone className="h-4 w-4" />,
-  label: "Promo Badge",
+  label: ISSUE_NAME.PROMO_BADGE.rca,
   impact: "−$4.2K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Missing",
@@ -244,7 +248,7 @@ const CAUSE_PROMO_BADGE: RootCause = {
 const CAUSE_DEALS_PAGE: RootCause = {
   id: "deals",
   icon: <ShoppingBag className="h-4 w-4" />,
-  label: "Deal Page Visibility",
+  label: ISSUE_NAME.DEAL_PAGE.rca,
   impact: "−$12.6K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Missing",
@@ -259,7 +263,7 @@ const CAUSE_DEALS_PAGE: RootCause = {
 const CAUSE_COUPON: RootCause = {
   id: "coupon",
   icon: <Tag className="h-4 w-4" />,
-  label: "Coupon",
+  label: ISSUE_NAME.COUPON.rca,
   impact: "−$3.8K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Detected",
@@ -274,7 +278,7 @@ const CAUSE_COUPON: RootCause = {
 const CAUSE_STAR_RATING: RootCause = {
   id: "star",
   icon: <Star className="h-4 w-4" />,
-  label: "Rating and Reviews",
+  label: ISSUE_NAME.RATING.rca,
   impact: "−$24.5K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
@@ -289,7 +293,7 @@ const CAUSE_STAR_RATING: RootCause = {
 const CAUSE_KRD: RootCause = {
   id: "krd",
   icon: <Shield className="h-4 w-4" />,
-  label: "Keyword Rank",
+  label: ISSUE_NAME.KEYWORD_RANK.rca,
   impact: "−$31.2K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
@@ -304,7 +308,7 @@ const CAUSE_KRD: RootCause = {
 const CAUSE_SOV: RootCause = {
   id: "sov",
   icon: <PieChart className="h-4 w-4" />,
-  label: "Share of Voice",
+  label: ISSUE_NAME.SOV.rca,
   impact: "−$28.4K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
@@ -319,7 +323,7 @@ const CAUSE_SOV: RootCause = {
 const CAUSE_CONVERSION_DROPPED: RootCause = {
   id: "conversion-dropped",
   icon: <Funnel className="h-4 w-4" />,
-  label: "Conversion",
+  label: ISSUE_NAME.CONVERSION.rca,
   impact: "−$56.8K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropped",
@@ -333,7 +337,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
 const CAUSE_CONVERSION_DROPPING: RootCause = {
   id: "conversion-dropping",
   icon: <Funnel className="h-4 w-4" />,
-  label: "Conversion",
+  label: ISSUE_NAME.CONVERSION.rca,
   impact: "−$22.1K",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   statusLabel: "Dropping Fast",
@@ -347,7 +351,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
 const CAUSE_CONVERSION_OK: RootCause = {
   id: "conversion-ok",
   icon: <Funnel className="h-4 w-4" />,
-  label: "Conversion",
+  label: ISSUE_NAME.CONVERSION.rca,
   impact: null,
   statusLabel: "OK",
   statusStyle: "border-slate-200 bg-slate-50/50 text-slate-500",
@@ -484,11 +488,8 @@ function getRcaData(sku: SkuAlert): RcaData {
     chartCaption:
       "Revenue collapsed in the week of May 3 (100% LBB all 7 days) after a strong run through Apr 5–19; recovery is underway this week with buy box reclaimed.",
     rootCauses: buildGroups(sku),
-    issuesSummary: `Revenue collapsed after SAS price jumped to **$529.99** on May 3, losing the buy box for the full week. Recovery has started this week, but a missing deal badge is still limiting conversion.
-
-- **~$120K** shifted to 3P sellers (~53% of the gap)
-- Top keywords saw **WoW ad spend cuts** while buy box was lost
-- Buy box **reclaimed at $349.99** — deal badge absent May 10–13`,
+    rcaSummary:
+      "Revenue collapsed after SAS price jumped to $529.99 on May 3, losing the buy box for the full week. Recovery has started this week, but a missing deal badge is still limiting conversion.",
     rootCausesLastChecked: "11:35 AM today (2h ago)",
     analysisBlocks: [
       {
@@ -700,6 +701,17 @@ const PROMO_BADGE_TREND_ROWS = [
   { date: "May 16", badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6, estRevenueImpact: "-$605" },
 ];
 
+// Mock days for the BSR 7-day trend table (dates = columns, metrics = rows).
+const BSR_TREND_ROWS = [
+  { date: "Jun 1", avgCategoryRank: 14, highestRank: 12, lowestRank: 18 },
+  { date: "Jun 2", avgCategoryRank: 16, highestRank: 14, lowestRank: 20 },
+  { date: "Jun 3", avgCategoryRank: 18, highestRank: 15, lowestRank: 22 },
+  { date: "Jun 4", avgCategoryRank: 21, highestRank: 18, lowestRank: 25 },
+  { date: "Jun 5", avgCategoryRank: 24, highestRank: 20, lowestRank: 28 },
+  { date: "Jun 6", avgCategoryRank: 27, highestRank: 24, lowestRank: 31 },
+  { date: "Jun 7", avgCategoryRank: 31, highestRank: 28, lowestRank: 35 },
+];
+
 // Mock days for the Coupon 7-day trend table (dates = columns, metrics = rows).
 const COUPON_TREND_ROWS = [
   { date: "Jun 1", couponDetected: true,  couponValue: "$2.95" },
@@ -759,10 +771,10 @@ function EmptyRcaState() {
 
 // ─── 1. KPI stats row ─────────────────────────────────────────────────────────
 
-function KpiRow({ kpis }: { kpis: KpiStat[] }) {
+function KpiRow({ kpis, rcaSummary }: { kpis: KpiStat[]; rcaSummary: string }) {
   return (
     <div className="flex flex-col gap-4">
-      <SectionHeading>SKU Root Cause Analysis</SectionHeading>
+      <h3 className="text-lg font-medium text-slate-800 tracking-[0.05px]">{rcaSummary}</h3>
       <div className="grid grid-cols-3 gap-4">
       {kpis.map((k) => (
         <div key={k.label} className="flex flex-col gap-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -1042,24 +1054,24 @@ function RootCauseRow({
               <LastWeekTrendCoupon period="Jun 1–7" rows={COUPON_TREND_ROWS} />
             </div>
           )}
+          {cause.showBsrTrend && (
+            <div className="mt-3">
+              <LastWeekTrendBestSellerRank period="Jun 1–7" rows={BSR_TREND_ROWS} />
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-const ISSUES_SUMMARY_MARKDOWN_CLASS =
-  "prose prose-sm prose-slate max-w-none text-sm leading-relaxed text-slate-600 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:marker:text-slate-400 [&_strong]:font-semibold [&_strong]:text-slate-700";
-
 function RootCauses({
   groups,
-  summary,
   lastChecked,
   asin,
   brand,
 }: {
   groups: RootCauseGroup[];
-  summary: string;
   lastChecked: string;
   asin?: string;
   brand?: string;
@@ -1079,15 +1091,9 @@ function RootCauses({
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Summary + section heading */}
-      <div className="mb-3 flex flex-col gap-3">
-        {summary && (
-          <Markdown className={ISSUES_SUMMARY_MARKDOWN_CLASS}>{summary}</Markdown>
-        )}
-        <div className="flex flex-col gap-0.5">
-          <SectionHeading>Issues</SectionHeading>
-          <p className="text-sm text-slate-500">Last updated {lastChecked}</p>
-        </div>
+      <div className="mb-3 flex flex-col gap-0.5">
+        <SectionHeading>Issues</SectionHeading>
+        <p className="text-sm text-slate-500">Last updated {lastChecked}</p>
       </div>
 
       {/* One rounded card per group */}
@@ -1236,7 +1242,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     const hasRootCauses = data.rootCauses.some((g) => g.causes.length > 0);
     return hasRootCauses ? (
       <div className="flex flex-col gap-8">
-        <RootCauses groups={data.rootCauses} summary={data.issuesSummary} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
+        <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
       </div>
     ) : null;
   }
@@ -1246,7 +1252,7 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
     return (
       <div className="flex flex-col gap-6">
         <SkuMetaCard sku={sku} />
-        {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
+        {data.kpis.length > 0 && <KpiRow kpis={data.kpis} rcaSummary={data.rcaSummary} />}
         {data.alertBanner && <AlertBanner message={data.alertBanner} />}
       </div>
     );
@@ -1268,10 +1274,10 @@ export function SkuRca({ sku, variant = "full" }: SkuRcaProps) {
         <EmptyRcaState />
       ) : (
         <>
-          {data.kpis.length > 0 && <KpiRow kpis={data.kpis} />}
+          {data.kpis.length > 0 && <KpiRow kpis={data.kpis} rcaSummary={data.rcaSummary} />}
           {data.alertBanner && <AlertBanner message={data.alertBanner} />}
           {data.rootCauses.some((g) => g.causes.length > 0) && (
-            <RootCauses groups={data.rootCauses} summary={data.issuesSummary} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
+            <RootCauses groups={data.rootCauses} lastChecked={data.rootCausesLastChecked} asin={sku.asin} brand={sku.brand} />
           )}
           {data.chartData.length > 0 && (
             <RevenueChart data={data.chartData} caption={data.chartCaption} />

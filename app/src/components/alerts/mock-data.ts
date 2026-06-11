@@ -24,7 +24,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -46500,
     gapUnits: -150,
-    tags: ["Lost Buy Box", "Promo Badge"],
+    tags: ["Buy Box", "Promo Badge"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -41,7 +41,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -38200,
     gapUnits: -120,
-    tags: ["SoV Drop", "Keyword Rank Drop", "Conversion"],
+    tags: ["SOV", "Keyword Rank", "Conversion"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -59,7 +59,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -29800,
     gapUnits: -95,
-    tags: ["Predictive OOS", "Star Rating"],
+    tags: ["Keyword Rank", "Rating"],
     date: "Today",
     issues: [
       { id: "i3",  type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Top search terms lost page-1 position.",              analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "open"     },
@@ -75,7 +75,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -22400,
     gapUnits: -71,
-    tags: ["SoV Drop"],
+    tags: ["SOV"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -107,7 +107,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -11200,
     gapUnits: -36,
-    tags: ["Keyword Rank Drop"],
+    tags: ["Keyword Rank"],
     date: "Yesterday",
     hasUnread: false,
     issues: [
@@ -125,7 +125,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -52100,
     gapUnits: -180,
-    tags: ["Search Exit Pg 1", "Best Seller Rank"],
+    tags: ["SOV"],
     date: "Today",
     hasUnread: true,
     // RCA not yet computed for this SKU — triggers on-demand generation
@@ -143,7 +143,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -31400,
     gapUnits: -98,
-    tags: ["Content Change"],
+    tags: ["Keyword Rank"],
     date: "Today",
     // Agent ran but RCA fetch failed — show issue-card fallback
     rcaFetchFailed: true,
@@ -160,7 +160,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -24600,
     gapUnits: -78,
-    tags: ["Lost Buy Box"],
+    tags: ["Buy Box"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -176,7 +176,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -18900,
     gapUnits: -60,
-    tags: ["Star Rating"],
+    tags: ["Rating"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -192,7 +192,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -14100,
     gapUnits: -45,
-    tags: ["SoV Drop"],
+    tags: ["SOV"],
     date: "Yesterday",
     hasUnread: false,
     issues: [
@@ -226,7 +226,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -21000,
     gapUnits: -66,
-    tags: ["Keyword Rank Drop"],
+    tags: ["Keyword Rank"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -259,7 +259,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -18200,
     gapUnits: -57,
-    tags: ["SoV Drop"],
+    tags: ["SOV"],
     date: "Today",
     issues: [
       { id: "i7a", type: "sov-drop", title: "SoV Drop", description: "Competitor gained share of voice on outdoor cleaning terms.", analyst: "Sales Analyst", timeAgo: "6 hrs ago", status: "open" },
@@ -274,7 +274,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Shark",
     gapDollar: -12300,
     gapUnits: -39,
-    tags: ["Content Change"],
+    tags: ["Keyword Rank"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -292,7 +292,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -42000,
     gapUnits: -135,
-    tags: ["Lost Buy Box", "Best Seller Rank"],
+    tags: ["Buy Box", "Best Seller Rank"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -308,7 +308,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -28700,
     gapUnits: -92,
-    tags: ["Keyword Rank Drop"],
+    tags: ["Keyword Rank"],
     date: "Today",
     issues: [
       { id: "i8b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Air fryer keywords dropped after a competitor's new listing.", analyst: "Sales Analyst", timeAgo: "4 hrs ago", status: "open" },
@@ -323,7 +323,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -19400,
     gapUnits: -62,
-    tags: ["SoV Drop"],
+    tags: ["SOV"],
     date: "Today",
     issues: [
       { id: "i8c", type: "sov-drop", title: "SoV Drop", description: "Share of voice on dual-basket air fryer terms declined.", analyst: "Sales Analyst", timeAgo: "8 hrs ago", status: "open" },
@@ -355,7 +355,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -19800,
     gapUnits: -63,
-    tags: ["Keyword Rank Drop"],
+    tags: ["Keyword Rank"],
     date: "Today",
     issues: [
       { id: "i9b", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "3 target keywords slipped below page 1 this week.", analyst: "Sales Analyst", timeAgo: "7 hrs ago", status: "open" },
@@ -372,7 +372,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -35000,
     gapUnits: -112,
-    tags: ["Search Exit Pg 1", "Keyword Rank Drop"],
+    tags: ["SOV", "Keyword Rank"],
     date: "Today",
     hasUnread: true,
     issues: [
@@ -389,7 +389,7 @@ export const ALERT_ITEMS: AlertItem[] = [
     brand: "Ninja",
     gapDollar: -18600,
     gapUnits: -59,
-    tags: ["Content Change"],
+    tags: ["Keyword Rank"],
     date: "Today",
     issues: [
       { id: "i10c", type: "keyword-rank-drop", title: "Keyword Rank Drop", description: "Standard drip coffee keywords lost position after a content change.", analyst: "Sales Analyst", timeAgo: "11 hrs ago", status: "open" },
