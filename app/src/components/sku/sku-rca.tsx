@@ -1228,7 +1228,7 @@ function RootCauses({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="mb-3 flex flex-col gap-0.5">
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <SectionHeading>Issues</SectionHeading>
         <p className="text-sm text-slate-500">Last updated {lastChecked}</p>
       </div>
