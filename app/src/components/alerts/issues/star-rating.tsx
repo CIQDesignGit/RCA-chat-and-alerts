@@ -9,7 +9,7 @@ import { LastWeekTrendRating } from "./last-week-trend-rating";
 function RatingLabel({ label, tooltip }: { label: string; tooltip: string }) {
   return (
     <div className="inline-flex w-fit items-center gap-1">
-      <span className="text-xs text-slate-400">{label}</span>
+      <span className="text-xs font-medium text-slate-600">{label}</span>
       <Tooltip>
         <TooltipTrigger className="cursor-help">
           <Info className="h-3 w-3 shrink-0 text-slate-400" />
@@ -52,6 +52,8 @@ export type StarRatingProps = {
   oldRating: number;
   /** Total star ratings (rating count) at the start of the comparison period */
   oldReviewCount: number;
+  /** Written text reviews at the start of the comparison period */
+  oldWrittenReviewCount: number;
   newRating: number;
   /** Total star ratings (rating count) — shown inline next to the number as (N) */
   reviewCount: number;
@@ -73,6 +75,7 @@ export type StarRatingProps = {
 export function StarRatingIssue({
   oldRating,
   oldReviewCount,
+  oldWrittenReviewCount,
   newRating,
   reviewCount,
   writtenReviewCount,
@@ -94,6 +97,9 @@ export function StarRatingIssue({
             <Stars rating={oldRating} active={false} />
             <span className="text-sm text-slate-400">({oldReviewCount.toLocaleString()})</span>
           </div>
+          <span className="text-xs text-slate-700">
+            {oldWrittenReviewCount.toLocaleString()} reviews
+          </span>
         </div>
 
         {/* Arrow — centered vertically between the two cards */}

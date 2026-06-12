@@ -53,6 +53,7 @@ function IssueBody({ issue }: { issue: Issue }) {
         <StarRatingIssue
           oldRating={4.3}
           oldReviewCount={722}
+          oldWrittenReviewCount={210}
           newRating={3.2}
           reviewCount={736}
           writtenReviewCount={230}
