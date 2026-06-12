@@ -49,7 +49,20 @@ function IssueBody({ issue }: { issue: Issue }) {
         />
       );
     case "star-rating":
-      return <StarRatingIssue oldRating={4.3} newRating={3.2} />;
+      return (
+        <StarRatingIssue
+          oldRating={4.3}
+          oldReviewCount={722}
+          newRating={3.2}
+          reviewCount={736}
+          writtenReviewCount={230}
+          newReviewsSinceYesterday={14}
+          latestLowStarReview={{
+            stars: 1,
+            excerpt: "Product stopped working after 3 weeks. Suction completely gone and the battery barely lasts 10 minutes. Extremely disappointed for the price.",
+          }}
+        />
+      );
     case "sov-drop":
       return (
         <SovDropIssue
