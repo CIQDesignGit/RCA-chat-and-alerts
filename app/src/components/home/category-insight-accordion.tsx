@@ -268,7 +268,7 @@ function CategoryRow({
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-2 sm:flex-[4]">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="text-sm font-semibold text-slate-900">
+              <span className={cn("text-sm font-semibold", isOpen ? "text-slate-900" : "text-slate-600")}>
                 {category.name}
               </span>
             </div>
@@ -290,7 +290,7 @@ function CategoryRow({
             </div>
           </div>
 
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
             <div
               className="h-full rounded-full bg-slate-300 transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -374,7 +374,7 @@ function CategoryRow({
             config={{
               value: {
                 label: activeMeta.chartLabel,
-                color: "var(--color-brand-600)",
+                color: "#0ea5e9",
               },
             }}
             className="h-[160px] w-full"
@@ -466,7 +466,11 @@ export function CategoryInsightAccordion({
       {visible.map((cat, i) => (
         <div
           key={cat.name}
-          className={cn(i < visible.length - 1 && "border-b border-slate-100")}
+          className={cn(
+            "-mx-4 px-4 transition-colors duration-150",
+            i < visible.length - 1 && "border-b border-slate-100",
+            openIndex === i ? "bg-sky-50/50" : "hover:bg-slate-50/50",
+          )}
         >
           <CategoryRow
             category={cat}
