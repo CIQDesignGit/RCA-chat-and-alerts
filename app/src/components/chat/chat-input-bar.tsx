@@ -24,9 +24,10 @@ interface ChatInputBarProps {
   onChange: (v: string) => void;
   onSubmit: () => void;
   isLoading: boolean;
+  className?: string;
 }
 
-export function ChatInputBar({ value, onChange, onSubmit, isLoading }: ChatInputBarProps) {
+export function ChatInputBar({ value, onChange, onSubmit, isLoading, className }: ChatInputBarProps) {
   const isMultiline = value.includes("\n");
 
   const sendButton = (
@@ -46,7 +47,7 @@ export function ChatInputBar({ value, onChange, onSubmit, isLoading }: ChatInput
   );
 
   return (
-    <div className="px-6 pb-6 pt-3">
+    <div className={cn("px-6 pb-6 pt-3", className)}>
       <div className="mx-auto max-w-[800px]">
         <PromptInput
           value={value}

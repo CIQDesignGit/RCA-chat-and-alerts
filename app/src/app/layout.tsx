@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GeistMono } from "geist/font/mono";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
@@ -32,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${GeistMono.variable} h-full antialiased`}
     >
       <body className="flex h-full bg-white text-foreground">
         {/* Decorative background blobs — fixed so they stay behind scrolling content */}

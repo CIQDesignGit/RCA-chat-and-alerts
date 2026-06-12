@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import {
+  CategoryInsightAccordion,
+  type CategoryMetrics,
+} from "./category-insight-accordion";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-interface CategoryInsight {
-  name: string;
-  gapDollar: number;
-  gapUnits: number;
-}
 
 interface BrandData {
   name: string;
@@ -17,19 +15,22 @@ interface BrandData {
   gapUnits: number;
   achievedSales: number;
   targetSales: number;
-  categories: CategoryInsight[];
+  categories: CategoryMetrics[];
 }
 
 interface BrandInsightsTabsV2Props {
   brands: BrandData[];
-  // Called with the brand name whenever the active tab changes
   onBrandChange?: (brandName: string) => void;
-  // Called when a category row is clicked — applies brand + category filter on the home page
   onViewCategory?: (brandName: string, categoryName: string) => void;
-  // Called when user clicks "View all categories" — opens alerts panel filtered by brand only
   onViewAllCategories?: (brandName: string) => void;
-  // Controlled active brand — null means no tab selected (e.g. after clearing filters)
   activeBrandName?: string | null;
+  /** Limit visible categories per brand — omit to show all. */
+  maxCategories?: number;
+  /**
+   * When true the component fills its parent height: the tab bar stays fixed
+   * at the top and the category list scrolls independently.
+   */
+  fillHeight?: boolean;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -55,8 +56,6 @@ function fmtSales(v: number): string {
   return `$${abs}`;
 }
 
-// ── PropBar ───────────────────────────────────────────────────────────────────
-
 function PropBar({ pct, active }: { pct: number; active: boolean }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
@@ -72,17 +71,20 @@ function PropBar({ pct, active }: { pct: number; active: boolean }) {
 }
 
 // ── BrandInsightsTabsV2 ───────────────────────────────────────────────────────
-// Browser-tab style: each tab is a self-contained card (brand name, gap $,
-// units, achieved/target + progress bar). The active tab merges seamlessly
-// with the content panel below via the border-b-white + -mb-px CSS trick.
 
-export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onViewAllCategories, activeBrandName }: BrandInsightsTabsV2Props) {
-  // null = no tab active (cleared state); default to first tab if prop not provided
+export function BrandInsightsTabsV2({
+  brands,
+  onBrandChange,
+  onViewCategory,
+  onViewAllCategories,
+  activeBrandName,
+  maxCategories,
+  fillHeight = false,
+}: BrandInsightsTabsV2Props) {
   const [activeIndex, setActiveIndex] = useState<number | null>(
-    activeBrandName === null ? null : 0
+    activeBrandName === null ? null : 0,
   );
 
-  // Sync when parent drives the active brand (e.g. tab switch or clear filters)
   useEffect(() => {
     if (activeBrandName === undefined) return;
     if (activeBrandName === null) {
@@ -99,16 +101,15 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
   }
 
   const active = activeIndex !== null ? brands[activeIndex] : null;
-  const maxGap = active ? Math.max(...active.categories.map((c) => Math.abs(c.gapDollar))) : 0;
 
   return (
-    <div className="flex flex-col">
-
-      {/* ── Tab strip — sits on slate-100 tray, tabs have rounded tops ───────── */}
-      <div className={cn(
-        "flex gap-1 px-1 pt-1 bg-slate-100",
-        active ? "rounded-t-[20px]" : "rounded-[20px] pb-1",
-      )}>
+    <div className={cn("flex flex-col", fillHeight && "h-full overflow-hidden")}>
+      <div
+        className={cn(
+          "shrink-0 flex gap-1 bg-slate-100 px-1 pt-1",
+          active ? "rounded-t-2xl" : "rounded-2xl pb-1",
+        )}
+      >
         {brands.map((brand, i) => {
           const isActive = i === activeIndex;
           const noSelection = activeIndex === null;
@@ -116,54 +117,54 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
             Math.round((brand.achievedSales / brand.targetSales) * 100),
             100,
           );
+          const emphasized = isActive || noSelection;
 
           return (
             <button
               key={brand.name}
               onClick={() => handleTabClick(i)}
               className={cn(
-                "relative flex flex-1 flex-col gap-1.5 border px-4 py-2 text-left transition-all",
-                // Both tabs fully rounded when none is selected
-                noSelection ? "rounded-[16px]" : "rounded-t-[20px]",
+                "relative flex flex-1 flex-col gap-2 border px-4 py-2.5 text-left transition-all",
+                noSelection ? "rounded-xl" : "rounded-t-2xl",
                 isActive
-                  ? "-mb-px border-slate-200 border-b-white bg-white z-10"
+                  ? "-mb-px z-10 border-slate-200 border-b-white bg-white"
                   : noSelection
-                    // "no selection" state — both appear as equal white cards
                     ? "border-slate-200 bg-white shadow-sm hover:bg-slate-50"
                     : "border-transparent bg-slate-50 hover:bg-slate-100",
               )}
             >
-              {/* Brand name */}
-              <span className="text-lg font-semibold text-slate-800">
-                {brand.name}
-              </span>
-
-              {/* Gap dollar + units stacked below brand name */}
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-base font-semibold text-slate-900">
+                  {brand.name}
+                </span>
                 <span
                   className={cn(
-                    "text-medium font-semibold leading-none",
-                    isActive || noSelection ? "text-rose-500" : "text-slate-500",
+                    "shrink-0 whitespace-nowrap tabular-nums",
+                    emphasized ? "text-slate-500" : "text-slate-400",
                   )}
                 >
-                  {fmtDollar(brand.gapDollar)}
-                </span>
-                <span className={cn("text-sm", isActive || noSelection ? "text-slate-500" : "text-slate-400")}>
-                  {fmtUnits(brand.gapUnits)}
+                  <span
+                    className={cn(
+                      "text-sm font-medium",
+                      emphasized ? "text-rose-500" : "text-slate-500",
+                    )}
+                  >
+                    {fmtDollar(brand.gapDollar)}
+                  </span>
+                  
                 </span>
               </div>
 
-              {/* Progress bar on top, achieved / target text below */}
-              <div className="flex flex-col gap-1 pt-0.5">
-                <PropBar pct={pct} active={isActive || noSelection} />
-                <div className="flex items-center gap-1">
-                  <span className={cn("text-sm font-medium", isActive || noSelection ? "text-slate-700" : "text-slate-500")}>
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <PropBar pct={pct} active={emphasized} />
+                </div>
+                <div className="flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-slate-500">
+                  <span className={emphasized ? "font-medium text-slate-700" : undefined}>
                     {fmtSales(brand.achievedSales)}
                   </span>
-                  <span className="text-sm text-slate-400">/</span>
-                  <span className="text-sm text-slate-500">
-                    {fmtSales(brand.targetSales)}
-                  </span>
+                  <span className="text-slate-400">/</span>
+                  <span>{fmtSales(brand.targetSales)}</span>
                 </div>
               </div>
             </button>
@@ -171,48 +172,26 @@ export function BrandInsightsTabsV2({ brands, onBrandChange, onViewCategory, onV
         })}
       </div>
 
-      {/* ── Content panel — only shown when a tab is active ──────────────────── */}
-      {active && <div className="rounded-b-[20px] border border-slate-200 bg-white">
-
-        {/* Section label */}
-        <div className="px-4 py-1.5">
-          <span className="text-xs font-semibold text-slate-400">
-            Category performance
-          </span>
+      {active && (
+        <div
+          className={cn(
+            "rounded-b-2xl border border-slate-200 bg-white",
+            fillHeight && "flex-1 overflow-y-auto",
+          )}
+        >
+          <CategoryInsightAccordion
+            categories={active.categories}
+            brandName={active.name}
+            onViewCategory={onViewCategory}
+            maxCategories={maxCategories}
+            onViewAll={
+              onViewAllCategories
+                ? () => onViewAllCategories(active.name)
+                : undefined
+            }
+          />
         </div>
-
-        {/* Category rows */}
-        <div className="px-2 pt-0.5 pb-2">
-          {active.categories.slice(0, 4).map((cat) => {
-            const barPct = (Math.abs(cat.gapDollar) / maxGap) * 100;
-            return (
-              <button
-                key={cat.name}
-                onClick={() => onViewCategory?.(active.name, cat.name)}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-colors hover:bg-slate-50"
-              >
-                <span className="flex-1 truncate text-sm font-medium text-slate-700">
-                  {cat.name}
-                </span>
-                {/* Proportional bar — widest = biggest gap */}
-                <div className="h-0.5 w-10 shrink-0 overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    className="h-full rounded-full bg-brand-500"
-                    style={{ width: `${barPct}%` }}
-                  />
-                </div>
-                <span className="w-14 shrink-0 text-right text-sm font-medium text-rose-500">
-                  {fmtDollar(cat.gapDollar)}
-                </span>
-                <span className="w-20 shrink-0 text-right text-sm font-normal text-slate-600">
-                  {fmtUnits(cat.gapUnits)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-      </div>}
+      )}
     </div>
   );
 }

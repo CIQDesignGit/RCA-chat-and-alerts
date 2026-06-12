@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Pin, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AlertsPanel } from "@/components/home/alerts-panel";
 import { BusinessLevelInsights } from "@/components/home/business-level-insights";
 import { AlertDetailsPanel } from "@/components/alerts/alert-details-panel";
@@ -18,7 +18,6 @@ import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 const SUGGESTIONS = [
   "Conduct brand and category level performance breakdown for this week?",
   "How is my total business performing this week vs. last week across all channels?",
-  "How much of my total brand sales is driven by advertising?",
 ];
 
 // ─── Inner page — needs useSearchParams so wrapped in Suspense below ─────────
@@ -107,11 +106,9 @@ function HomePageInner() {
     }
   }
 
-  // "View all categories" from the brand insights tab — apply brand filter + open filter bar
+  // "View all categories" from the brand insights tab — navigate to dedicated categories page
   function handleViewAllCategories(brandName: string) {
-    setFilters((prev) => ({ ...prev, brand: brandName, category: null }));
-    setFilterBarExpanded(true);
-    setSelectedAlert(null);
+    router.push(`/categories?brand=${encodeURIComponent(brandName)}`);
   }
 
   // Helper — true when the user is in a non-default state (filters applied, or view-all mode)
@@ -224,20 +221,15 @@ function HomePageInner() {
                 onChange={setInput}
                 onSubmit={() => handleSend()}
                 isLoading={isLoading}
+                className="px-0"
               />
             </div>
           ) : (
-            // ── Landing overview — greeting + insights + chat input ───────────
-            <div className="flex h-full flex-col items-center justify-between pt-5 pb-2">
+            // ── Landing overview — insights + chat input ────────────────────────
+            <div className="flex h-full flex-col items-center pt-3 pb-2">
 
-              {/* Top: greeting + business insights */}
-              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-                <div className="flex items-center gap-2">
-                  <Pin className="h-4 w-4 shrink-0 text-slate-400" />
-                  <p className="text-lg text-muted-foreground">
-                    Good Morning, Steve!
-                  </p>
-                </div>
+              {/* Top: business insights — scrolls independently */}
+              <div className="flex min-h-0 w-full max-w-[920px] flex-1 flex-col gap-2 overflow-y-auto px-8 pb-2">
                 <BusinessLevelInsights
                   onBrandChange={handleBrandChange}
                   onViewCategory={handleViewAllCategory}
@@ -246,8 +238,8 @@ function HomePageInner() {
                 />
               </div>
 
-              {/* Bottom: suggestion chips + chat input */}
-              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
+              {/* Bottom: suggestion chips + chat input — always visible */}
+              <div className="flex w-full max-w-[920px] shrink-0 flex-col gap-1.5 px-8 pt-2">
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s) => (
                     <button
@@ -265,6 +257,7 @@ function HomePageInner() {
                   onChange={setInput}
                   onSubmit={() => handleSend()}
                   isLoading={isLoading}
+                  className="px-0"
                 />
               </div>
             </div>
