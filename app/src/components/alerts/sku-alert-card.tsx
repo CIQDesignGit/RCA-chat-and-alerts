@@ -51,14 +51,14 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
       <button onClick={onClick} className={cardShell(isActive)}>
         <div className="flex flex-col gap-2 px-3 py-3">
 
-          {/* Row 1 — overline: breadcrumb left, gap badge right */}
+          {/* Row 1 — overline: category · ASIN · Model no | gap badge */}
           <div className="flex items-center justify-between gap-2">
             <p className="truncate text-[11px] text-slate-400">
-              <span className="font-mono">{alert.asin}</span>
-              <span className="mx-1">·</span>
-              {alert.accountId}
-              <span className="mx-1">·</span>
               {alert.category}
+              <span className="mx-1">·</span>
+              <span className="font-mono">{alert.accountId}</span>
+              <span className="mx-1">·</span>
+              {alert.asin}
             </p>
             <GapBadge gapDollar={alert.gapDollar} layout="stacked" showUnits={false} />
           </div>
@@ -99,14 +99,14 @@ export function SkuAlertCard({ alert, variant, isActive, onClick }: SkuAlertCard
     <button onClick={onClick} className={cardShell(isActive)}>
       <div className="flex flex-col gap-2 px-3 py-3">
 
-        {/* Row 1 — overline: breadcrumb left, gap badge right */}
+        {/* Row 1 — overline: category · ASIN · Model no | gap badge */}
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-[11px] text-slate-400">
-            <span className="font-mono">{alert.asin}</span>
-            <span className="mx-1">·</span>
-            {alert.accountId}
-            <span className="mx-1">·</span>
             {alert.category}
+            <span className="mx-1">·</span>
+            <span className="font-mono">{alert.accountId}</span>
+            <span className="mx-1">·</span>
+            {alert.asin}
           </p>
           <GapBadge gapDollar={alert.gapDollar} layout="stacked" showUnits={false} />
         </div>

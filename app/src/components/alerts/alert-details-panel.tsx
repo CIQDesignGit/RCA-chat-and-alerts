@@ -213,7 +213,7 @@ function PdpPageLink({ asin }: { asin: string }) {
       href={`https://www.amazon.com/dp/${asin}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex h-8 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+      className="flex h-8 items-center gap-1.5 rounded-md border border-slate-300 bg-slate-50 px-3 text-xs font-semibold text-slate-700 shadow-xs transition-colors hover:bg-slate-100 hover:border-slate-400"
     >
       <img
         src="/amazon-logo.png"
@@ -221,7 +221,7 @@ function PdpPageLink({ asin }: { asin: string }) {
         className="h-3.5 w-auto shrink-0"
       />
       PDP Page
-      <ExternalLink className="h-3 w-3" />
+      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
     </a>
   );
 }
@@ -255,9 +255,9 @@ function PdpHistoryDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="PDP snapshots"
-        className="flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+        className="flex h-8 items-center gap-1.5 rounded-md border border-slate-300 bg-slate-50 px-3 text-xs font-semibold text-slate-700 shadow-xs transition-colors hover:bg-slate-100 hover:border-slate-400"
       >
-        <History className="h-3.5 w-3.5 shrink-0" />
+        <History className="h-3.5 w-3.5 shrink-0 text-brand-500" />
         PDP Snapshots
       </button>
 
@@ -330,6 +330,7 @@ export function AlertDetailsPanel({
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isInputExpanded, setIsInputExpanded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const skuShortName = alert.skuName.split(" ").slice(0, 4).join(" ");
 
@@ -356,6 +357,11 @@ export function AlertDetailsPanel({
     if (!hasMessages && !isLoading) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sessionMessages, isLoading, hasMessages]);
+
+  // Auto-expand chat input when messages appear
+  useEffect(() => {
+    if (hasMessages) setIsInputExpanded(true);
+  }, [hasMessages]);
 
   // After RCA_SIMULATE_MS: resolve to "failed" for fetch-failed SKUs, "ready" otherwise.
   useEffect(() => {
@@ -438,40 +444,45 @@ export function AlertDetailsPanel({
               {alert.skuName}
             </h2>
             {/* Buttons sit right of the title, left of the close icon — 32px min gap */}
-            <div className="ml-8 flex shrink-0 items-center gap-1">
+            <div className="ml-8 flex shrink-0 items-center gap-1.5">
               <PdpPageLink asin={alert.asin} />
               <PdpHistoryDropdown asin={alert.asin} align="right" />
             </div>
           </div>
         ) : (
-          <div className="flex items-start gap-4 px-6 py-4 pr-14">
-            <img
-              src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
-              alt={alert.skuName}
-              className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <h2 className="text-base font-bold leading-snug text-slate-900">
-                {alert.skuName}
-              </h2>
-              <p className="text-xs text-slate-400">
-                {alert.accountId}
-                <span className="mx-1.5 text-slate-300">·</span>
-                <span className="font-mono">{alert.asin}</span>
-                <span className="mx-1.5 text-slate-300">·</span>
-                {alert.category}
-                <span className="mx-1.5 text-slate-300">·</span>
-                {alert.brand}
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                {/* PDP link + history button grouped tightly — they belong together */}
-                <div className="flex items-center gap-1">
-                  <PdpPageLink asin={alert.asin} />
-                  <PdpHistoryDropdown asin={alert.asin} />
+          <div className="flex flex-col gap-2 px-6 py-3 pr-14">
+
+            {/* Row 1 — overline: category · ASIN · Model no */}
+            <p className="truncate text-xs text-slate-400">
+              {alert.category}
+              <span className="mx-1.5 text-slate-300">·</span>
+              <span className="font-mono">{alert.accountId}</span>
+              <span className="mx-1.5 text-slate-300">·</span>
+              {alert.asin}
+            </p>
+
+            {/* Row 2 — thumbnail + SKU name + action buttons */}
+            <div className="flex items-start gap-4">
+              <img
+                src={`https://placehold.co/64x64/f4f4f5/71717a?text=${alert.category[0]}`}
+                alt={alert.skuName}
+                className="h-16 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
+              />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <h2 className="text-base font-bold leading-snug text-slate-900">
+                  {alert.skuName}
+                </h2>
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* PDP link + history button grouped tightly — they belong together */}
+                  <div className="flex items-center gap-1">
+                    <PdpPageLink asin={alert.asin} />
+                    <PdpHistoryDropdown asin={alert.asin} />
+                  </div>
+                  <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
                 </div>
-                <GapBadge gapDollar={alert.gapDollar} gapUnits={alert.gapUnits} />
               </div>
             </div>
+
           </div>
         )}
 
@@ -481,7 +492,7 @@ export function AlertDetailsPanel({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-4 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-900"
+            className="absolute right-4 top-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-900"
           >
             <X className="h-4 w-4" />
           </button>
@@ -489,7 +500,7 @@ export function AlertDetailsPanel({
       </div>
 
       {/* ── Scrollable body — RCA + follow-up chips + chat messages ── */}
-      <div className="flex-1 overflow-y-auto pb-28" onScroll={handleScroll}>
+      <div className={`flex-1 overflow-y-auto ${isInputExpanded ? "pb-36" : "pb-16"}`} onScroll={handleScroll}>
 
         {/* Issue threads hidden for now — component preserved in file */}
 
@@ -576,62 +587,98 @@ export function AlertDetailsPanel({
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Floating chat bar — shown once RCA is ready or in failed/partial state ── */}
+      {/* ── Floating chat — collapsed pill or expanded bar ── */}
       {rcaStatus !== "generating" && (
-        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-8">
+        <>
+          {/* ── Collapsed: pill button in bottom-right corner ── */}
+          {!isInputExpanded && (
+            <div className="absolute bottom-5 right-5">
+              {/* Gradient border wrapper — 1.5px gradient ring around white pill */}
+              <div className="rounded-full bg-linear-to-r from-violet-900 via-violet-500 to-purple-400 p-[1.5px] shadow-md transition-shadow hover:shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => setIsInputExpanded(true)}
+                  className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/ally-icon.png" alt="AllyAI" className="h-6 w-6 object-contain" />
+                  Ask AllyAI
+                </button>
+              </div>
+            </div>
+          )}
 
-        {/* "Continue in Chat" escape hatch — appears after first message */}
-        {hasMessages && (
-          <button
-            type="button"
-            onClick={handleContinueInChat}
-            className="mb-2 flex w-full items-center justify-end gap-1 text-xs font-medium text-brand-600 hover:underline"
-          >
-            Continue this conversation in Chat
-            <ArrowUpRight className="h-3 w-3" />
-          </button>
-        )}
+          {/* ── Expanded: full input bar with gradient backdrop ── */}
+          {isInputExpanded && (
+            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-3">
 
-        <PromptInput
-          value={chatInput}
-          onValueChange={setChatInput}
-          isLoading={isLoading}
-          onSubmit={() => handleSend()}
-          maxHeight={44}
-          className="flex w-full items-center rounded-full border-slate-200 bg-white shadow-md"
-        >
-          <PromptInputTextarea
-            disableAutosize
-            rows={1}
-            placeholder={`Ask AllyAI about ${skuShortName}…`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            className="min-h-0 flex-1 py-1.5"
-          />
-          <PromptInputActions>
-            <button
-              type="button"
-              onClick={() => handleSend()}
-              disabled={!chatInput.trim() || isLoading}
-              aria-label="Send"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-            >
-              <ArrowUp className="h-3.5 w-3.5" />
-            </button>
-          </PromptInputActions>
-        </PromptInput>
+              {/* Centered drag handle — bottom-sheet dismiss pattern */}
+              <div className="mb-3 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setIsInputExpanded(false)}
+                  aria-label="Collapse chat input"
+                  className="h-1.5 w-10 rounded-full bg-slate-300 transition-colors hover:bg-slate-400"
+                />
+              </div>
 
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          AI responses are generated. Always verify critical findings.{" "}
-          <a href="/chat" className="underline underline-offset-2 transition-colors hover:text-foreground">
-            View previous conversations in chat history
-          </a>.
-        </p>
-        </div>
+              {/* "Continue in Chat" — only shown when there are messages */}
+              {hasMessages && (
+                <div className="mb-2 flex justify-start">
+                  <button
+                    type="button"
+                    onClick={handleContinueInChat}
+                    className="flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline"
+                  >
+                    Continue this conversation in Chat
+                    <ArrowUpRight className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+
+              <PromptInput
+                value={chatInput}
+                onValueChange={setChatInput}
+                isLoading={isLoading}
+                onSubmit={() => handleSend()}
+                maxHeight={44}
+                className="flex w-full items-center rounded-full border-slate-200 bg-white shadow-md"
+              >
+                <PromptInputTextarea
+                  disableAutosize
+                  rows={1}
+                  placeholder={`Ask AllyAI about ${skuShortName}…`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  className="min-h-0 flex-1 py-1.5"
+                />
+                <PromptInputActions>
+                  <button
+                    type="button"
+                    onClick={() => handleSend()}
+                    disabled={!chatInput.trim() || isLoading}
+                    aria-label="Send"
+                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </button>
+                </PromptInputActions>
+              </PromptInput>
+
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                AI responses are generated. Always verify critical findings.{" "}
+                View previous conversations in{" "}
+                <a href="/chat" className="underline underline-offset-2 transition-colors hover:text-foreground">
+                  chat history
+                </a>.
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
