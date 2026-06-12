@@ -112,10 +112,17 @@ function ReviewCountCell({ count }: { count: number | null }) {
   );
 }
 
-/** New 1–2★ — neutral, no cell coloring */
-function LowStarCell({ count }: { count: number | null }) {
+/** New 1–2★ — red background when count exceeds threshold (default > 5) */
+function LowStarCell({
+  count,
+  threshold = 5,
+}: {
+  count: number | null;
+  threshold?: number;
+}) {
+  const isBad = count !== null && count > threshold;
   return (
-    <TD>
+    <TD className={isBad ? "bg-rose-50" : ""}>
       <span className={`font-medium ${count === null ? "text-slate-400" : "text-slate-800"}`}>
         {count === null ? "—" : count.toLocaleString()}
       </span>

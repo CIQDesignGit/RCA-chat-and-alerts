@@ -45,15 +45,60 @@ const TD = ({
   </td>
 );
 
+/** Plain rank cell — used for Highest Rank and Lowest Rank rows */
 function RankValueCell({ rank }: { rank: number | null }) {
   const display = rank === null ? "—" : `#${rank.toLocaleString()}`;
   return (
     <TD>
-      <span
-        className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}
-      >
+      <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
         {display}
       </span>
+    </TD>
+  );
+}
+
+/**
+ * Avg Category Rank cell — shows rank + day-over-day delta in brackets.
+ * Higher rank number = worse position, so:
+ *   delta > 0 (rank went up)   → bg-rose-50, red delta
+ *   delta < 0 (rank went down) → bg-emerald-50, green delta
+ *   no previous day            → neutral
+ */
+function AvgRankCell({
+  rank,
+  previousRank,
+}: {
+  rank: number | null;
+  previousRank: number | null;
+}) {
+  const delta =
+    rank !== null && previousRank !== null ? rank - previousRank : null;
+
+  const cellClass =
+    delta === null ? ""
+    : delta > 0 ? "bg-rose-50"
+    : delta < 0 ? "bg-emerald-50"
+    : "";
+
+  const deltaColor =
+    delta === null || delta === 0 ? "text-slate-400"
+    : delta > 0 ? "text-rose-600"
+    : "text-emerald-600";
+
+  const deltaLabel =
+    delta === null || delta === 0 ? null
+    : `(${delta > 0 ? "+" : ""}${delta})`;
+
+  return (
+    <TD className={`align-top ${cellClass}`}>
+      <div className="flex flex-col items-end gap-0.5">
+        <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
+          {rank === null ? "—" : `#${rank}`}
+        </span>
+        {deltaLabel && (
+          <span className={`text-[10px] font-medium ${deltaColor}`}>{deltaLabel}</span>
+        )}
+      </div>
     </TD>
   );
 }
@@ -90,11 +135,15 @@ export function LastWeekTrendBestSellerRank({
           </thead>
           <tbody className="divide-y divide-slate-100">
             <tr>
-              <TD align="left" className="font-medium text-slate-600">
+              <TD align="left" className="align-top font-medium text-slate-600">
                 Avg Category Rank
               </TD>
-              {rows.map((day) => (
-                <RankValueCell key={day.date} rank={day.avgCategoryRank} />
+              {rows.map((day, i) => (
+                <AvgRankCell
+                  key={day.date}
+                  rank={day.avgCategoryRank}
+                  previousRank={i > 0 ? rows[i - 1].avgCategoryRank : null}
+                />
               ))}
             </tr>
             <tr>

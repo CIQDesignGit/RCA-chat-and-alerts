@@ -50,14 +50,36 @@ function Stars({
 
 export type StarRatingProps = {
   oldRating: number;
+  /** Review count at the start of the comparison period */
+  oldReviewCount: number;
   newRating: number;
+  /** Total review count at time of crawl */
+  reviewCount: number;
+  /** Net-new reviews since yesterday */
+  newReviewsSinceYesterday: number;
+  /**
+   * Only pass when a fresh ≤2★ review actually landed.
+   * When absent the flag card is suppressed entirely.
+   */
+  latestLowStarReview?: {
+    stars: 1 | 2;
+    excerpt: string;
+    timeAgo?: string; // e.g. "3 hours ago"
+  };
 };
 
-export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
+export function StarRatingIssue({
+  oldRating,
+  oldReviewCount,
+  newRating,
+  reviewCount,
+  newReviewsSinceYesterday,
+  latestLowStarReview,
+}: StarRatingProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Old → New rating comparison */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-stretch gap-4">
         {/* Old rating box — grey, neutral */}
         <div className="flex w-fit flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
           <RatingLabel
@@ -68,12 +90,17 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
             <span className="text-2xl font-bold text-slate-400">{oldRating.toFixed(1)}</span>
             <Stars rating={oldRating} active={false} />
           </div>
+          <span className="text-xs text-slate-400">
+            {oldReviewCount.toLocaleString()} reviews
+          </span>
         </div>
 
-        {/* Arrow */}
-        <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
+        {/* Arrow — centered vertically between the two cards */}
+        <div className="flex items-center">
+          <ArrowRight className="h-5 w-5 shrink-0 text-slate-400" />
+        </div>
 
-        {/* New rating box — rose/pink, indicates the drop */}
+        {/* New rating box — rose/pink, shows review count + new reviews delta */}
         <div className="flex w-fit flex-col gap-2 rounded-xl border border-rose-100 bg-white px-5 py-4">
           <RatingLabel
             label="New Rating"
@@ -83,8 +110,42 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
             <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
             <Stars rating={newRating} active={true} />
           </div>
+          {/* Review count + new-since-yesterday */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">
+              {reviewCount.toLocaleString()} reviews
+            </span>
+            {newReviewsSinceYesterday > 0 && (
+              <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-600">
+                +{newReviewsSinceYesterday} since yesterday
+              </span>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Low-star flag — only rendered when a fresh ≤2★ review landed */}
+      {latestLowStarReview && (
+        <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-100 px-4 py-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex items-center gap-2">
+              {/* Star badge */}
+              <span className="inline-flex items-center gap-0.5 rounded-full border border-rose-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-rose-600">
+                {Array.from({ length: latestLowStarReview.stars }).map((_, i) => (
+                  <Star key={i} className="h-2.5 w-2.5 fill-rose-500 text-rose-500" />
+                ))}
+                <span className="ml-0.5">{latestLowStarReview.stars}★</span>
+              </span>
+              {latestLowStarReview.timeAgo && (
+                <span className="text-xs text-slate-400">{latestLowStarReview.timeAgo}</span>
+              )}
+            </div>
+            <p className="text-xs leading-relaxed text-slate-600 line-clamp-2">
+              &ldquo;{latestLowStarReview.excerpt}&rdquo;
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Combined snapshot + trend — mock data; replace with real API props when ready */}
       <LastWeekTrendRating

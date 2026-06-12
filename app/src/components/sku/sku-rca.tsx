@@ -52,6 +52,11 @@ import { LastWeekTrendPromoBadge }   from "@/components/alerts/issues/last-week-
 import { LastWeekTrendDealPage }     from "@/components/alerts/issues/last-week-trend-deal-page";
 import { LastWeekTrendCoupon }       from "@/components/alerts/issues/last-week-trend-coupon";
 import { LastWeekTrendBestSellerRank } from "@/components/alerts/issues/last-week-trend-best-seller-rank";
+import { LastWeekTrendOos }          from "@/components/alerts/issues/last-week-trend-oos";
+import { LastWeekTrendSov }          from "@/components/alerts/issues/last-week-trend-sov";
+import { LastWeekTrendMediaSpend }   from "@/components/alerts/issues/last-week-trend-media-spend";
+import { LastWeekTrendConversion }   from "@/components/alerts/issues/last-week-trend-conversion";
+import { LastWeekTrendKeywordRank }  from "@/components/alerts/issues/last-week-trend-keyword-rank";
 import { CouponIssue }               from "@/components/alerts/issues/coupon";
 import {
   ConversionIssue,
@@ -125,6 +130,16 @@ type RootCause = {
   showCouponTrend?: boolean;
   // When true, renders the merged LastWeekTrendBestSellerRank widget
   showBsrTrend?: boolean;
+  // When true, renders LastWeekTrendOos
+  showOosTrend?: boolean;
+  // When true, renders LastWeekTrendSov
+  showSovTrend?: boolean;
+  // When true, renders LastWeekTrendMediaSpend
+  showMediaSpendTrend?: boolean;
+  // When true, renders LastWeekTrendConversion
+  showConversionTrend?: boolean;
+  // When true, renders LastWeekTrendKeywordRank
+  showKeywordRankTrend?: boolean;
 };
 
 type AnalysisBlock = { heading: string; body: string };
@@ -179,6 +194,7 @@ const CAUSE_MEDIA: RootCause = {
   description:
     "Spend cut on all top-10 keywords in the last 7 days. Total keyword spend (all KWs): $1,240 Last 7 Days vs. $1,580 Previous 7 Days.",
   issueCardType: "media-spend",
+  showMediaSpendTrend: true,
 };
 
 const CAUSE_OOS: RootCause = {
@@ -192,6 +208,7 @@ const CAUSE_OOS: RootCause = {
   liveStatus: "bad",
   description: "SKU is out of stock. Revenue loss accumulating.",
   issueCardType: "out-of-stock",
+  showOosTrend: true,
 };
 
 const CAUSE_SHIP: RootCause = {
@@ -302,6 +319,7 @@ const CAUSE_KRD: RootCause = {
   description:
     "Top keywords dropped 6–8 positions after a content update, pushing off page 1 for high-volume terms.",
   issueCardType: "keyword-rank-drop",
+  showKeywordRankTrend: true,
 };
 
 // 6. SoV dropped
@@ -317,6 +335,7 @@ const CAUSE_SOV: RootCause = {
   description:
     "SP SoV dropped from 5.0% → 4.0% as the leading competitor holds 6% across all tracked terms.",
   issueCardType: "sov-drop",
+  showSovTrend: true,
 };
 
 // 7. Conversion rate anomaly — three health states
@@ -332,6 +351,7 @@ const CAUSE_CONVERSION_DROPPED: RootCause = {
   description: getConversionDiagnosis("dropped"),
   issueCardType: "conversion",
   conversionState: "dropped",
+  showConversionTrend: true,
 };
 
 const CAUSE_CONVERSION_DROPPING: RootCause = {
@@ -346,6 +366,7 @@ const CAUSE_CONVERSION_DROPPING: RootCause = {
   description: getConversionDiagnosis("dropping-fast"),
   issueCardType: "conversion",
   conversionState: "dropping-fast",
+  showConversionTrend: true,
 };
 
 const CAUSE_CONVERSION_OK: RootCause = {
@@ -590,7 +611,20 @@ function RootCauseIssueCard({
       return <DealPageVisibilityIssue />;
 
     case "star-rating":
-      return <StarRatingIssue oldRating={4.3} newRating={3.2} />;
+      return (
+        <StarRatingIssue
+          oldRating={4.3}
+          oldReviewCount={722}
+          newRating={3.2}
+          reviewCount={736}
+          newReviewsSinceYesterday={14}
+          latestLowStarReview={{
+            stars: 1,
+            excerpt: "Product stopped working after 3 weeks. Suction completely gone and the battery barely lasts 10 minutes. Extremely disappointed for the price.",
+            timeAgo: "3 hours ago",
+          }}
+        />
+      );
 
     case "best-seller-rank":
       return (
@@ -704,12 +738,12 @@ const PROMO_BADGE_TREND_ROWS = [
 // Mock days for the BSR 7-day trend table (dates = columns, metrics = rows).
 const BSR_TREND_ROWS = [
   { date: "Jun 1", avgCategoryRank: 14, highestRank: 12, lowestRank: 18 },
-  { date: "Jun 2", avgCategoryRank: 16, highestRank: 14, lowestRank: 20 },
-  { date: "Jun 3", avgCategoryRank: 18, highestRank: 15, lowestRank: 22 },
-  { date: "Jun 4", avgCategoryRank: 21, highestRank: 18, lowestRank: 25 },
-  { date: "Jun 5", avgCategoryRank: 24, highestRank: 20, lowestRank: 28 },
-  { date: "Jun 6", avgCategoryRank: 27, highestRank: 24, lowestRank: 31 },
-  { date: "Jun 7", avgCategoryRank: 31, highestRank: 28, lowestRank: 35 },
+  { date: "Jun 2", avgCategoryRank: 17, highestRank: 15, lowestRank: 21 }, // +3 → red
+  { date: "Jun 3", avgCategoryRank: 15, highestRank: 13, lowestRank: 19 }, // -2 → neutral (improved but < threshold)
+  { date: "Jun 4", avgCategoryRank: 22, highestRank: 19, lowestRank: 26 }, // +7 → red
+  { date: "Jun 5", avgCategoryRank: 20, highestRank: 17, lowestRank: 24 }, // -2 → neutral
+  { date: "Jun 6", avgCategoryRank: 18, highestRank: 15, lowestRank: 22 }, // -2 → neutral
+  { date: "Jun 7", avgCategoryRank: 24, highestRank: 21, lowestRank: 28 }, // +6 → red
 ];
 
 // Mock days for the Coupon 7-day trend table (dates = columns, metrics = rows).
@@ -743,6 +777,67 @@ const LBB_TREND_ROWS = [
   { date: "May 7", winRateWins: 5, winRateCrawls: 6, priceDiff: "+$1.01",   revenueImpact: null      },
   { date: "May 8", winRateWins: 0, winRateCrawls: 6, priceDiff: "-$172.00", revenueImpact: "-$19.1K" },
   { date: "May 9", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$163.50", revenueImpact: "-$15.0K" },
+];
+
+// Mock rows for OOS 7-day trend table.
+const OOS_TREND_ROWS = [
+  { date: "Jun 1", repOosPct: 0,  unavailabilityPct: 0,  onHandInventory: 312, revenueLost: 0    },
+  { date: "Jun 2", repOosPct: 18, unavailabilityPct: 24, onHandInventory: 140, revenueLost: 1200 },
+  { date: "Jun 3", repOosPct: 42, unavailabilityPct: 58, onHandInventory: 60,  revenueLost: 2800 },
+  { date: "Jun 4", repOosPct: 71, unavailabilityPct: 78, onHandInventory: 22,  revenueLost: 4100 },
+  { date: "Jun 5", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5600 },
+  { date: "Jun 6", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5400 },
+  { date: "Jun 7", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5200 },
+];
+
+// Mock rows for SoV 7-day trend table.
+const SOV_TREND_ROWS = [
+  { date: "Jun 1", spBrandedSovPct: 5.2, sbBrandedSovPct: 3.1, topCompetitorSovPct: 5.8 },
+  { date: "Jun 2", spBrandedSovPct: 5.0, sbBrandedSovPct: 3.0, topCompetitorSovPct: 6.0 },
+  { date: "Jun 3", spBrandedSovPct: 4.8, sbBrandedSovPct: 2.9, topCompetitorSovPct: 6.2 },
+  { date: "Jun 4", spBrandedSovPct: 4.5, sbBrandedSovPct: 2.7, topCompetitorSovPct: 6.4 },
+  { date: "Jun 5", spBrandedSovPct: 4.2, sbBrandedSovPct: 2.4, topCompetitorSovPct: 6.5 },
+  { date: "Jun 6", spBrandedSovPct: 4.0, sbBrandedSovPct: 2.1, topCompetitorSovPct: 6.6 },
+  { date: "Jun 7", spBrandedSovPct: 3.8, sbBrandedSovPct: 2.0, topCompetitorSovPct: 6.8 },
+];
+
+// Mock data for Media Spend 7-day trend table.
+const MEDIA_SPEND_TREND_DATES = ["Jun 1", "Jun 2", "Jun 3", "Jun 4", "Jun 5", "Jun 6", "Jun 7"];
+const MEDIA_SPEND_TREND_KEYWORDS = [
+  { keyword: "vacuum cleaners for home",  dailySpend: [480, 460, 420, 400, 390, 380, 375] },
+  { keyword: "robot vacuum cleaner",      dailySpend: [0,   0,   0,   0,   0,   0,   0  ] },
+  { keyword: "shark cordless vacuum",     dailySpend: [360, 350, 340, 330, 320, 310, 300] },
+  { keyword: "cordless stick vacuum",     dailySpend: [280, 270, 260, 255, 248, 240, 235] },
+  { keyword: "stick vacuum cleaner",      dailySpend: [210, 200, 195, 190, 188, 185, 180] },
+  { keyword: "Total (all KWs)", isTotal: true,
+    dailySpend: [1330, 1280, 1215, 1175, 1146, 1115, 1090] },
+];
+
+// Mock rows for Conversion 7-day trend table.
+const CONVERSION_TREND_ROWS = [
+  { date: "Jun 1", unitCvrPct: 5.1, glanceViews: 12480, orderedUnits: 637 },
+  { date: "Jun 2", unitCvrPct: 5.0, glanceViews: 12350, orderedUnits: 618 },
+  { date: "Jun 3", unitCvrPct: 4.8, glanceViews: 12290, orderedUnits: 590 },
+  { date: "Jun 4", unitCvrPct: 4.5, glanceViews: 12340, orderedUnits: 555 },
+  { date: "Jun 5", unitCvrPct: 4.2, glanceViews: 12410, orderedUnits: 521 },
+  { date: "Jun 6", unitCvrPct: 3.9, glanceViews: 12280, orderedUnits: 479 },
+  { date: "Jun 7", unitCvrPct: 3.8, glanceViews: 12190, orderedUnits: 463 },
+];
+
+// Mock data for Keyword Rank 7-day trend table.
+// Coloring rule: delta vs PREVIOUS day.
+//   drop  > 5  → bg-rose-50    (rank number went up by more than 5 vs yesterday)
+//   gain >= 5  → bg-emerald-50 (rank number went down by 5+ vs yesterday)
+const KEYWORD_RANK_TREND_DATES = ["Jun 1", "Jun 2", "Jun 3", "Jun 4", "Jun 5", "Jun 6", "Jun 7"];
+const KEYWORD_RANK_TREND_KEYWORDS = [
+  // Jun 4 spikes +8 (red), Jun 6 recovers −7 (green)
+  { keyword: "vacuum cleaners for home", ranks: [8,  10, 11, 19, 21, 14, 15] },
+  // Jun 3 drops +7 (red), stays bad, Jun 7 recovers −6 (green)
+  { keyword: "shark cordless vacuum",    ranks: [6,   8, 15, 17, 18, 19, 13] },
+  // Gradual drift — no single-day swing large enough to trigger color
+  { keyword: "cordless stick vacuum",    ranks: [12, 13, 14, 15, 16, 17, 18] },
+  // Jun 5 big drop +9 (red), Jun 6 partial recover −3 (neutral)
+  { keyword: "stick vacuum cleaner",     ranks: [11, 12, 13, 14, 23, 20, 21] },
 ];
 
 // ─── Section heading ──────────────────────────────────────────────────────────
@@ -1057,6 +1152,48 @@ function RootCauseRow({
           {cause.showBsrTrend && (
             <div className="mt-3">
               <LastWeekTrendBestSellerRank period="Jun 1–7" rows={BSR_TREND_ROWS} />
+            </div>
+          )}
+          {cause.showOosTrend && (
+            <div className="mt-3">
+              <LastWeekTrendOos period="Jun 1–7" rows={OOS_TREND_ROWS} />
+            </div>
+          )}
+          {cause.showSovTrend && (
+            <div className="mt-3">
+              <LastWeekTrendSov
+                period="Jun 1–7"
+                rows={SOV_TREND_ROWS}
+                spBaseline={3.5}
+                sbBaseline={3.5}
+              />
+            </div>
+          )}
+          {cause.showMediaSpendTrend && (
+            <div className="mt-3">
+              <LastWeekTrendMediaSpend
+                period="Jun 1–7"
+                dates={MEDIA_SPEND_TREND_DATES}
+                keywords={MEDIA_SPEND_TREND_KEYWORDS}
+              />
+            </div>
+          )}
+          {cause.showConversionTrend && (
+            <div className="mt-3">
+              <LastWeekTrendConversion
+                period="Jun 1–7"
+                rows={CONVERSION_TREND_ROWS}
+                cvrBaseline={4.5}
+              />
+            </div>
+          )}
+          {cause.showKeywordRankTrend && (
+            <div className="mt-3">
+              <LastWeekTrendKeywordRank
+                period="Jun 1–7"
+                dates={KEYWORD_RANK_TREND_DATES}
+                keywords={KEYWORD_RANK_TREND_KEYWORDS}
+              />
             </div>
           )}
         </div>
