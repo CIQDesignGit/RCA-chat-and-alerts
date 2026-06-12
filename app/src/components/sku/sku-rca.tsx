@@ -617,6 +617,7 @@ function RootCauseIssueCard({
           oldReviewCount={722}
           newRating={3.2}
           reviewCount={736}
+          writtenReviewCount={230}
           newReviewsSinceYesterday={14}
           latestLowStarReview={{
             stars: 1,

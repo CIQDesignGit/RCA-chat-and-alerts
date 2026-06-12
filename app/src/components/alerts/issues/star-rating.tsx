@@ -50,11 +50,13 @@ function Stars({
 
 export type StarRatingProps = {
   oldRating: number;
-  /** Review count at the start of the comparison period */
+  /** Total star ratings (rating count) at the start of the comparison period */
   oldReviewCount: number;
   newRating: number;
-  /** Total review count at time of crawl */
+  /** Total star ratings (rating count) — shown inline next to the number as (N) */
   reviewCount: number;
+  /** Written text reviews — shown as "N reviews" below the stars */
+  writtenReviewCount: number;
   /** Net-new reviews since yesterday */
   newReviewsSinceYesterday: number;
   /**
@@ -73,6 +75,7 @@ export function StarRatingIssue({
   oldReviewCount,
   newRating,
   reviewCount,
+  writtenReviewCount,
   newReviewsSinceYesterday,
   latestLowStarReview,
 }: StarRatingProps) {
@@ -86,13 +89,11 @@ export function StarRatingIssue({
             label="Old Rating"
             tooltip="Average star rating from the previous 7 days."
           />
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-center justify-center gap-1.5">
             <span className="text-2xl font-bold text-slate-400">{oldRating.toFixed(1)}</span>
             <Stars rating={oldRating} active={false} />
+            <span className="text-sm text-slate-400">({oldReviewCount.toLocaleString()})</span>
           </div>
-          <span className="text-xs text-slate-400">
-            {oldReviewCount.toLocaleString()} reviews
-          </span>
         </div>
 
         {/* Arrow — centered vertically between the two cards */}
@@ -106,17 +107,18 @@ export function StarRatingIssue({
             label="New Rating"
             tooltip="Current star rating from the latest PDP crawl."
           />
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-center justify-center gap-1.5">
             <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
             <Stars rating={newRating} active={true} />
+            <span className="text-sm text-slate-700">({reviewCount.toLocaleString()})</span>
           </div>
-          {/* Review count + new-since-yesterday */}
+          {/* Written review count + new-since-yesterday */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">
-              {reviewCount.toLocaleString()} reviews
+            <span className="text-xs text-slate-700">
+              {writtenReviewCount.toLocaleString()} reviews
             </span>
             {newReviewsSinceYesterday > 0 && (
-              <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-600">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
                 +{newReviewsSinceYesterday} since yesterday
               </span>
             )}
@@ -130,17 +132,11 @@ export function StarRatingIssue({
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex items-center gap-2">
               {/* Star badge */}
-              <span className="inline-flex items-center gap-0.5 rounded-full border border-rose-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-rose-600">
-                {Array.from({ length: latestLowStarReview.stars }).map((_, i) => (
-                  <Star key={i} className="h-2.5 w-2.5 fill-rose-500 text-rose-500" />
-                ))}
-                <span className="ml-0.5">{latestLowStarReview.stars}★</span>
+              <span className="inline-flex items-center rounded-full border border-rose-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-rose-600">
+                {latestLowStarReview.stars}★
               </span>
-              {latestLowStarReview.timeAgo && (
-                <span className="text-xs text-slate-400">{latestLowStarReview.timeAgo}</span>
-              )}
             </div>
-            <p className="text-xs leading-relaxed text-slate-600 line-clamp-2">
+            <p className="text-sm leading-relaxed text-slate-600 line-clamp-2">
               &ldquo;{latestLowStarReview.excerpt}&rdquo;
             </p>
           </div>
