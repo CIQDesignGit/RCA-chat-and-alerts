@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { LastWeekSnapshotRating } from "./last-week-snapshot-rating";
+import { LastWeekTrendRating } from "./last-week-trend-rating";
 
 function RatingLabel({ label, tooltip }: { label: string; tooltip: string }) {
   return (
@@ -86,14 +86,23 @@ export function StarRatingIssue({ oldRating, newRating }: StarRatingProps) {
         </div>
       </div>
 
-      {/* Last-week snapshot — mock data; replace with real API props when ready */}
-      <LastWeekSnapshotRating
+      {/* Combined snapshot + trend — mock data; replace with real API props when ready */}
+      <LastWeekTrendRating
         period="May 20–26"
         avgRating={4.0}
         reviewCount={736}
         oneStarPct={14}
         twoStarPct={4}
         belowBenchmark={false}
+        rows={[
+          { date: "May 20", avgStarRating: 4.3, newReviews: 18, newLowStarReviews: 1 },
+          { date: "May 21", avgStarRating: 4.2, newReviews: 22, newLowStarReviews: 2 },
+          { date: "May 22", avgStarRating: 4.1, newReviews: 15, newLowStarReviews: 3 },
+          { date: "May 23", avgStarRating: 3.9, newReviews: 31, newLowStarReviews: 8 },
+          { date: "May 24", avgStarRating: 3.7, newReviews: 27, newLowStarReviews: 9 },
+          { date: "May 25", avgStarRating: 3.4, newReviews: 19, newLowStarReviews: 7 },
+          { date: "May 26", avgStarRating: 3.2, newReviews: 14, newLowStarReviews: 6 },
+        ]}
       />
     </div>
   );

@@ -610,6 +610,13 @@ export function AlertDetailsPanel({
             </button>
           </PromptInputActions>
         </PromptInput>
+
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          AI responses are generated. Always verify critical findings.{" "}
+          <a href="/chat" className="underline underline-offset-2 transition-colors hover:text-foreground">
+            View previous conversations in chat history
+          </a>.
+        </p>
         </div>
       )}
     </div>
