@@ -87,14 +87,12 @@ function IssueBody({ issue }: { issue: Issue }) {
         <PromoBadgeIssue
           promoDateRange="28 Apr to 10 May"
           checks={[
-            { label: "Is Promo Badge Visible?",            passed: false },
-            { label: "Is List Price Visible?",             passed: false },
-            { label: "Is List Price Correct (MSRP)?",      passed: false },
-            { label: "Does List Price Have Strikethrough?", passed: true  },
-            { label: "Is Selling Price Correct?",          passed: true  },
-            { label: "Is Discount % Visible?",             passed: false },
-            { label: "Is Discount % Correct?",             passed: true  },
-            { label: "Are You the Buy Box Winner?",        passed: false },
+            { label: "Is Promo Badge Visible?",                  passed: false },
+            { label: "Does Original Price Have Strikethrough?",  passed: true  },
+            { label: "Is Selling Price Correct?",                passed: true  },
+            { label: "Is Discount % Visible?",                   passed: false },
+            { label: "Is Discount % Correct?",                   passed: true  },
+            { label: "Are You the Buy Box Winner?",              passed: false },
           ]}
           currentOriginalPrice="$25.99"
           currentSellingPrice="$25.99"
