@@ -830,14 +830,27 @@ const CONVERSION_TREND_ROWS = [
 //   gain >= 5  → bg-emerald-50 (rank number went down by 5+ vs yesterday)
 const KEYWORD_RANK_TREND_DATES = ["Jun 1", "Jun 2", "Jun 3", "Jun 4", "Jun 5", "Jun 6", "Jun 7"];
 const KEYWORD_RANK_TREND_KEYWORDS = [
-  // Jun 4 spikes +8 (red), Jun 6 recovers −7 (green)
-  { keyword: "vacuum cleaners for home", ranks: [8,  10, 11, 19, 21, 14, 15] },
-  // Jun 3 drops +7 (red), stays bad, Jun 7 recovers −6 (green)
-  { keyword: "shark cordless vacuum",    ranks: [6,   8, 15, 17, 18, 19, 13] },
-  // Gradual drift — no single-day swing large enough to trigger color
-  { keyword: "cordless stick vacuum",    ranks: [12, 13, 14, 15, 16, 17, 18] },
-  // Jun 5 big drop +9 (red), Jun 6 partial recover −3 (neutral)
-  { keyword: "stick vacuum cleaner",     ranks: [11, 12, 13, 14, 23, 20, 21] },
+  {
+    keyword: "vacuum cleaners for home",
+    // Organic drops sharply Jun 4 (+8), partial recovery Jun 6
+    organicRanks: [8,  10, 11, 19, 21, 14, 15],
+    // Paid holds steady then loses position Jun 5–6
+    paidRanks:    [2,   2,  3,  3,  6,  8,  7],
+  },
+  {
+    keyword: "shark cordless vacuum",
+    // Organic drops Jun 3 (+7), slow recovery by Jun 7
+    organicRanks: [6,   8, 15, 17, 18, 19, 13],
+    // Paid relatively stable, slips slightly mid-week
+    paidRanks:    [1,   1,  2,  2,  3,  4,  3],
+  },
+  {
+    keyword: "cordless stick vacuum",
+    // Organic gradual drift downward — no single big swing
+    organicRanks: [12, 13, 14, 15, 16, 17, 18],
+    // Paid drops off Jun 4 onward — budget likely paused
+    paidRanks:    [3,   3,  4, null, null, null, 5],
+  },
 ];
 
 // ─── Section heading ──────────────────────────────────────────────────────────
