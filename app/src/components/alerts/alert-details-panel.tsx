@@ -253,7 +253,7 @@ function PdpHistoryDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="PDP snapshots"
-        className="flex h-8 items-center gap-1.5 rounded-md border border-slate-300 bg-slate-50 px-3 text-xs font-semibold text-slate-700 shadow-xs transition-colors hover:bg-slate-100 hover:border-slate-400"
+        className="flex h-8 items-center gap-1.5 rounded-md border border-brand-200 bg-brand-50 px-3 text-xs font-semibold text-brand-700 shadow-xs transition-colors hover:bg-brand-100 hover:border-brand-300"
       >
         <History className="h-3.5 w-3.5 shrink-0 text-brand-500" />
         PDP Snapshots
