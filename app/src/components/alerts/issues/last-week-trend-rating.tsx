@@ -8,8 +8,8 @@ export type RatingTrendDay = {
   date: string;
   avgStarRating: number | null;
   totalReviews: number | null; // cumulative review count as of that day
-  newOneStar: number | null;   // new 1-star reviews that day
-  newTwoStar: number | null;   // new 2-star reviews that day
+  oneStarPct: number | null;   // 1-star reviews as % of total reviews that day
+  twoStarPct: number | null;   // 2-star reviews as % of total reviews that day
 };
 
 export type LastWeekTrendRatingProps = {
@@ -131,19 +131,19 @@ function RatingDeltaCell({ delta }: { delta: number | null }) {
   );
 }
 
-/** 1★ or 2★ count cell — red background when count exceeds threshold */
-function LowStarCell({
-  count,
-  threshold = 3,
+/** 1★ or 2★ percentage cell — red background when % exceeds threshold */
+function LowStarPctCell({
+  pct,
+  threshold,
 }: {
-  count: number | null;
-  threshold?: number;
+  pct: number | null;
+  threshold: number;
 }) {
-  const isBad = count !== null && count > threshold;
+  const isBad = pct !== null && pct > threshold;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${count === null ? "text-slate-400" : "text-slate-800"}`}>
-        {count === null ? "—" : count.toLocaleString()}
+      <span className={`font-medium ${pct === null ? "text-slate-400" : "text-slate-800"}`}>
+        {pct === null ? "—" : `${pct.toFixed(1)}%`}
       </span>
     </TD>
   );
@@ -241,18 +241,18 @@ export function LastWeekTrendRating({
             </tr>
             <tr>
               <TD align="left" className="font-medium text-slate-600">
-                New 1★
+                1★ %
               </TD>
               {rows.map((day) => (
-                <LowStarCell key={day.date} count={day.newOneStar} threshold={2} />
+                <LowStarPctCell key={day.date} pct={day.oneStarPct} threshold={10} />
               ))}
             </tr>
             <tr>
               <TD align="left" className="font-medium text-slate-600">
-                New 2★
+                2★ %
               </TD>
               {rows.map((day) => (
-                <LowStarCell key={day.date} count={day.newTwoStar} threshold={4} />
+                <LowStarPctCell key={day.date} pct={day.twoStarPct} threshold={8} />
               ))}
             </tr>
           </tbody>

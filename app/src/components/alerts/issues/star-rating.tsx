@@ -158,13 +158,13 @@ export function StarRatingIssue({
         twoStarPct={4}
         belowBenchmark={false}
         rows={[
-          { date: "May 20", avgStarRating: 4.3, totalReviews: 718, newOneStar: 0, newTwoStar: 1 },
-          { date: "May 21", avgStarRating: 4.2, totalReviews: 740, newOneStar: 1, newTwoStar: 1 },
-          { date: "May 22", avgStarRating: 4.1, totalReviews: 755, newOneStar: 1, newTwoStar: 2 },
-          { date: "May 23", avgStarRating: 3.9, totalReviews: 786, newOneStar: 3, newTwoStar: 5 },
-          { date: "May 24", avgStarRating: 3.7, totalReviews: 813, newOneStar: 4, newTwoStar: 5 },
-          { date: "May 25", avgStarRating: 3.4, totalReviews: 832, newOneStar: 3, newTwoStar: 4 },
-          { date: "May 26", avgStarRating: 3.2, totalReviews: 846, newOneStar: 2, newTwoStar: 4 },
+          { date: "May 20", avgStarRating: 4.3, totalReviews: 718, oneStarPct: 5.2,  twoStarPct: 3.1 },
+          { date: "May 21", avgStarRating: 4.2, totalReviews: 740, oneStarPct: 6.8,  twoStarPct: 3.5 },
+          { date: "May 22", avgStarRating: 4.1, totalReviews: 755, oneStarPct: 8.1,  twoStarPct: 4.9 },
+          { date: "May 23", avgStarRating: 3.9, totalReviews: 786, oneStarPct: 11.4, twoStarPct: 7.2 },
+          { date: "May 24", avgStarRating: 3.7, totalReviews: 813, oneStarPct: 13.9, twoStarPct: 8.6 },
+          { date: "May 25", avgStarRating: 3.4, totalReviews: 832, oneStarPct: 15.2, twoStarPct: 9.1 },
+          { date: "May 26", avgStarRating: 3.2, totalReviews: 846, oneStarPct: 14.0, twoStarPct: 8.3 },
         ]}
       />
     </div>
