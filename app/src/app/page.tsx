@@ -264,13 +264,13 @@ function HomePageInner() {
               </div>
 
               {/* Bottom: suggestion chips + chat input — shrink-0 pins this to the bottom */}
-              <div className="flex w-full max-w-[920px] shrink-0 flex-col gap-1.5 px-8 pt-4 pb-2">
-                <div className="flex flex-wrap gap-1.5">
+              <div className="flex w-full max-w-[920px] shrink-0 flex-col px-8 pt-4 pb-2">
+                <div className="flex w-full max-w-[800px] gap-1.5 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
                       onClick={() => handleSend(s)}
-                      className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+                      className="shrink-0 rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                     >
                       {s}
                     </button>

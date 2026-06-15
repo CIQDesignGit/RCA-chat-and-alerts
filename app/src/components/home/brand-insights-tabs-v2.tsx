@@ -128,31 +128,25 @@ export function BrandInsightsTabsV2({
                 "relative flex flex-1 flex-col gap-2 border px-4 py-2.5 text-left transition-all",
                 noSelection ? "rounded-xl" : "rounded-t-2xl",
                 isActive
-                  ? "-mb-px z-10 border-slate-200 border-b-white bg-white"
+                  ? "-mb-px z-10 border-slate-200 border-t-2 border-t-brand-500 border-b-white bg-white shadow-[0_-4px_10px_-2px_rgba(0,0,0,0.08),3px_0_8px_-2px_rgba(0,0,0,0.06),-3px_0_8px_-2px_rgba(0,0,0,0.06)]"
                   : noSelection
                     ? "border-slate-200 bg-white shadow-sm hover:bg-slate-50"
-                    : "border-transparent bg-slate-50 hover:bg-slate-100",
+                    : "border-transparent bg-slate-100/80 hover:bg-slate-100",
               )}
             >
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-base font-semibold text-slate-900">
+                <span className={cn("text-base font-semibold", isActive ? "text-slate-900" : "text-slate-600")}>
                   {brand.name}
                 </span>
-                <span
-                  className={cn(
-                    "shrink-0 whitespace-nowrap tabular-nums",
-                    emphasized ? "text-slate-500" : "text-slate-400",
-                  )}
-                >
+                <span className="shrink-0 whitespace-nowrap tabular-nums">
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      emphasized ? "text-rose-500" : "text-slate-500",
+                      brand.gapDollar < 0 ? "text-rose-500" : brand.gapDollar > 0 ? "text-emerald-600" : "text-slate-500",
                     )}
                   >
                     {fmtDollar(brand.gapDollar)}
                   </span>
-                  
                 </span>
               </div>
 
@@ -176,7 +170,7 @@ export function BrandInsightsTabsV2({
       {active && (
         <div
           className={cn(
-            "rounded-b-2xl border border-slate-200 bg-white",
+            "rounded-b-2xl border border-slate-200 bg-white shadow-[0_8px_16px_-4px_rgba(0,0,0,0.08),4px_4px_10px_-4px_rgba(0,0,0,0.05),-4px_4px_10px_-4px_rgba(0,0,0,0.05)]",
             fillHeight && "flex-1 overflow-y-auto",
           )}
         >

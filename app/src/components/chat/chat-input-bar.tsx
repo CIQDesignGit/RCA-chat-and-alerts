@@ -47,8 +47,8 @@ export function ChatInputBar({ value, onChange, onSubmit, isLoading, className }
   );
 
   return (
-    <div className={cn("px-6 pb-6 pt-3", className)}>
-      <div className="mx-auto max-w-[800px]">
+    <div className={cn("px-6 pt-3", className)}>
+      <div className="max-w-[800px]">
         <PromptInput
           value={value}
           onValueChange={onChange}
