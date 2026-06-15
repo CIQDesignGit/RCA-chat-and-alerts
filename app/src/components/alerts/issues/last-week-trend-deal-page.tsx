@@ -8,6 +8,7 @@ import { Check, X } from "lucide-react";
 export type DealPageTrendDay = {
   date: string;
   visibleOnDealsPage: boolean;
+  dealPageRank: number | null; // null means not on the deals page that day
 };
 
 const TH = ({
@@ -88,12 +89,29 @@ export function LastWeekTrendDealPage({ period, rows }: LastWeekTrendDealPagePro
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {/* Row 1: Was the SKU visible on the deals page that day? */}
             <tr>
               <TD align="left" className="font-medium text-slate-600">
                 Visible on deals page?
               </TD>
               {rows.map((day) => (
                 <VisibilityCell key={day.date} visible={day.visibleOnDealsPage} />
+              ))}
+            </tr>
+
+            {/* Row 2: What position/rank did it hold on the deals page? null = not present */}
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                Deal-Page Rank
+              </TD>
+              {rows.map((day) => (
+                <TD key={day.date}>
+                  {day.dealPageRank !== null ? (
+                    <span className="font-medium text-slate-700">#{day.dealPageRank}</span>
+                  ) : (
+                    <span className="text-slate-300">—</span>
+                  )}
+                </TD>
               ))}
             </tr>
           </tbody>

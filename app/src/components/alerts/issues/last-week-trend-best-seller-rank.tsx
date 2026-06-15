@@ -58,7 +58,7 @@ function RankValueCell({ rank }: { rank: number | null }) {
 }
 
 /**
- * Avg Category Rank cell — shows rank + day-over-day delta in brackets.
+ * Median Category Rank cell — shows rank + day-over-day delta in brackets.
  * Higher rank number = worse position, so:
  *   delta > 0 (rank went up)   → bg-rose-50, red delta
  *   delta < 0 (rank went down) → bg-emerald-50, green delta
@@ -80,25 +80,11 @@ function AvgRankCell({
     : delta < 0 ? "bg-emerald-50"
     : "";
 
-  const deltaColor =
-    delta === null || delta === 0 ? "text-slate-400"
-    : delta > 0 ? "text-rose-600"
-    : "text-emerald-600";
-
-  const deltaLabel =
-    delta === null || delta === 0 ? null
-    : `(${delta > 0 ? "+" : ""}${delta})`;
-
   return (
     <TD className={`align-top ${cellClass}`}>
-      <div className="flex flex-col items-end gap-0.5">
-        <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
-          {rank === null ? "—" : `#${rank}`}
-        </span>
-        {deltaLabel && (
-          <span className={`text-[10px] font-medium ${deltaColor}`}>{deltaLabel}</span>
-        )}
-      </div>
+      <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
+        {rank === null ? "—" : `#${rank}`}
+      </span>
     </TD>
   );
 }
@@ -136,7 +122,7 @@ export function LastWeekTrendBestSellerRank({
           <tbody className="divide-y divide-slate-100">
             <tr>
               <TD align="left" className="align-top font-medium text-slate-600">
-                Avg Category Rank
+                Median Category Rank
               </TD>
               {rows.map((day, i) => (
                 <AvgRankCell

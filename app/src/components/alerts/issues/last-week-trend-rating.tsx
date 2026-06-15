@@ -8,7 +8,8 @@ export type RatingTrendDay = {
   date: string;
   avgStarRating: number | null;
   newReviews: number | null;
-  newLowStarReviews: number | null; // 1-star + 2-star combined
+  newOneStar: number | null; // new 1-star reviews that day
+  newTwoStar: number | null; // new 2-star reviews that day
 };
 
 export type LastWeekTrendRatingProps = {
@@ -112,10 +113,28 @@ function ReviewCountCell({ count }: { count: number | null }) {
   );
 }
 
-/** New 1–2★ — red background when count exceeds threshold (default > 5) */
+/** Rating Δ vs prev day — green for improvement, red for decline, grey for first day */
+function RatingDeltaCell({ delta }: { delta: number | null }) {
+  if (delta === null) {
+    return (
+      <TD>
+        <span className="text-slate-300">—</span>
+      </TD>
+    );
+  }
+  const formatted = delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+  const color = delta > 0 ? "text-emerald-600" : delta < 0 ? "text-rose-500" : "text-slate-400";
+  return (
+    <TD>
+      <span className={`font-medium ${color}`}>{formatted}</span>
+    </TD>
+  );
+}
+
+/** 1★ or 2★ count cell — red background when count exceeds threshold */
 function LowStarCell({
   count,
-  threshold = 5,
+  threshold = 3,
 }: {
   count: number | null;
   threshold?: number;
@@ -208,11 +227,33 @@ export function LastWeekTrendRating({
             </tr>
             <tr>
               <TD align="left" className="font-medium text-slate-600">
-                New 1–2★
+                New 1★
               </TD>
               {rows.map((day) => (
-                <LowStarCell key={day.date} count={day.newLowStarReviews} />
+                <LowStarCell key={day.date} count={day.newOneStar} threshold={2} />
               ))}
+            </tr>
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                New 2★
+              </TD>
+              {rows.map((day) => (
+                <LowStarCell key={day.date} count={day.newTwoStar} threshold={4} />
+              ))}
+            </tr>
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                Rating Δ vs prev day
+              </TD>
+              {rows.map((day, i) => {
+                const prev = rows[i - 1]?.avgStarRating ?? null;
+                const curr = day.avgStarRating;
+                const delta =
+                  i === 0 || prev === null || curr === null
+                    ? null
+                    : Math.round((curr - prev) * 10) / 10;
+                return <RatingDeltaCell key={day.date} delta={delta} />;
+              })}
             </tr>
           </tbody>
         </table>

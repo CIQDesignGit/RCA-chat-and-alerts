@@ -85,25 +85,11 @@ function CountCell({
   value: number | null;
   delta: number | null;
 }) {
-  const deltaColor =
-    delta === null ? ""
-    : delta > 0 ? "text-emerald-600"
-    : "text-rose-500";
-
-  const deltaLabel =
-    delta === null ? null
-    : `${delta > 0 ? "+" : ""}${delta.toFixed(1)}%`;
-
   return (
     <TD className="align-top">
-      <div className="flex flex-col items-end gap-0.5">
-        <span className={`font-medium ${value === null ? "text-slate-400" : "text-slate-800"}`}>
-          {value === null ? "—" : value.toLocaleString()}
-        </span>
-        {deltaLabel && (
-          <span className={`text-[10px] font-medium ${deltaColor}`}>{deltaLabel}</span>
-        )}
-      </div>
+      <span className={`font-medium ${value === null ? "text-slate-400" : "text-slate-800"}`}>
+        {value === null ? "—" : value.toLocaleString()}
+      </span>
     </TD>
   );
 }

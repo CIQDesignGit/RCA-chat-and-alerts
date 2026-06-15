@@ -1,14 +1,13 @@
 // Merged "Last week trend — Coupon" widget.
 // Rendered inside the expanded Coupon root cause row.
 
-import { Check, X } from "lucide-react";
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type CouponTrendDay = {
   date: string;
-  couponDetected: boolean;
-  couponValue: string | null;
+  // How many crawls detected the coupon vs total crawls run that day (e.g. 3/5)
+  detectedCrawls: number;
+  totalCrawls: number;
 };
 
 const TH = ({
@@ -46,28 +45,18 @@ const TD = ({
   </td>
 );
 
-function CouponDetectedCell({ detected }: { detected: boolean }) {
+// Shows "x/y" — always neutral grey regardless of detection rate
+function CouponDetectedCell({
+  detectedCrawls,
+  totalCrawls,
+}: {
+  detectedCrawls: number;
+  totalCrawls: number;
+}) {
   return (
     <TD>
-      <span
-        className={`inline-flex ${detected ? "text-emerald-500" : "text-rose-500"}`}
-        aria-label={detected ? "Coupon detected" : "No coupon detected"}
-      >
-        {detected ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
-      </span>
-    </TD>
-  );
-}
-
-// Coupon value — neutral text only, no cell tint.
-function CouponValueCell({ value }: { value: string | null }) {
-  const display = value ?? "—";
-  return (
-    <TD>
-      <span
-        className={`font-medium ${display === "—" ? "text-slate-400" : "text-slate-800"}`}
-      >
-        {display}
+      <span className="font-medium text-slate-700">
+        {detectedCrawls}/{totalCrawls}
       </span>
     </TD>
   );
@@ -108,15 +97,11 @@ export function LastWeekTrendCoupon({ period, rows }: LastWeekTrendCouponProps) 
                 Coupon Detected?
               </TD>
               {rows.map((day) => (
-                <CouponDetectedCell key={day.date} detected={day.couponDetected} />
-              ))}
-            </tr>
-            <tr>
-              <TD align="left" className="font-medium text-slate-600">
-                Coupon $ Value
-              </TD>
-              {rows.map((day) => (
-                <CouponValueCell key={day.date} value={day.couponValue} />
+                <CouponDetectedCell
+                  key={day.date}
+                  detectedCrawls={day.detectedCrawls}
+                  totalCrawls={day.totalCrawls}
+                />
               ))}
             </tr>
           </tbody>

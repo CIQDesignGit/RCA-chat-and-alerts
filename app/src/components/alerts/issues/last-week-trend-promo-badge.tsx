@@ -35,7 +35,6 @@ export type PromoBadgeTrendDay = {
   badgeMissingCrawls: number;
   strikethroughMissingCrawls: number;
   totalCrawls: number;
-  estRevenueImpact: string | null;
 };
 
 const TH = ({
@@ -86,11 +85,6 @@ function getMissingCrawlsTone(missing: number): CellTone {
   return missing === 0 ? "good" : "bad";
 }
 
-function getRevenueTone(impact: string | null): CellTone {
-  if (!impact || impact === "—" || impact === "$0") return "neutral";
-  if (impact.startsWith("-")) return "bad";
-  return "good";
-}
 
 function TrendValueCell({ value, tone }: { value: string; tone: CellTone }) {
   return (
@@ -196,19 +190,6 @@ export function LastWeekTrendPromoBadge({
               ))}
             </tr>
 
-            {/* Row 3: Est. revenue impact */}
-            <tr>
-              <TD align="left" className="font-medium text-slate-600">
-                Est. Revenue Impact
-              </TD>
-              {rows.map((day) => (
-                <TrendValueCell
-                  key={day.date}
-                  value={day.estRevenueImpact ?? "—"}
-                  tone={getRevenueTone(day.estRevenueImpact)}
-                />
-              ))}
-            </tr>
           </tbody>
         </table>
       </div>
