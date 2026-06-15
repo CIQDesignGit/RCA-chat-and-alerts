@@ -55,15 +55,37 @@ function HomePageInner() {
     : null;
   const hasChat = !!(homeSession && homeSession.messages.length > 0);
 
-  // On mount — if ?alertId param is present (e.g. from "View Alert →" in chat page),
-  // auto-select that SKU so the RCA panel opens immediately.
+  // On mount — handle URL params that pre-configure the home page state:
+  //   ?alertId  → open that SKU's RCA panel directly (from chat page)
+  //   ?brand + ?category → apply those filters to the left panel (from Strategy page "View alerts")
   useEffect(() => {
     const alertId = searchParams.get("alertId");
+    const brand = searchParams.get("brand");
+    const category = searchParams.get("category");
+
     if (alertId) {
       const found = ALERT_ITEMS.find((a) => a.id === alertId);
       if (found) setSelectedAlert(found);
-      router.replace("/");
+    } else if (brand || category) {
+      // Pre-apply brand/category filters so the left panel shows only those alerts
+      setFilters((prev) => ({
+        ...prev,
+        brand: brand ?? null,
+        category: category ?? null,
+      }));
+      if (brand) setActiveBrandTab(brand);
+
+      // Auto-open the first alert that matches the incoming filters
+      const firstMatch = ALERT_ITEMS.find((a) => {
+        if (brand && a.brand !== brand) return false;
+        if (category && a.category !== category) return false;
+        return true;
+      });
+      if (firstMatch) setSelectedAlert(firstMatch);
     }
+
+    // Clean up URL params after reading them so the address bar stays tidy
+    if (alertId || brand || category) router.replace("/");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -202,7 +224,7 @@ function HomePageInner() {
             />
           ) : hasChat && homeSession ? (
             // ── Inline chat — replaces business overview after first message ──
-            <div className="flex h-full flex-col overflow-hidden">
+            <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
               {/* Header with close button */}
               <div className="flex items-center justify-end px-6 pt-3 pb-1">
                 <button
@@ -226,9 +248,12 @@ function HomePageInner() {
             </div>
           ) : (
             // ── Landing overview — insights + chat input ────────────────────────
-            <div className="flex h-full flex-col items-center pt-3 pb-2">
+            // flex-1 min-h-0 instead of h-full: flex-1 fills remaining space in the
+            // flex-col parent; min-h-0 overrides the default min-height:auto so the
+            // inner scroll container can shrink below its content height.
+            <div className="flex flex-1 min-h-0 flex-col items-center pt-3 pb-2">
 
-              {/* Top: business insights — scrolls independently */}
+              {/* Top: business insights — scrolls independently within its flex-1 slot */}
               <div className="flex min-h-0 w-full max-w-[920px] flex-1 flex-col gap-2 overflow-y-auto px-8 pb-2">
                 <BusinessLevelInsights
                   onBrandChange={handleBrandChange}
@@ -238,8 +263,8 @@ function HomePageInner() {
                 />
               </div>
 
-              {/* Bottom: suggestion chips + chat input — always visible */}
-              <div className="flex w-full max-w-[920px] shrink-0 flex-col gap-1.5 px-8 pt-2">
+              {/* Bottom: suggestion chips + chat input — shrink-0 pins this to the bottom */}
+              <div className="flex w-full max-w-[920px] shrink-0 flex-col gap-1.5 px-8 pt-4 pb-2">
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s) => (
                     <button

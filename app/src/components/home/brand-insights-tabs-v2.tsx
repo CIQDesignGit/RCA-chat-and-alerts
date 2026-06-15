@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ChevronRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   CategoryInsightAccordion,
@@ -184,12 +185,23 @@ export function BrandInsightsTabsV2({
             brandName={active.name}
             onViewCategory={onViewCategory}
             maxCategories={maxCategories}
-            onViewAll={
-              onViewAllCategories
-                ? () => onViewAllCategories(active.name)
-                : undefined
-            }
+            // onViewAll intentionally omitted — replaced by the prominent footer below
           />
+
+          {/* Strategy View entry point — entire row is clickable */}
+          {onViewAllCategories && (
+            <button
+              type="button"
+              onClick={() => onViewAllCategories(active.name)}
+              className="flex w-full items-center gap-1 border-t border-slate-100 px-4 py-3 transition-colors hover:bg-slate-50"
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-brand-400" />
+              <span className="text-xs font-semibold text-brand-600">
+                Open Strategy View
+              </span>
+              <ChevronRight className="h-3 w-3 text-brand-600" />
+            </button>
+          )}
         </div>
       )}
     </div>

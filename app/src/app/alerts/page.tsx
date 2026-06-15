@@ -2,7 +2,7 @@
 
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Filter } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AlertItem } from "@/components/alerts/types";
 import { SkuAlertCard } from "@/components/alerts/sku-alert-card";
@@ -26,10 +26,6 @@ function AlertsContent() {
 
   const [selectedId, setSelectedId] = useState<string>(ALERT_ITEMS[0].id);
   const [groupBy, setGroupBy] = useState<GroupBy>("category");
-  // Filter bar starts expanded when URL params pre-populate a filter (navigated from home)
-  const [filterBarExpanded, setFilterBarExpanded] = useState(
-    !!(initialFilters.brand || initialFilters.category),
-  );
   const [filters, setFilters] = useState<FilterState>({
     unreadOnly: false,
     brand:      initialFilters.brand    ?? null,
@@ -64,9 +60,9 @@ function AlertsContent() {
   return (
     <div className="flex h-full flex-col overflow-hidden">
 
-      {/* ── Filter bar — toggleable, height-animated ── */}
+      {/* ── Filter bar — always visible, consistent with home page ── */}
       <FilterBar
-        isExpanded={filterBarExpanded}
+        isExpanded={true}
         onFiltersChange={setFilters}
         initialFilters={initialFilters}
       />
@@ -85,36 +81,20 @@ function AlertsContent() {
               <span className="text-slate-400">({filteredAlerts.length})</span>
             </span>
 
-            <div className="flex items-center gap-1.5">
-              {/* Group-by dropdown */}
-              <div className="relative flex items-center">
-                <label className="mr-1 text-[11px] text-slate-400">Group by</label>
-                <div className="relative">
-                  <select
-                    value={groupBy}
-                    onChange={(e) => setGroupBy(e.target.value as GroupBy)}
-                    className="appearance-none rounded-md border border-slate-200 bg-white py-1 pl-2 pr-6 text-[11px] font-medium text-slate-700 focus:outline-none"
-                  >
-                    <option value="category">Category</option>
-                    <option value="date">Date</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
-                </div>
+            {/* Group-by dropdown */}
+            <div className="relative flex items-center">
+              <label className="mr-1 text-[11px] text-slate-400">Group by</label>
+              <div className="relative">
+                <select
+                  value={groupBy}
+                  onChange={(e) => setGroupBy(e.target.value as GroupBy)}
+                  className="appearance-none rounded-md border border-slate-200 bg-white py-1 pl-2 pr-6 text-[11px] font-medium text-slate-700 focus:outline-none"
+                >
+                  <option value="category">Category</option>
+                  <option value="date">Date</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
               </div>
-
-              {/* Filter toggle — highlights when bar is open or any filter is active */}
-              <button
-                onClick={() => setFilterBarExpanded((p) => !p)}
-                aria-label={filterBarExpanded ? "Close filters" : "Open filters"}
-                className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-                  filterBarExpanded || filters.brand || filters.category || filters.sku || filters.unreadOnly
-                    ? "bg-violet-100 text-violet-600"
-                    : "text-slate-400 hover:bg-slate-100 hover:text-slate-700",
-                )}
-              >
-                <Filter className="h-3.5 w-3.5" />
-              </button>
             </div>
           </div>
 

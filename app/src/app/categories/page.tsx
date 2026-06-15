@@ -1,55 +1,117 @@
 "use client";
 
-import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { BrandInsightsTabsV2 } from "@/components/home/brand-insights-tabs-v2";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowUp } from "lucide-react";
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputActions,
+} from "@/components/ui/prompt-input";
+import { CategoryNavList } from "@/components/strategy/category-nav-list";
+import { CategoryDetailPanel } from "@/components/strategy/category-detail-panel";
 import { BRANDS } from "@/components/home/brands-data";
+import type { CategoryMetrics } from "@/components/home/category-insight-accordion";
 
-// ─── Inner — needs useSearchParams so wrapped in Suspense below ───────────────
+// ─── Inner — needs useSearchParams, wrapped in Suspense below ─────────────
 
 function CategoriesPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Read ?brand= from URL to pre-select tab (set by home page "View all" click)
-  const initialBrand = searchParams.get("brand");
+  // Pre-select the brand passed from the home page "Open Strategy View" link
+  const initialBrandName = searchParams.get("brand") ?? BRANDS[0]?.name ?? "";
+  const initialBrand = BRANDS.find((b) => b.name === initialBrandName) ?? BRANDS[0];
 
-  // "X issues" on a category row → navigate to /alerts with brand + category filters
-  function handleViewCategory(brandName: string, categoryName: string) {
-    router.push(
-      `/alerts?brand=${encodeURIComponent(brandName)}&category=${encodeURIComponent(categoryName)}`,
-    );
+  const [activeBrandName, setActiveBrandName] = useState(initialBrandName);
+  const [activeCategory, setActiveCategory] = useState<CategoryMetrics>(
+    initialBrand.categories[0],
+  );
+
+  // Chat bar state
+  const [chatInput, setChatInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const activeBrand = BRANDS.find((b) => b.name === activeBrandName) ?? BRANDS[0];
+
+  // Switching brands resets the selected category to the first (worst-gap) one
+  function handleBrandChange(name: string) {
+    setActiveBrandName(name);
+    const brand = BRANDS.find((b) => b.name === name);
+    if (brand) setActiveCategory(brand.categories[0]);
+  }
+
+  function handleSend() {
+    const content = chatInput.trim();
+    if (!content || isLoading) return;
+    // TODO: wire to chat store / AllyAI session for the selected category
+    setIsLoading(true);
+    setTimeout(() => {
+      setChatInput("");
+      setIsLoading(false);
+    }, 1200);
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <div className="mx-auto flex h-full w-full max-w-[920px] flex-col gap-4 overflow-hidden px-8 py-4">
+    <div className="flex h-full overflow-hidden">
 
-        {/* Page header — stays fixed at the top */}
-        <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
-            aria-label="Back to home"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <h1 className="text-base font-semibold text-slate-900">All Categories</h1>
-            <p className="text-xs text-slate-500">Click any issue count to view alerts for that category</p>
-          </div>
+      {/* Left — Category navigation (brand switcher + ranked category list) */}
+      <div className="w-[280px] shrink-0">
+        <CategoryNavList
+          brands={BRANDS}
+          activeBrandName={activeBrandName}
+          activeCategoryName={activeCategory.name}
+          onBrandChange={handleBrandChange}
+          onCategorySelect={setActiveCategory}
+        />
+      </div>
+
+      {/* Right — flex-col: scrollable detail content + pinned chat bar */}
+      <div className="relative flex flex-1 flex-col overflow-hidden bg-slate-50/60">
+
+        {/* Scrollable detail area — extra bottom padding avoids chat bar overlap */}
+        <div className="flex-1 overflow-y-auto pb-[84px]">
+          <CategoryDetailPanel
+            // key forces a full re-render + metric tab reset when the selection changes
+            key={`${activeBrandName}-${activeCategory.name}`}
+            category={activeCategory}
+            brand={activeBrand}
+          />
         </div>
 
-        {/* Brand tabs fill remaining height — tab bar is sticky, list scrolls */}
-        <div className="min-h-0 flex-1">
-          <BrandInsightsTabsV2
-            brands={BRANDS}
-            onViewCategory={handleViewCategory}
-            activeBrandName={initialBrand ?? BRANDS[0]?.name ?? null}
-            fillHeight
-          />
+        {/* Sticky chat bar — gradient fade blends with content above */}
+        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-slate-50 via-slate-50/95 to-transparent px-6 pb-5 pt-8">
+          <PromptInput
+            value={chatInput}
+            onValueChange={setChatInput}
+            isLoading={isLoading}
+            onSubmit={handleSend}
+            maxHeight={44}
+            className="mx-auto flex w-full max-w-[800px] items-center rounded-full border-slate-200 bg-white shadow-md"
+          >
+            <PromptInputTextarea
+              disableAutosize
+              rows={1}
+              placeholder={`Ask AllyAI about ${activeCategory.name}…`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              className="min-h-0 flex-1 py-1.5"
+            />
+            <PromptInputActions>
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={!chatInput.trim() || isLoading}
+                aria-label="Send"
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                <ArrowUp className="h-3.5 w-3.5" />
+              </button>
+            </PromptInputActions>
+          </PromptInput>
         </div>
 
       </div>
@@ -57,7 +119,7 @@ function CategoriesPageInner() {
   );
 }
 
-// ─── Page export — Suspense required for useSearchParams ─────────────────────
+// ─── Page export — Suspense required for useSearchParams ─────────────────
 
 export default function CategoriesPage() {
   return (
