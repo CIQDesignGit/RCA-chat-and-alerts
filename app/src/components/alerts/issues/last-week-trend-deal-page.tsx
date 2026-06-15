@@ -92,7 +92,7 @@ export function LastWeekTrendDealPage({ period, rows }: LastWeekTrendDealPagePro
             {/* Row 1: Was the SKU visible on the deals page that day? */}
             <tr>
               <TD align="left" className="font-medium text-slate-600">
-                Visible on deals page?
+                Visible on deals page
               </TD>
               {rows.map((day) => (
                 <VisibilityCell key={day.date} visible={day.visibleOnDealsPage} />

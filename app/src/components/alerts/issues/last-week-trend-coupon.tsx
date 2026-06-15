@@ -94,7 +94,7 @@ export function LastWeekTrendCoupon({ period, rows }: LastWeekTrendCouponProps) 
           <tbody className="divide-y divide-slate-100">
             <tr>
               <TD align="left" className="font-medium text-slate-600">
-                Coupon Detected?
+                Coupon Detected
               </TD>
               {rows.map((day) => (
                 <CouponDetectedCell
