@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
   X,
   History,
+  MapPin,
 } from "lucide-react";
 import {
   PromptInput,
@@ -194,15 +195,56 @@ function issueTypeToAlertType(type: Issue["type"] | undefined): string {
 // ─── PDP crawl-history dropdown ───────────────────────────────────────────────
 // Shows a list of past crawl timestamps, each linking to the live PDP snapshot.
 
-// Mock crawl history — replace with real API data when available.
-// Each entry represents a point-in-time crawl of the Amazon PDP.
+// Returns a Date that is `hoursAgo` hours before now — keeps "ago" labels fresh on reload.
+function crawlAtHoursAgo(hoursAgo: number): Date {
+  return new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
+}
+
+// Primary label: "Today, 2:30 PM" / "Yesterday, 11:45 PM" / "May 25, 2026 · 9:00 AM"
+function formatCrawlLabel(date: Date): string {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(todayStart.getDate() - 1);
+  const crawlDayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  if (crawlDayStart.getTime() === todayStart.getTime()) return `Today, ${time}`;
+  if (crawlDayStart.getTime() === yesterdayStart.getTime()) return `Yesterday, ${time}`;
+  return (
+    date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
+    ` · ${time}`
+  );
+}
+
+// Secondary label: consistent relative time shown for every entry.
+// < 60 min → "X min ago" | < 24 h → "X hrs ago" | otherwise → "X days ago"
+function formatRelativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.round(diffMs / (1000 * 60));
+  const diffHrs = Math.round(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 60) return `${diffMins} min ago`;
+  if (diffHrs < 24) return `${diffHrs} hrs ago`;
+  if (diffDays === 1) return "1 day ago";
+  return `${diffDays} days ago`;
+}
+
+// Mock crawl history — offsets per spec: 2.5 h, 8 h, 14 h, 20 h, 36 h, 48 h.
+// Replace with real API data (GET /sku/{asin}/pdp-crawls) when available.
 const MOCK_CRAWL_HISTORY = [
-  { label: "Today, 2:30 PM",       url: "https://www.amazon.com/dp/B00I0DI0Z6" },
-  { label: "Today, 8:00 AM",       url: "https://www.amazon.com/dp/B00I0DI0Z6" },
-  { label: "Yesterday, 11:45 PM",  url: "https://www.amazon.com/dp/B00I0DI0Z6" },
-  { label: "Yesterday, 6:15 PM",   url: "https://www.amazon.com/dp/B00I0DI0Z6" },
-  { label: "May 25, 2026 · 9:00 AM", url: "https://www.amazon.com/dp/B00I0DI0Z6" },
-  { label: "May 24, 2026 · 3:00 PM", url: "https://www.amazon.com/dp/B00I0DI0Z6" },
+  { date: crawlAtHoursAgo(2.5), zip: "10001" },
+  { date: crawlAtHoursAgo(8),   zip: "10001" },
+  { date: crawlAtHoursAgo(14),  zip: "94102" },
+  { date: crawlAtHoursAgo(20),  zip: "94102" },
+  { date: crawlAtHoursAgo(36),  zip: "60601" },
+  { date: crawlAtHoursAgo(48),  zip: "60601" },
 ];
 
 function PdpPageLink({ asin }: { asin: string }) {
@@ -262,7 +304,7 @@ function PdpHistoryDropdown({
       {/* Dropdown panel */}
       {open && (
         <div
-          className={`absolute top-full z-50 mt-1.5 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ${
+          className={`absolute top-full z-50 mt-1.5 w-72 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
@@ -275,18 +317,30 @@ function PdpHistoryDropdown({
           </div>
 
           {/* List of crawl timestamps */}
-          <ul className="max-h-52 overflow-y-auto py-1">
+          <ul className="py-1">
             {MOCK_CRAWL_HISTORY.map((entry) => (
-              <li key={entry.label}>
+              <li key={entry.date.toISOString()} className="border-b border-slate-100 last:border-b-0">
                 <a
-                  href={entry.url}
+                  href={`https://www.amazon.com/dp/${asin}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between gap-2 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50"
+                  className="flex items-start justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-slate-50"
                   onClick={() => setOpen(false)}
                 >
-                  <span>{entry.label}</span>
-                  <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
+                  {/* Two-line row: primary timestamp + secondary metadata */}
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-sm font-medium text-slate-700">
+                      {formatCrawlLabel(entry.date)}
+                    </span>
+                    <span className="flex items-center gap-1 text-sm font-normal text-slate-500">
+                      {formatRelativeTime(entry.date)}
+                      <span className="text-slate-300">·</span>
+                      <MapPin className="h-2.5 w-2.5 shrink-0" />
+                      {entry.zip}
+                    </span>
+                  </div>
+                  {/* Icon anchored to top so it aligns with Line 1 */}
+                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                 </a>
               </li>
             ))}
