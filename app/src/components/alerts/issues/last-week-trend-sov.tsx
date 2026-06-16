@@ -127,12 +127,6 @@ export function LastWeekTrendSov({
                 <OwnSovCell key={day.date} value={day.sbBrandedSovPct} baseline={sbBaseline} />
               ))}
             </tr>
-            <tr>
-              <TD align="left" className="font-medium text-slate-600">Top Competitor SOV %</TD>
-              {rows.map((day) => (
-                <CompetitorSovCell key={day.date} value={day.topCompetitorSovPct} />
-              ))}
-            </tr>
           </tbody>
         </table>
       </div>
