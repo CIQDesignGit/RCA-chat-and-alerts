@@ -85,9 +85,11 @@ function getWinRateTone(wins: number, crawls: number): CellTone {
   return wins === crawls ? "good" : "bad";
 }
 
+// Positive gap = you are more expensive than competitor = bad (red).
+// Negative gap = you are cheaper than competitor = good (green).
 function getPriceGapTone(priceDiff: string): CellTone {
-  if (priceDiff.startsWith("+")) return "good";
-  if (priceDiff.startsWith("-")) return "bad";
+  if (priceDiff.startsWith("+")) return "bad";
+  if (priceDiff.startsWith("-")) return "good";
   return "neutral";
 }
 
@@ -137,7 +139,8 @@ export function LastWeekTrendBuyBox({
   avgPriceGap,
   rows,
 }: LastWeekTrendBuyBoxProps) {
-  const isNegativeGap = avgPriceGap.startsWith("-");
+  // Positive gap = you are more expensive = bad (rose). Negative = cheaper = neutral.
+  const isPositiveGap = avgPriceGap.startsWith("+");
 
   const primaryCompetitorLabel = (
     <span className="flex items-center gap-1">
@@ -195,7 +198,7 @@ export function LastWeekTrendBuyBox({
         <StatCell
           label="Avg Price Gap"
           value={avgPriceGap}
-          valueClass={isNegativeGap ? "text-rose-600" : "text-slate-700"}
+          valueClass={isPositiveGap ? "text-rose-600" : "text-slate-700"}
         />
       </div>
 
@@ -251,7 +254,7 @@ export function LastWeekTrendBuyBox({
               ))}
             </tr>
 
-            {/* Row 3: Revenue impact */}
+            {/* Row 3: Revenue impact — strip leading sign for display; tone uses raw value */}
             <tr>
               <TD align="left" className="font-medium text-slate-600">
                 Revenue impact
@@ -259,7 +262,7 @@ export function LastWeekTrendBuyBox({
               {rows.map((day) => (
                 <TrendValueCell
                   key={day.date}
-                  value={day.revenueImpact ?? "—"}
+                  value={day.revenueImpact ? day.revenueImpact.replace(/^[+-]/, "") : "—"}
                   tone={getRevenueTone(day.revenueImpact)}
                 />
               ))}

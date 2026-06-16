@@ -787,14 +787,16 @@ const DEAL_PAGE_TREND_ROWS = [
 ];
 
 // Mock days for the Buy Box 7-day trend table (dates = columns, metrics = rows).
+// priceDiff = your price minus competitor price.
+// Positive = you are more expensive (lost Buy Box). Negative = you were cheaper (won Buy Box).
 const LBB_TREND_ROWS = [
-  { date: "May 3", winRateWins: 6, winRateCrawls: 6, priceDiff: "+$9.01",   revenueImpact: null      },
-  { date: "May 4", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$165.00", revenueImpact: "-$17.2K" },
-  { date: "May 5", winRateWins: 0, winRateCrawls: 6, priceDiff: "-$170.50", revenueImpact: "-$16.8K" },
-  { date: "May 6", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$168.49", revenueImpact: "-$17.9K" },
-  { date: "May 7", winRateWins: 5, winRateCrawls: 6, priceDiff: "+$1.01",   revenueImpact: null      },
-  { date: "May 8", winRateWins: 0, winRateCrawls: 6, priceDiff: "-$172.00", revenueImpact: "-$19.1K" },
-  { date: "May 9", winRateWins: 1, winRateCrawls: 6, priceDiff: "-$163.50", revenueImpact: "-$15.0K" },
+  { date: "May 3", winRateWins: 6, winRateCrawls: 6, priceDiff: "-$22.40", revenueImpact: null      },
+  { date: "May 4", winRateWins: 1, winRateCrawls: 6, priceDiff: "+$35.00", revenueImpact: "-$17.2K" },
+  { date: "May 5", winRateWins: 0, winRateCrawls: 6, priceDiff: "+$48.50", revenueImpact: "-$16.8K" },
+  { date: "May 6", winRateWins: 1, winRateCrawls: 6, priceDiff: "+$41.99", revenueImpact: "-$17.9K" },
+  { date: "May 7", winRateWins: 5, winRateCrawls: 6, priceDiff: "-$18.75", revenueImpact: null      },
+  { date: "May 8", winRateWins: 0, winRateCrawls: 6, priceDiff: "+$44.00", revenueImpact: "-$19.1K" },
+  { date: "May 9", winRateWins: 1, winRateCrawls: 6, priceDiff: "+$29.50", revenueImpact: "-$15.0K" },
 ];
 
 // Mock rows for OOS 7-day trend table.
@@ -1146,11 +1148,11 @@ function RootCauseRow({
                 period="May 3–9"
                 lbbPercent="71%"
                 revenueLost="-$86.0K"
-                primaryCompetitor="Dyson"
+                primaryCompetitor="ElectroHub Direct"
                 primaryCompetitorType="3P Seller"
                 yourAvgPrice="$529.99"
                 competitorAvgPrice="$362.09"
-                avgPriceGap="-$167.90"
+                avgPriceGap="+$37.60"
                 rows={LBB_TREND_ROWS}
               />
             </div>
