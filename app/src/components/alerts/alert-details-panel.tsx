@@ -239,12 +239,12 @@ function formatRelativeTime(date: Date): string {
 // Mock crawl history — offsets per spec: 2.5 h, 8 h, 14 h, 20 h, 36 h, 48 h.
 // Replace with real API data (GET /sku/{asin}/pdp-crawls) when available.
 const MOCK_CRAWL_HISTORY = [
-  { date: crawlAtHoursAgo(2.5), zip: "10001" },
-  { date: crawlAtHoursAgo(8),   zip: "10001" },
-  { date: crawlAtHoursAgo(14),  zip: "94102" },
-  { date: crawlAtHoursAgo(20),  zip: "94102" },
-  { date: crawlAtHoursAgo(36),  zip: "60601" },
-  { date: crawlAtHoursAgo(48),  zip: "60601" },
+  { date: crawlAtHoursAgo(2.5), city: "New York",      zip: "10001" },
+  { date: crawlAtHoursAgo(8),   city: "New York",      zip: "10001" },
+  { date: crawlAtHoursAgo(14),  city: "San Francisco", zip: "94102" },
+  { date: crawlAtHoursAgo(20),  city: "San Francisco", zip: "94102" },
+  { date: crawlAtHoursAgo(36),  city: "Chicago",       zip: "60601" },
+  { date: crawlAtHoursAgo(48),  city: "Chicago",       zip: "60601" },
 ];
 
 function PdpPageLink({ asin }: { asin: string }) {
@@ -304,7 +304,7 @@ function PdpHistoryDropdown({
       {/* Dropdown panel */}
       {open && (
         <div
-          className={`absolute top-full z-50 mt-1.5 w-72 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ${
+          className={`absolute top-full z-50 mt-1.5 w-80 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
@@ -324,7 +324,7 @@ function PdpHistoryDropdown({
                   href={`https://www.amazon.com/dp/${asin}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-slate-50"
+                  className="flex items-start justify-between gap-2 px-3 py-4 transition-colors hover:bg-slate-50"
                   onClick={() => setOpen(false)}
                 >
                   {/* Two-line row: primary timestamp + secondary metadata */}
@@ -332,15 +332,15 @@ function PdpHistoryDropdown({
                     <span className="text-sm font-medium text-slate-700">
                       {formatCrawlLabel(entry.date)}
                     </span>
-                    <span className="flex items-center gap-1 text-sm font-normal text-slate-500">
+                    <span className="flex items-center gap-1 whitespace-nowrap text-sm font-normal text-slate-500">
                       {formatRelativeTime(entry.date)}
                       <span className="text-slate-300">·</span>
-                      <MapPin className="h-2.5 w-2.5 shrink-0" />
-                      {entry.zip}
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                      {entry.city} ({entry.zip})
                     </span>
                   </div>
                   {/* Icon anchored to top so it aligns with Line 1 */}
-                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                  <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-brand-500" />
                 </a>
               </li>
             ))}
