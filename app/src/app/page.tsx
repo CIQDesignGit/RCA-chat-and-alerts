@@ -18,7 +18,6 @@ import { ALERT_ITEMS } from "@/components/alerts/mock-data";
 const SUGGESTIONS = [
   "Conduct brand and category level performance breakdown for this week?",
   "How is my total business performing this week vs. last week across all channels?",
-  "How much of my total brand sales is driven by advertising?",
 ];
 
 // ─── Inner page — needs useSearchParams so wrapped in Suspense below ─────────
@@ -56,15 +55,37 @@ function HomePageInner() {
     : null;
   const hasChat = !!(homeSession && homeSession.messages.length > 0);
 
-  // On mount — if ?alertId param is present (e.g. from "View Alert →" in chat page),
-  // auto-select that SKU so the RCA panel opens immediately.
+  // On mount — handle URL params that pre-configure the home page state:
+  //   ?alertId  → open that SKU's RCA panel directly (from chat page)
+  //   ?brand + ?category → apply those filters to the left panel (from Strategy page "View alerts")
   useEffect(() => {
     const alertId = searchParams.get("alertId");
+    const brand = searchParams.get("brand");
+    const category = searchParams.get("category");
+
     if (alertId) {
       const found = ALERT_ITEMS.find((a) => a.id === alertId);
       if (found) setSelectedAlert(found);
-      router.replace("/");
+    } else if (brand || category) {
+      // Pre-apply brand/category filters so the left panel shows only those alerts
+      setFilters((prev) => ({
+        ...prev,
+        brand: brand ?? null,
+        category: category ?? null,
+      }));
+      if (brand) setActiveBrandTab(brand);
+
+      // Auto-open the first alert that matches the incoming filters
+      const firstMatch = ALERT_ITEMS.find((a) => {
+        if (brand && a.brand !== brand) return false;
+        if (category && a.category !== category) return false;
+        return true;
+      });
+      if (firstMatch) setSelectedAlert(firstMatch);
     }
+
+    // Clean up URL params after reading them so the address bar stays tidy
+    if (alertId || brand || category) router.replace("/");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -107,11 +128,9 @@ function HomePageInner() {
     }
   }
 
-  // "View all categories" from the brand insights tab — apply brand filter + open filter bar
+  // "View all categories" from the brand insights tab — navigate to dedicated categories page
   function handleViewAllCategories(brandName: string) {
-    setFilters((prev) => ({ ...prev, brand: brandName, category: null }));
-    setFilterBarExpanded(true);
-    setSelectedAlert(null);
+    router.push(`/categories?brand=${encodeURIComponent(brandName)}`);
   }
 
   // Helper — true when the user is in a non-default state (filters applied, or view-all mode)
@@ -227,14 +246,16 @@ function HomePageInner() {
               />
             </div>
           ) : (
-            // ── Landing overview — greeting + insights + chat input ───────────
-            <div className="flex h-full flex-col items-center justify-between pt-5 pb-2">
+            // ── Landing overview — insights + chat input ────────────────────────
+            // flex-1 min-h-0: fills remaining space while allowing inner scroll.
+            // justify-between removed — bottom bar is pinned via shrink-0 instead.
+            <div className="flex flex-1 min-h-0 flex-col items-center pt-3 pb-2">
 
-              {/* Top: greeting + business insights */}
-              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
+              {/* Top: greeting + business insights — scrolls independently */}
+              <div className="flex min-h-0 w-full max-w-[920px] flex-1 flex-col gap-2 overflow-y-auto px-8 pb-2">
                 <div className="flex items-center gap-2">
-                  <Pin className="h-4 w-4 shrink-0 text-slate-400" />
-                  <p className="text-lg text-muted-foreground">
+                  <Pin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <p className="text-sm text-muted-foreground">
                     Good Morning, Steve!
                   </p>
                 </div>
@@ -246,14 +267,14 @@ function HomePageInner() {
                 />
               </div>
 
-              {/* Bottom: suggestion chips + chat input */}
-              <div className="flex w-full max-w-[800px] flex-col gap-3 px-8">
-                <div className="flex flex-wrap gap-1.5">
+              {/* Bottom: suggestion chips + chat input — shrink-0 pins this to the bottom */}
+              <div className="flex w-full max-w-[920px] shrink-0 flex-col px-8 pt-4 pb-2">
+                <div className="flex w-full max-w-[800px] gap-1.5 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
                       onClick={() => handleSend(s)}
-                      className="rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+                      className="shrink-0 rounded-full border bg-background px-3 py-1.5 text-sm text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                     >
                       {s}
                     </button>
