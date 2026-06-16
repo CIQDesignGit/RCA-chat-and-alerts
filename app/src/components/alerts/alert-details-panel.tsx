@@ -104,9 +104,9 @@ function IssueBody({ issue }: { issue: Issue }) {
       return (
         <KeywordRankDropIssue
           keywords={[
-            { keyword: "food processor 8 cup", previousRank: 3, currentRank: 9 },
-            { keyword: "digital food processor", previousRank: 8, currentRank: 12 },
-            { keyword: "food chopper electric", previousRank: 12, currentRank: 15 },
+            { keyword: "food processor 8 cup", organicPreviousRank: 3, organicCurrentRank: 9, paidPreviousRank: 5, paidCurrentRank: 11 },
+            { keyword: "digital food processor", organicPreviousRank: 8, organicCurrentRank: 12, paidPreviousRank: 10, paidCurrentRank: 14 },
+            { keyword: "food chopper electric", organicPreviousRank: 12, organicCurrentRank: 15, paidPreviousRank: null, paidCurrentRank: null },
           ]}
         />
       );
