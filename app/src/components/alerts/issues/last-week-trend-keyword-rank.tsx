@@ -79,9 +79,16 @@ function RankCell({
     : delta <= -5  ? "bg-emerald-50"
     : "";
 
+  const textClass =
+    rank === null  ? "text-slate-300"
+    : delta === null ? "text-slate-700"
+    : delta > 5    ? "text-rose-700"
+    : delta <= -5  ? "text-emerald-700"
+    : "text-slate-700";
+
   return (
     <TD className={cellClass}>
-      <span className={`font-medium ${rank === null ? "text-slate-300" : "text-slate-800"}`}>
+      <span className={`font-medium ${textClass}`}>
         {rank === null ? "N/A" : `#${rank}`}
       </span>
     </TD>

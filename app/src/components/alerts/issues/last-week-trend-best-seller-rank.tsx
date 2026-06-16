@@ -50,7 +50,7 @@ function RankValueCell({ rank }: { rank: number | null }) {
   const display = rank === null ? "—" : `#${rank.toLocaleString()}`;
   return (
     <TD>
-      <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-700"}`}>
         {display}
       </span>
     </TD>
@@ -80,9 +80,16 @@ function AvgRankCell({
     : delta < 0 ? "bg-emerald-50"
     : "";
 
+  const textClass =
+    rank === null  ? "text-slate-400"
+    : delta === null ? "text-slate-700"
+    : delta > 0    ? "text-rose-700"
+    : delta < 0    ? "text-emerald-700"
+    : "text-slate-700";
+
   return (
     <TD className={`align-top ${cellClass}`}>
-      <span className={`font-medium ${rank === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${textClass}`}>
         {rank === null ? "—" : `#${rank}`}
       </span>
     </TD>

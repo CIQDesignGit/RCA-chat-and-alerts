@@ -99,15 +99,17 @@ function getRevenueTone(impact: string | null): CellTone {
   return "good";
 }
 
-// Neutral text on a tinted cell background.
+const CELL_TONE_TEXT: Record<CellTone, string> = {
+  good:    "text-emerald-700",
+  bad:     "text-red-700",
+  neutral: "text-slate-400",
+};
+
 function TrendValueCell({ value, tone }: { value: string; tone: CellTone }) {
+  const textClass = value === "—" ? "text-slate-400" : CELL_TONE_TEXT[tone];
   return (
     <TD className={CELL_TONE_BG[tone]}>
-      <span
-        className={`font-medium ${tone === "neutral" && value === "—" ? "text-slate-400" : "text-slate-800"}`}
-      >
-        {value}
-      </span>
+      <span className={`font-medium ${textClass}`}>{value}</span>
     </TD>
   );
 }
@@ -239,7 +241,7 @@ export function LastWeekTrendBuyBox({
                         <Info className="h-3 w-3 text-slate-300" />
                       </TooltipTrigger>
                       <TooltipContent side="top">
-                        Difference between your price and the primary competitor&apos;s price on that day
+                        Average amount by which your price exceeds the Buy Box winner&apos;s price when you lose the Buy Box.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

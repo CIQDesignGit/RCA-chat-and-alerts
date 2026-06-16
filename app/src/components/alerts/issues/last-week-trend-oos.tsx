@@ -70,7 +70,7 @@ function PctCell({ value }: { value: number | null }) {
   const isBad = value !== null && value > 0;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${value === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${value === null ? "text-slate-400" : isBad ? "text-rose-700" : "text-slate-700"}`}>
         {value === null ? "—" : `${value}%`}
       </span>
     </TD>
@@ -93,7 +93,7 @@ function RevenueLostCell({ value }: { value: number | null }) {
   const isBad = value !== null && value > 0;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${value === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${value === null ? "text-slate-400" : isBad ? "text-rose-700" : "text-slate-700"}`}>
         {value === null ? "—" : fmtRevenue(value)}
       </span>
     </TD>

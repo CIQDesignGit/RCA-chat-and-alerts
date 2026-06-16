@@ -80,20 +80,22 @@ const CELL_TONE_BG: Record<CellTone, string> = {
   neutral: "",
 };
 
+const CELL_TONE_TEXT: Record<CellTone, string> = {
+  good:    "text-emerald-700",
+  bad:     "text-red-700",
+  neutral: "text-slate-400",
+};
+
 // Zero missing crawls = healthy; any missing = problem.
 function getMissingCrawlsTone(missing: number): CellTone {
   return missing === 0 ? "good" : "bad";
 }
 
-
 function TrendValueCell({ value, tone }: { value: string; tone: CellTone }) {
+  const textClass = value === "—" ? "text-slate-400" : CELL_TONE_TEXT[tone];
   return (
     <TD className={CELL_TONE_BG[tone]}>
-      <span
-        className={`font-medium ${tone === "neutral" && value === "—" ? "text-slate-400" : "text-slate-800"}`}
-      >
-        {value}
-      </span>
+      <span className={`font-medium ${textClass}`}>{value}</span>
     </TD>
   );
 }

@@ -102,7 +102,7 @@ export function LastWeekTrendMediaSpend({
                 </TD>
                 {kw.dailySpend.map((spend, i) => (
                   <TD key={dates[i]}>
-                    <span className={`font-medium ${spend === null ? "text-slate-400" : "text-slate-800"}`}>
+                    <span className={`font-medium ${spend === null ? "text-slate-400" : "text-slate-700"}`}>
                       {fmtSpend(spend)}
                     </span>
                   </TD>
@@ -119,7 +119,7 @@ export function LastWeekTrendMediaSpend({
                 </TD>
                 {totalRow.dailySpend.map((spend, i) => (
                   <TD key={dates[i]}>
-                    <span className={`font-semibold ${spend === null ? "text-slate-400" : "text-slate-800"}`}>
+                    <span className={`font-semibold ${spend === null ? "text-slate-400" : "text-slate-700"}`}>
                       {fmtSpend(spend)}
                     </span>
                   </TD>

@@ -61,7 +61,7 @@ function CvrCell({ value, baseline }: { value: number | null; baseline: number }
   const isBad = value !== null && value < baseline;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${value === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${value === null ? "text-slate-400" : isBad ? "text-rose-700" : "text-slate-700"}`}>
         {value === null ? "—" : `${value.toFixed(1)}%`}
       </span>
     </TD>

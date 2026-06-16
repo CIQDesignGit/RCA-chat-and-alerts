@@ -95,7 +95,7 @@ function AvgRatingCell({
   const isBad = rating !== null && rating < benchmark;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${rating === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${rating === null ? "text-slate-400" : isBad ? "text-rose-700" : "text-slate-700"}`}>
         {rating === null ? "—" : rating.toFixed(1)}
       </span>
     </TD>
@@ -123,7 +123,7 @@ function RatingDeltaCell({ delta }: { delta: number | null }) {
     );
   }
   const formatted = delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
-  const color = delta > 0 ? "text-emerald-600" : delta < 0 ? "text-rose-500" : "text-slate-400";
+  const color = delta > 0 ? "text-emerald-700" : delta < 0 ? "text-rose-700" : "text-slate-400";
   return (
     <TD>
       <span className={`font-medium ${color}`}>{formatted}</span>
@@ -142,7 +142,7 @@ function LowStarPctCell({
   const isBad = pct !== null && pct > threshold;
   return (
     <TD className={isBad ? "bg-rose-50" : ""}>
-      <span className={`font-medium ${pct === null ? "text-slate-400" : "text-slate-800"}`}>
+      <span className={`font-medium ${pct === null ? "text-slate-400" : isBad ? "text-rose-700" : "text-slate-700"}`}>
         {pct === null ? "—" : `${pct.toFixed(1)}%`}
       </span>
     </TD>
