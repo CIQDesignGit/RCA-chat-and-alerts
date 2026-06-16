@@ -2,6 +2,8 @@
 // Combines the snapshot metric tiles and the 7-day visibility trend table
 // into one card, rendered inside the expanded Promo Badge root cause row.
 
+import { Check, X } from "lucide-react";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type StatCellProps = {
@@ -32,6 +34,7 @@ function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps
 
 export type PromoBadgeTrendDay = {
   date: string;
+  expectedOnPromo: boolean;         // true = SKU was scheduled to carry a promo badge that day
   badgeMissingCrawls: number;
   strikethroughMissingCrawls: number;
   totalCrawls: number;
@@ -100,6 +103,29 @@ function TrendValueCell({ value, tone }: { value: string; tone: CellTone }) {
   );
 }
 
+// ✓ / ✗ cell used for boolean rows (Expected on Promo)
+function BooleanCell({ value }: { value: boolean }) {
+  return (
+    <TD>
+      <span
+        className={`inline-flex ${value ? "text-emerald-500" : "text-rose-500"}`}
+        aria-label={value ? "Yes" : "No"}
+      >
+        {value ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+      </span>
+    </TD>
+  );
+}
+
+// When the SKU is not expected on promo that day, render a muted dash
+function MutedCell() {
+  return (
+    <TD>
+      <span className="text-slate-300">—</span>
+    </TD>
+  );
+}
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 export type LastWeekTrendPromoBadgeProps = {
@@ -164,32 +190,50 @@ export function LastWeekTrendPromoBadge({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {/* Row 1: Badge missing crawls */}
+            {/* Row 0: Expected on Promo — gates all other rows */}
+            <tr>
+              <TD align="left" className="font-medium text-slate-600">
+                Expected on Promo
+              </TD>
+              {rows.map((day) => (
+                <BooleanCell key={day.date} value={day.expectedOnPromo} />
+              ))}
+            </tr>
+
+            {/* Row 1: Badge missing crawls — muted when not expected on promo */}
             <tr>
               <TD align="left" className="font-medium text-slate-600">
                 Badge Missing (crawls)
               </TD>
-              {rows.map((day) => (
-                <TrendValueCell
-                  key={day.date}
-                  value={`${day.badgeMissingCrawls}/${day.totalCrawls}`}
-                  tone={getMissingCrawlsTone(day.badgeMissingCrawls)}
-                />
-              ))}
+              {rows.map((day) =>
+                day.expectedOnPromo ? (
+                  <TrendValueCell
+                    key={day.date}
+                    value={`${day.badgeMissingCrawls}/${day.totalCrawls}`}
+                    tone={getMissingCrawlsTone(day.badgeMissingCrawls)}
+                  />
+                ) : (
+                  <MutedCell key={day.date} />
+                )
+              )}
             </tr>
 
-            {/* Row 2: MSRP strikethrough missing crawls */}
+            {/* Row 2: MSRP strikethrough missing crawls — muted when not expected on promo */}
             <tr>
               <TD align="left" className="font-medium text-slate-600">
                 MSRP Strikethrough Missing (crawls)
               </TD>
-              {rows.map((day) => (
-                <TrendValueCell
-                  key={day.date}
-                  value={`${day.strikethroughMissingCrawls}/${day.totalCrawls}`}
-                  tone={getMissingCrawlsTone(day.strikethroughMissingCrawls)}
-                />
-              ))}
+              {rows.map((day) =>
+                day.expectedOnPromo ? (
+                  <TrendValueCell
+                    key={day.date}
+                    value={`${day.strikethroughMissingCrawls}/${day.totalCrawls}`}
+                    tone={getMissingCrawlsTone(day.strikethroughMissingCrawls)}
+                  />
+                ) : (
+                  <MutedCell key={day.date} />
+                )
+              )}
             </tr>
 
           </tbody>

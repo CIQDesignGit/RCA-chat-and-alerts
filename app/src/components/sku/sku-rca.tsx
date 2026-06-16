@@ -744,13 +744,13 @@ function RootCauseIssueCard({
 // Mock rows for the Promo Badge 7-day trend table.
 // Mock days for the Promo Badge 7-day trend table (dates = columns, metrics = rows).
 const PROMO_BADGE_TREND_ROWS = [
-  { date: "May 10", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
-  { date: "May 11", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
-  { date: "May 12", badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6 },
-  { date: "May 13", badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6 },
-  { date: "May 14", badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
-  { date: "May 15", badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6 },
-  { date: "May 16", badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6 },
+  { date: "May 10", expectedOnPromo: true,  badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
+  { date: "May 11", expectedOnPromo: true,  badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
+  { date: "May 12", expectedOnPromo: false, badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6 },
+  { date: "May 13", expectedOnPromo: true,  badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6 },
+  { date: "May 14", expectedOnPromo: true,  badgeMissingCrawls: 6, strikethroughMissingCrawls: 0, totalCrawls: 6 },
+  { date: "May 15", expectedOnPromo: false, badgeMissingCrawls: 0, strikethroughMissingCrawls: 0, totalCrawls: 6 },
+  { date: "May 16", expectedOnPromo: true,  badgeMissingCrawls: 6, strikethroughMissingCrawls: 6, totalCrawls: 6 },
 ];
 
 // Mock days for the BSR 7-day trend table (dates = columns, metrics = rows).
@@ -777,13 +777,13 @@ const COUPON_TREND_ROWS = [
 
 // Mock days for the Deal Page 7-day trend table (dates = columns, metrics = rows).
 const DEAL_PAGE_TREND_ROWS = [
-  { date: "Jun 1", visibleOnDealsPage: false, dealPageRank: 12 },
-  { date: "Jun 2", visibleOnDealsPage: true,  dealPageRank: 4  },
-  { date: "Jun 3", visibleOnDealsPage: false, dealPageRank: 9  },
-  { date: "Jun 4", visibleOnDealsPage: true,  dealPageRank: 7  },
-  { date: "Jun 5", visibleOnDealsPage: false, dealPageRank: 15 },
-  { date: "Jun 6", visibleOnDealsPage: false, dealPageRank: 11 },
-  { date: "Jun 7", visibleOnDealsPage: true,  dealPageRank: 2  },
+  { date: "Jun 1", expectedOnDealsPage: true,  visibleOnDealsPage: false, dealPageRank: 12 },
+  { date: "Jun 2", expectedOnDealsPage: true,  visibleOnDealsPage: true,  dealPageRank: 4  },
+  { date: "Jun 3", expectedOnDealsPage: false, visibleOnDealsPage: false, dealPageRank: 9  },
+  { date: "Jun 4", expectedOnDealsPage: true,  visibleOnDealsPage: true,  dealPageRank: 7  },
+  { date: "Jun 5", expectedOnDealsPage: true,  visibleOnDealsPage: false, dealPageRank: 15 },
+  { date: "Jun 6", expectedOnDealsPage: false, visibleOnDealsPage: false, dealPageRank: 11 },
+  { date: "Jun 7", expectedOnDealsPage: true,  visibleOnDealsPage: true,  dealPageRank: 2  },
 ];
 
 // Mock days for the Buy Box 7-day trend table (dates = columns, metrics = rows).
