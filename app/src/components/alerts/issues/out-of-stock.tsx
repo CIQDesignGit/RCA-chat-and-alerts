@@ -148,7 +148,7 @@ function OosCrawlTimeline({
         <span className="font-semibold text-slate-700">
           {oosInWindow}/{totalWindowCrawls} crawls
         </span>{" "}
-        in the previous {totalWindowCrawls} crawls. Here are the latest{" "}
+        in the previous {totalWindowCrawls} hours. Here are the latest{" "}
         {crawls.length} crawls.
       </p>
       <div className="flex flex-col">
