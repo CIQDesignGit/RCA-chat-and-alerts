@@ -186,8 +186,8 @@ function OosCrawlTimeline({
                 </span>
 
                 {/* Location icon + zip code */}
-                <span className="flex items-center gap-0.5 rounded bg-slate-100 px-1.5 py-0.5 text-sm font-medium text-slate-500">
-                  <MapPin className="h-2.5 w-2.5 text-slate-400" />
+                <span className="flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-sm font-normal text-slate-600">
+                  <MapPin className="h-2.5 w-2.5 text-slate-600" />
                   {crawl.city} ({crawl.zipCode})
                 </span>
               </div>
