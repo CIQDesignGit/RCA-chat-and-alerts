@@ -801,13 +801,13 @@ const LBB_TREND_ROWS = [
 
 // Mock rows for OOS 7-day trend table.
 const OOS_TREND_ROWS = [
-  { date: "Jun 1", repOosPct: 0,  unavailabilityPct: 0,  onHandInventory: 312, revenueLost: 0    },
-  { date: "Jun 2", repOosPct: 18, unavailabilityPct: 24, onHandInventory: 140, revenueLost: 1200 },
-  { date: "Jun 3", repOosPct: 42, unavailabilityPct: 58, onHandInventory: 60,  revenueLost: 2800 },
-  { date: "Jun 4", repOosPct: 71, unavailabilityPct: 78, onHandInventory: 22,  revenueLost: 4100 },
-  { date: "Jun 5", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5600 },
-  { date: "Jun 6", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5400 },
-  { date: "Jun 7", repOosPct: 100, unavailabilityPct: 100, onHandInventory: 0, revenueLost: 5200 },
+  { date: "Jun 1", repOosPct: 0,   unavailabilityPct: 0,   unavailabilityCrawls: 0, onHandInventory: 312, revenueLost: 0    },
+  { date: "Jun 2", repOosPct: 18,  unavailabilityPct: 24,  unavailabilityCrawls: 2, onHandInventory: 140, revenueLost: 1200 },
+  { date: "Jun 3", repOosPct: 42,  unavailabilityPct: 58,  unavailabilityCrawls: 3, onHandInventory: 60,  revenueLost: 2800 },
+  { date: "Jun 4", repOosPct: 71,  unavailabilityPct: 78,  unavailabilityCrawls: 5, onHandInventory: 22,  revenueLost: 4100 },
+  { date: "Jun 5", repOosPct: 100, unavailabilityPct: 100, unavailabilityCrawls: 6, onHandInventory: 0,   revenueLost: 5600 },
+  { date: "Jun 6", repOosPct: 100, unavailabilityPct: 100, unavailabilityCrawls: 6, onHandInventory: 0,   revenueLost: 5400 },
+  { date: "Jun 7", repOosPct: 100, unavailabilityPct: 100, unavailabilityCrawls: 6, onHandInventory: 0,   revenueLost: 5200 },
 ];
 
 // Mock rows for SoV 7-day trend table.

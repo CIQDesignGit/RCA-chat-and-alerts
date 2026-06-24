@@ -101,18 +101,18 @@ function OosVisualCard({ lastOosCrawl }: { lastOosCrawl: OosCrawlEntry | null })
 
       {/* Bottom info — last known OOS location */}
       <div className="flex shrink-0 flex-col gap-1.5 px-2.5 py-3">
-        <p className="text-[11px] font-semibold leading-tight text-red-500">
+        <p className="text-sm font-semibold leading-tight text-red-500">
           Currently unavailable
         </p>
         {lastOosCrawl ? (
           <>
             {/* City + zip chip */}
-            <span className="flex items-center gap-0.5 self-start rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+            <span className="flex items-center gap-0.5 self-start rounded bg-slate-100 px-1.5 py-0.5 text-sm font-medium text-slate-500">
               <MapPin className="h-2.5 w-2.5 text-slate-400" />
               {lastOosCrawl.city} ({lastOosCrawl.zipCode})
             </span>
             {/* Relative timestamp of that crawl */}
-            <span className="text-[10px] text-slate-400">
+            <span className="text-sm text-slate-400">
               {formatCrawlTimestamp(lastOosCrawl.crawledAt)}
             </span>
           </>
@@ -171,12 +171,12 @@ function OosCrawlTimeline({
               </div>
 
               {/* Right column: timestamp · status badge · zip */}
-              <div className={`flex min-w-0 flex-1 items-center gap-3 ${!isLast ? "pb-2" : ""}`}>
-                <span className="text-xs text-slate-600">{label}</span>
+              <div className={`flex min-w-0 flex-1 items-center gap-3 ${!isLast ? "pb-4" : ""}`}>
+                <span className="text-sm text-slate-600">{label}</span>
 
                 {/* Status badge */}
                 <span
-                  className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                  className={`rounded px-1.5 py-0.5 text-xs font-medium ${
                     crawl.isOos
                       ? "bg-rose-50 text-rose-600"
                       : "bg-emerald-50 text-emerald-700"
@@ -186,7 +186,7 @@ function OosCrawlTimeline({
                 </span>
 
                 {/* Location icon + zip code */}
-                <span className="flex items-center gap-0.5 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                <span className="flex items-center gap-0.5 rounded bg-slate-100 px-1.5 py-0.5 text-sm font-medium text-slate-500">
                   <MapPin className="h-2.5 w-2.5 text-slate-400" />
                   {crawl.city} ({crawl.zipCode})
                 </span>
