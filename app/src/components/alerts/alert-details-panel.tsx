@@ -324,7 +324,7 @@ function PdpHistoryDropdown({
                   href={`https://www.amazon.com/dp/${asin}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start justify-between gap-2 px-3 py-4 transition-colors hover:bg-slate-50"
+                  className="flex items-start justify-between gap-2 px-3 py-3.5 transition-colors hover:bg-slate-50"
                   onClick={() => setOpen(false)}
                 >
                   {/* Two-line row: primary timestamp + secondary metadata */}

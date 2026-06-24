@@ -1189,7 +1189,15 @@ function RootCauseRow({
           )}
           {cause.showOosTrend && (
             <div className="mt-3">
-              <LastWeekTrendOos period="Jun 1–7" rows={OOS_TREND_ROWS} />
+              <LastWeekTrendOos
+                period="Jun 1–7"
+                repOosPct={100}
+                revenueLost7d={24300}
+                unavailabilityPct={100}
+                onHandInventory={0}
+                severity="High"
+                rows={OOS_TREND_ROWS}
+              />
             </div>
           )}
           {cause.showSovTrend && (

@@ -138,13 +138,13 @@ function MetricCell({
         <span className="flex items-center gap-0.5 text-[11px] text-slate-500">
           {fmtCount(category.traffic.paid)}
           <Tooltip>
-            <TooltipTrigger className="cursor-default text-slate-400">(P)</TooltipTrigger>
+            <TooltipTrigger render={<span />} className="cursor-default text-slate-400">(P)</TooltipTrigger>
             <TooltipContent>Paid traffic</TooltipContent>
           </Tooltip>
           <span className="mx-0.5 text-slate-300">·</span>
           {fmtCount(category.traffic.organic)}
           <Tooltip>
-            <TooltipTrigger className="cursor-default text-slate-400">(O)</TooltipTrigger>
+            <TooltipTrigger render={<span />} className="cursor-default text-slate-400">(O)</TooltipTrigger>
             <TooltipContent>Organic traffic</TooltipContent>
           </Tooltip>
         </span>
