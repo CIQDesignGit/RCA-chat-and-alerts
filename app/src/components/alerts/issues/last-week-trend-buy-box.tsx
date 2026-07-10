@@ -3,6 +3,7 @@
 // into one card, rendered inside the expanded Lost Buy Box root cause row.
 
 import { Info } from "lucide-react";
+import { TrendDateColumnHeader } from "./trend-date-header";
 import {
   Tooltip,
   TooltipTrigger,
@@ -211,7 +212,7 @@ export function LastWeekTrendBuyBox({
             <tr className="border-b border-slate-100">
               <TH align="left">Metric</TH>
               {rows.map((day) => (
-                <TH key={day.date}>{day.date}</TH>
+                <TrendDateColumnHeader key={day.date} dateLabel={day.date} />
               ))}
             </tr>
           </thead>

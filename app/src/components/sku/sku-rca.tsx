@@ -1185,7 +1185,12 @@ function RootCauseRow({
           )}
           {cause.showBsrTrend && (
             <div className="mt-3">
-              <LastWeekTrendBestSellerRank period="Jun 1–7" rows={BSR_TREND_ROWS} />
+              <LastWeekTrendBestSellerRank
+                period="Jun 1–7"
+                rows={BSR_TREND_ROWS}
+                avgRankLast7d={19}
+                currentRank={31}
+              />
             </div>
           )}
           {cause.showOosTrend && (

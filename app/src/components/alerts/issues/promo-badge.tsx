@@ -63,31 +63,31 @@ export function PromoBadgeIssue({
 
       {/* Price comparison cards */}
       <div className="flex gap-3">
-        {/* Current Price — light rose bg to signal something is wrong */}
+        {/* Current selling price — light rose bg to signal something is wrong */}
         <div className="flex flex-col gap-2 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3">
-          <p className="text-xs font-semibold text-slate-600">Current Price</p>
+          <p className="text-xs font-semibold text-slate-600">Current Selling Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-400">Original</span>
               <span className="text-lg font-bold text-slate-800">{currentOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400">Selling</span>
+              <span className="text-[10px] text-slate-400">List Price</span>
               <span className="text-lg font-bold text-slate-800">{currentSellingPrice}</span>
             </div>
           </div>
         </div>
 
-        {/* Expected Price — neutral white */}
+        {/* Expected selling price — neutral white */}
         <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
-          <p className="text-xs font-semibold text-slate-600">Expected Price</p>
+          <p className="text-xs font-semibold text-slate-600">Expected Selling Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] text-slate-400">Original</span>
               <span className="text-lg font-bold text-slate-800">{expectedOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400">Selling</span>
+              <span className="text-[10px] text-slate-400">List Price</span>
               {/* Struck through to show price mismatch */}
               <span className="text-lg font-bold text-slate-400 line-through">
                 {expectedSellingPrice}

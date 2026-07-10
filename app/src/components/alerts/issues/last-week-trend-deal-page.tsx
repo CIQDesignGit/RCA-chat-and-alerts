@@ -2,6 +2,7 @@
 // Rendered inside the expanded Deal Page Visibility root cause row.
 
 import { Check, X } from "lucide-react";
+import { TrendDateColumnHeader } from "./trend-date-header";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -94,7 +95,7 @@ export function LastWeekTrendDealPage({ period, rows }: LastWeekTrendDealPagePro
             <tr className="border-b border-slate-100">
               <TH align="left">Metric</TH>
               {rows.map((day) => (
-                <TH key={day.date}>{day.date}</TH>
+                <TrendDateColumnHeader key={day.date} dateLabel={day.date} />
               ))}
             </tr>
           </thead>

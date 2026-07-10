@@ -1,4 +1,5 @@
 // "Last 7 Day Trend — Media Spend" widget.
+import { TrendDateColumnHeader } from "./trend-date-header";
 // Rows = keywords (+ a "Total" footer row). Columns = dates.
 // Each cell shows daily ad spend for that keyword on that day.
 // Rendered inside the expanded Media Spend root cause row.
@@ -90,7 +91,7 @@ export function LastWeekTrendMediaSpend({
             <tr className="border-b border-slate-100">
               <TH align="left">Keyword</TH>
               {dates.map((d) => (
-                <TH key={d}>{d}</TH>
+                <TrendDateColumnHeader key={d} dateLabel={d} />
               ))}
             </tr>
           </thead>

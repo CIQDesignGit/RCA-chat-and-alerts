@@ -10,9 +10,9 @@ export type BestSellerRankProps = {
   previousRank: number;
   currentRank: number;
   category: string;
-  /** Label under the previous rank shield — defaults to "7d avg" */
+  /** Label under the previous rank shield — defaults to "3D avg" */
   previousLabel?: string;
-  /** Label under the current rank shield — defaults to "New" */
+  /** Label under the current rank shield — defaults to "Last 24 hr avg" */
   currentLabel?: string;
 };
 
@@ -26,12 +26,13 @@ function RankShield({
   rank,
   label,
   variant,
-  labelDotted = false,
+  labelTooltip,
 }: {
   rank: number;
   label: string;
   variant: "previous" | "current";
-  labelDotted?: boolean;
+  /** When set, label is dotted and shows this tooltip on hover. */
+  labelTooltip?: string;
 }) {
   const isPrevious = variant === "previous";
   const textColor = isPrevious ? "text-slate-800" : "text-rose-500";
@@ -91,7 +92,7 @@ function RankShield({
         </span>
       </div>
 
-      {labelDotted ? (
+      {labelTooltip ? (
         <Tooltip>
           <TooltipTrigger
             render={
@@ -101,7 +102,7 @@ function RankShield({
             }
           />
           <TooltipContent side="bottom" className="max-w-64 leading-snug">
-            This baseline rank is calculated based on the available data from the previous 7 days.
+            {labelTooltip}
           </TooltipContent>
         </Tooltip>
       ) : (
@@ -115,8 +116,8 @@ export function BestSellerRankIssue({
   previousRank,
   currentRank,
   category,
-  previousLabel = "7d avg",
-  currentLabel = "New",
+  previousLabel = "3D avg",
+  currentLabel = "Last 24 hr avg",
 }: BestSellerRankProps) {
   return (
     <div className="flex flex-col gap-5">
@@ -134,7 +135,7 @@ export function BestSellerRankIssue({
           rank={previousRank}
           label={previousLabel}
           variant="previous"
-          labelDotted
+          labelTooltip="This baseline rank is calculated based on the available data from the previous 3 days."
         />
 
         <ArrowRight className="-translate-y-4 h-5 w-5 shrink-0 text-slate-400" strokeWidth={1.5} />
@@ -143,6 +144,7 @@ export function BestSellerRankIssue({
           rank={currentRank}
           label={currentLabel}
           variant="current"
+          labelTooltip="This rank is calculated based on the available data from the last 24 hours."
         />
       </div>
     </div>

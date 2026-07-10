@@ -1,4 +1,5 @@
 // "Last 7 Day Trend — Keyword Rank" widget.
+import { TrendDateColumnHeader } from "./trend-date-header";
 // Shows top 3 keywords. Each keyword expands into two rows:
 //   • Organic rank — position in unpaid search results
 //   • Paid rank    — position via sponsored/ads
@@ -136,7 +137,7 @@ export function LastWeekTrendKeywordRank({
               </TH>
               <TH align="left">Type</TH>
               {dates.map((d) => (
-                <TH key={d}>{d}</TH>
+                <TrendDateColumnHeader key={d} dateLabel={d} />
               ))}
             </tr>
           </thead>

@@ -1,3 +1,5 @@
+import { TrendDateColumnHeader } from "./trend-date-header";
+
 // Merged "Last 7 Day Trend — Best Seller Rank" widget.
 // Rendered inside the expanded Best Seller Rank root cause row.
 
@@ -96,11 +98,42 @@ function AvgRankCell({
   );
 }
 
+// ─── Snapshot stat tile ───────────────────────────────────────────────────────
+
+type StatCellProps = {
+  label: string;
+  value: string;
+  valueClass?: string;
+};
+
+function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </span>
+      <span className={`text-base font-semibold ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
+
+function averageRank(rows: BsrTrendDay[]): number | null {
+  const ranks = rows
+    .map((day) => day.avgCategoryRank)
+    .filter((rank): rank is number => rank !== null);
+  if (ranks.length === 0) return null;
+  return Math.round(ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length);
+}
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 export type LastWeekTrendBestSellerRankProps = {
   period: string;
   rows: BsrTrendDay[];
+  /** Mean median category rank across the 7-day window — defaults to row average. */
+  avgRankLast7d?: number;
+  /** Latest category rank — defaults to the last row's median rank. */
+  currentRank?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -108,12 +141,36 @@ export type LastWeekTrendBestSellerRankProps = {
 export function LastWeekTrendBestSellerRank({
   period,
   rows,
+  avgRankLast7d,
+  currentRank,
 }: LastWeekTrendBestSellerRankProps) {
+  const resolvedAvgRank = avgRankLast7d ?? averageRank(rows);
+  const resolvedCurrentRank =
+    currentRank ?? rows.at(-1)?.avgCategoryRank ?? null;
+
+  const avgRankWorsened =
+    resolvedAvgRank !== null &&
+    resolvedCurrentRank !== null &&
+    resolvedCurrentRank > resolvedAvgRank;
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
         <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
         <span className="text-xs text-slate-400">({period})</span>
+      </div>
+
+      {/* ── 7-day snapshot ── */}
+      <div className="grid grid-cols-2 gap-0 px-4 py-3">
+        <StatCell
+          label="7 Day Avg Rank"
+          value={resolvedAvgRank === null ? "—" : `#${resolvedAvgRank}`}
+        />
+        <StatCell
+          label="Current Rank"
+          value={resolvedCurrentRank === null ? "—" : `#${resolvedCurrentRank}`}
+          valueClass={avgRankWorsened ? "text-rose-600" : "text-slate-700"}
+        />
       </div>
 
       <div className="overflow-x-auto border-t border-slate-200">
@@ -122,7 +179,7 @@ export function LastWeekTrendBestSellerRank({
             <tr className="border-b border-slate-100">
               <TH align="left">Metric</TH>
               {rows.map((day) => (
-                <TH key={day.date}>{day.date}</TH>
+                <TrendDateColumnHeader key={day.date} dateLabel={day.date} />
               ))}
             </tr>
           </thead>
