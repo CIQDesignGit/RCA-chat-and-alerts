@@ -590,6 +590,7 @@ function RootCauseIssueCard({
       return (
         <PromoBadgeIssue
           promoDateRange="28 Apr to 10 May"
+          badgeSeenCrawls={0}
           checks={[
             { label: "Is Promo Badge Visible?",                  passed: false },
             { label: "Does Original Price Have Strikethrough?",  passed: true  },

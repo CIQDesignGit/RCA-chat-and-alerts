@@ -5,9 +5,14 @@ type CheckItem = {
   passed: boolean;
 };
 
+/** Total PDP crawls in the latest review window — shared with trend widgets. */
+export const PROMO_BADGE_TOTAL_CRAWLS = 6;
+
 export type PromoBadgeProps = {
   promoDateRange: string;          // e.g. "28 Apr to 10 May"
   checks: CheckItem[];
+  badgeSeenCrawls: number;         // crawls where the promo badge was visible
+  totalCrawls?: number;          // defaults to PROMO_BADGE_TOTAL_CRAWLS
   currentOriginalPrice: string;    // e.g. "$25.99"
   currentSellingPrice: string;     // e.g. "$25.99"
   expectedOriginalPrice: string;   // e.g. "$18.99"
@@ -16,6 +21,8 @@ export type PromoBadgeProps = {
 
 export function PromoBadgeIssue({
   checks,
+  badgeSeenCrawls,
+  totalCrawls = PROMO_BADGE_TOTAL_CRAWLS,
   currentOriginalPrice,
   currentSellingPrice,
   expectedOriginalPrice,
@@ -24,7 +31,19 @@ export function PromoBadgeIssue({
   return (
     <div className="flex flex-col gap-4">
       {/* Checklist card */}
-      <div className="w-[370px] overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="w-full max-w-[480px] overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
+          <span className="text-sm font-medium text-slate-600">
+            Latest status for Promo Badge
+          </span>
+          <span className="shrink-0 text-xs text-slate-500">
+            Badge seen in{" "}
+            <span className="font-semibold text-slate-700">
+              {badgeSeenCrawls}/{totalCrawls}
+            </span>{" "}
+            crawls
+          </span>
+        </div>
         {checks.map((item, i) => (
           <div
             key={item.label}
