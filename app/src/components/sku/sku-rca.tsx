@@ -240,7 +240,7 @@ const CAUSE_LBB: RootCause = {
   liveStatus: "bad",
   impactLabel: REVENUE_IMPACT_TOOLTIP,
   description:
-    "You've lost the Buy Box on an important SKU.",
+    "You've lost the Buy Box on an important SKU in the last 24 hours.",
   issueCardType: "lost-buy-box",
   showBuyBoxTrend: true,
 };
@@ -1046,10 +1046,10 @@ const LIVE_DOT_CLASS: Record<LiveStatus, string> = {
   bad:     "bg-red-500",
 };
 
-// Emphasise dollar figures inside diagnosis copy
+// Emphasise dollar figures and time windows inside diagnosis copy
 function highlightDollarAmounts(text: string) {
-  return text.split(/(\$[\d,]+(?:\.\d+)?[KMB]?)/g).map((part, i) =>
-    /^\$/.test(part) ? (
+  return text.split(/(\$[\d,]+(?:\.\d+)?[KMB]?|\d+\s+(?:hours?|hrs?))/gi).map((part, i) =>
+    /^\$/.test(part) || /^\d+\s+(?:hours?|hrs?)$/i.test(part) ? (
       <span key={i} className="font-semibold text-slate-700">
         {part}
       </span>
