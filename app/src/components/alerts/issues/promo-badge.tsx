@@ -68,7 +68,7 @@ export function PromoBadgeIssue({
           <p className="text-xs font-semibold text-slate-600">Current Selling Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400">Original</span>
+              <span className="text-[10px] text-slate-400">Selling Price</span>
               <span className="text-lg font-bold text-slate-800">{currentOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
@@ -83,7 +83,7 @@ export function PromoBadgeIssue({
           <p className="text-xs font-semibold text-slate-600">Expected Selling Price</p>
           <div className="flex gap-6">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] text-slate-400">Original</span>
+              <span className="text-[10px] text-slate-400">Selling Price</span>
               <span className="text-lg font-bold text-slate-800">{expectedOriginalPrice}</span>
             </div>
             <div className="flex flex-col gap-0.5">
