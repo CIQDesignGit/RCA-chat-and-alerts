@@ -61,6 +61,14 @@ export type StarRatingProps = {
   writtenReviewCount: number;
   /** Net-new reviews since yesterday */
   newReviewsSinceYesterday: number;
+  /** Share of 1-star ratings (current) */
+  oneStarPct: number;
+  /** Share of 2-star ratings (current) */
+  twoStarPct: number;
+  /** Share of 1-star ratings (previous period) — optional */
+  oldOneStarPct?: number;
+  /** Share of 2-star ratings (previous period) — optional */
+  oldTwoStarPct?: number;
   /**
    * Only pass when a fresh ≤2★ review actually landed.
    * When absent the flag card is suppressed entirely.
@@ -72,6 +80,58 @@ export type StarRatingProps = {
   };
 };
 
+function LowStarPctStat({
+  label,
+  value,
+  valueClass = "text-slate-700",
+}: {
+  label: string;
+  value: string;
+  valueClass?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </span>
+      <span className={`text-sm font-semibold ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
+
+function LowStarPctRow({
+  oneStarPct,
+  twoStarPct,
+  muted = false,
+  variant = "neutral",
+}: {
+  oneStarPct: number;
+  twoStarPct: number;
+  muted?: boolean;
+  variant?: "neutral" | "alert";
+}) {
+  const valueClass = muted ? "text-slate-500" : "text-slate-700";
+
+  return (
+    <div
+      className={`grid grid-cols-2 gap-4 border-t pt-2.5 ${
+        variant === "alert" ? "border-rose-100" : "border-slate-100"
+      }`}
+    >
+      <LowStarPctStat
+        label="1-Star %"
+        value={`${oneStarPct}%`}
+        valueClass={valueClass}
+      />
+      <LowStarPctStat
+        label="2-Star %"
+        value={`${twoStarPct}%`}
+        valueClass={valueClass}
+      />
+    </div>
+  );
+}
+
 export function StarRatingIssue({
   oldRating,
   oldReviewCount,
@@ -80,6 +140,10 @@ export function StarRatingIssue({
   reviewCount,
   writtenReviewCount,
   newReviewsSinceYesterday,
+  oneStarPct,
+  twoStarPct,
+  oldOneStarPct,
+  oldTwoStarPct,
   latestLowStarReview,
 }: StarRatingProps) {
   return (
@@ -100,6 +164,13 @@ export function StarRatingIssue({
           <span className="text-xs text-slate-700">
             {oldWrittenReviewCount.toLocaleString()} reviews
           </span>
+          {oldOneStarPct != null && oldTwoStarPct != null && (
+            <LowStarPctRow
+              oneStarPct={oldOneStarPct}
+              twoStarPct={oldTwoStarPct}
+              muted
+            />
+          )}
         </div>
 
         {/* Arrow — centered vertically between the two cards */}
@@ -129,6 +200,7 @@ export function StarRatingIssue({
               </span>
             )}
           </div>
+          <LowStarPctRow oneStarPct={oneStarPct} twoStarPct={twoStarPct} variant="alert" />
         </div>
       </div>
 
@@ -154,9 +226,9 @@ export function StarRatingIssue({
         period="May 20–26"
         avgRating={4.0}
         reviewCount={736}
-        oneStarPct={14}
-        twoStarPct={4}
-        belowBenchmark={false}
+        oneStarPct={oneStarPct}
+        twoStarPct={twoStarPct}
+        belowBenchmark={newRating < 4.0}
         rows={[
           { date: "May 20", avgStarRating: 4.3, totalReviews: 718, oneStarPct: 5.2,  twoStarPct: 3.1 },
           { date: "May 21", avgStarRating: 4.2, totalReviews: 740, oneStarPct: 6.8,  twoStarPct: 3.5 },
