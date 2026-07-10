@@ -229,6 +229,10 @@ export function StarRatingIssue({
         oneStarPct={oneStarPct}
         twoStarPct={twoStarPct}
         belowBenchmark={newRating < 4.0}
+        prevAvgRating={4.3}
+        prevReviewCount={680}
+        prevOneStarPct={8}
+        prevTwoStarPct={3}
         rows={[
           { date: "May 20", avgStarRating: 4.3, totalReviews: 718, oneStarPct: 5.2,  twoStarPct: 3.1 },
           { date: "May 21", avgStarRating: 4.2, totalReviews: 740, oneStarPct: 6.8,  twoStarPct: 3.5 },

@@ -5,6 +5,14 @@
 import { Info } from "lucide-react";
 import { TrendDateColumnHeader } from "./trend-date-header";
 import {
+  computePercentPointDelta,
+  computeRelativeDelta,
+  parseDollarString,
+  parsePercentString,
+} from "./trend-snapshot-delta";
+import { TrendSnapshotStatCell } from "./trend-snapshot-stat-cell";
+import { TrendWidgetHeader } from "./trend-widget-header";
+import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
@@ -12,23 +20,6 @@ import {
 } from "@/components/ui/tooltip";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type StatCellProps = {
-  label: React.ReactNode;
-  value: string;
-  valueClass?: string;
-};
-
-function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <span className={`text-base font-semibold ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
 
 export type LbbTrendDay = {
   date: string;
@@ -127,6 +118,12 @@ export type LastWeekTrendBuyBoxProps = {
   competitorAvgPrice: string;   // e.g. "$362.09"
   avgPriceGap: string;          // e.g. "-$167.90"
   rows: LbbTrendDay[];
+  /** Previous 7-day window values for snapshot deltas. */
+  prevLbbPercent?: number;
+  prevRevenueLost?: number;
+  prevYourAvgPrice?: number;
+  prevCompetitorAvgPrice?: number;
+  prevAvgPriceGap?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -141,9 +138,44 @@ export function LastWeekTrendBuyBox({
   competitorAvgPrice,
   avgPriceGap,
   rows,
+  prevLbbPercent,
+  prevRevenueLost,
+  prevYourAvgPrice,
+  prevCompetitorAvgPrice,
+  prevAvgPriceGap,
 }: LastWeekTrendBuyBoxProps) {
-  // Positive gap = you are more expensive = bad (rose). Negative = cheaper = neutral.
-  const isPositiveGap = avgPriceGap.startsWith("+");
+  const lbbPct = parsePercentString(lbbPercent);
+  const lbbDelta =
+    lbbPct !== null && prevLbbPercent != null
+      ? computePercentPointDelta(lbbPct, prevLbbPercent)
+      : null;
+
+  const revenueLostAmount = parseDollarString(revenueLost);
+  const revenueLostDelta =
+    revenueLostAmount !== null && prevRevenueLost != null
+      ? computeRelativeDelta(
+          Math.abs(revenueLostAmount),
+          Math.abs(prevRevenueLost),
+        )
+      : null;
+
+  const yourPrice = parseDollarString(yourAvgPrice);
+  const yourPriceDelta =
+    yourPrice !== null && prevYourAvgPrice != null
+      ? computeRelativeDelta(yourPrice, prevYourAvgPrice)
+      : null;
+
+  const competitorPrice = parseDollarString(competitorAvgPrice);
+  const competitorPriceDelta =
+    competitorPrice !== null && prevCompetitorAvgPrice != null
+      ? computeRelativeDelta(competitorPrice, prevCompetitorAvgPrice)
+      : null;
+
+  const priceGap = parseDollarString(avgPriceGap);
+  const priceGapDelta =
+    priceGap !== null && prevAvgPriceGap != null
+      ? computeRelativeDelta(priceGap, prevAvgPriceGap)
+      : null;
 
   const primaryCompetitorLabel = (
     <span className="flex items-center gap-1">
@@ -163,25 +195,22 @@ export function LastWeekTrendBuyBox({
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      {/* ── Header ── */}
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
-        <span className="text-xs text-slate-400">({period})</span>
-      </div>
-
-      {/* ── Snapshot metrics ── */}
+      <TrendWidgetHeader period={period} showPrevWeekLegend />
       <div className="grid grid-cols-3 gap-0 px-4 py-3">
-        <StatCell
+        <TrendSnapshotStatCell
           label="LBB %"
           value={lbbPercent}
-          valueClass={lbbPercent === "0%" ? "text-slate-700" : "text-rose-600"}
+          delta={lbbDelta}
+          deltaFormat="pp"
+          deltaPolarity="inverse"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="Avg Revenue Lost"
           value={revenueLost}
-          valueClass={revenueLost === "$0" ? "text-slate-700" : "text-rose-600"}
+          delta={revenueLostDelta}
+          deltaPolarity="inverse"
         />
-        {/* Primary competitor — label + name + seller type */}
+        {/* Primary competitor — no week-over-week delta (name label) */}
         <div className="flex flex-col gap-1">
           <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
             {primaryCompetitorLabel}
@@ -196,12 +225,23 @@ export function LastWeekTrendBuyBox({
       </div>
 
       <div className="grid grid-cols-3 gap-0 px-4 pb-5 pt-3">
-        <StatCell label="Your Avg Price"        value={yourAvgPrice} />
-        <StatCell label="Competitor's Avg Price" value={competitorAvgPrice} />
-        <StatCell
+        <TrendSnapshotStatCell
+          label="Your Avg Price"
+          value={yourAvgPrice}
+          delta={yourPriceDelta}
+          deltaPolarity="inverse"
+        />
+        <TrendSnapshotStatCell
+          label="Competitor's Avg Price"
+          value={competitorAvgPrice}
+          delta={competitorPriceDelta}
+          deltaPolarity="normal"
+        />
+        <TrendSnapshotStatCell
           label="Avg Price Gap"
           value={avgPriceGap}
-          valueClass={isPositiveGap ? "text-rose-600" : "text-slate-700"}
+          delta={priceGapDelta}
+          deltaPolarity="inverse"
         />
       </div>
 

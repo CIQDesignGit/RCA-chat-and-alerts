@@ -2,13 +2,13 @@
 // Adds snapshot metric rows before the day-by-day table,
 // matching the same structure as LastWeekTrendBuyBox and LastWeekTrendPromoBadge.
 
-import { Info } from "lucide-react";
 import { TrendDateColumnHeader } from "./trend-date-header";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  computePercentPointDelta,
+  computeRelativeDelta,
+} from "./trend-snapshot-delta";
+import { TrendSnapshotStatCell } from "./trend-snapshot-stat-cell";
+import { TrendWidgetHeader } from "./trend-widget-header";
 
 // ─── Severity ─────────────────────────────────────────────────────────────────
 
@@ -19,81 +19,6 @@ const SEVERITY_STYLES: Record<OosSeverity, string> = {
   Med: "border-amber-100 bg-amber-50 text-amber-600",
   Low: "border-slate-200 bg-slate-50 text-slate-500",
 };
-
-// ─── StatCell — identical pattern to LastWeekTrendBuyBox / LastWeekTrendPromoBadge ──
-
-type PrevTrend = "worse" | "better" | "neutral";
-
-const PREV_TREND_STYLES: Record<PrevTrend, string> = {
-  worse:   "text-rose-500",
-  better:  "text-emerald-600",
-  neutral: "text-slate-400",
-};
-
-const PREV_TREND_ARROW: Record<PrevTrend, string> = {
-  worse:   "↑",
-  better:  "↓",
-  neutral: "→",
-};
-
-type StatCellProps = {
-  label: string;
-  value: string;
-  valueClass?: string;
-  badge?: { label: string; className: string };
-  // Secondary text shown below the main value (e.g. crawl counts)
-  sub?: string;
-  // Previous period comparison — shown as "↑ vs {prev} prev period"
-  prev?: string;
-  prevTrend?: PrevTrend;
-};
-
-function StatCell({
-  label,
-  value,
-  valueClass = "text-slate-700",
-  badge,
-  sub,
-  prev,
-  prevTrend = "neutral",
-}: StatCellProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <div className="flex flex-col gap-0.5">
-        {/* Value + inline comparison + badge all on one line */}
-        <div className="flex items-baseline gap-2">
-          <span className={`text-base font-semibold ${valueClass}`}>{value}</span>
-          {prev && (
-            <span className={`flex items-center gap-1 text-[11px] ${PREV_TREND_STYLES[prevTrend]}`}>
-              {PREV_TREND_ARROW[prevTrend]} vs {prev}
-              <Tooltip>
-                <TooltipTrigger render={
-                  <Info className="h-3 w-3 shrink-0 cursor-default opacity-60" />
-                } />
-                <TooltipContent side="top">
-                  Compared to previous 7-day period
-                </TooltipContent>
-              </Tooltip>
-            </span>
-          )}
-          {badge && (
-            <span
-              className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${badge.className}`}
-            >
-              {badge.label}
-            </span>
-          )}
-        </div>
-        {sub && (
-          <span className="text-xs text-slate-400">{sub}</span>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -270,44 +195,48 @@ export function LastWeekTrendOos({
   rows,
 }: LastWeekTrendOosProps) {
   const crawlSub = `${unavailabilityCrawls}/${totalCrawls} crawls`;
+
+  const repOosDelta = computePercentPointDelta(repOosPct, prevRepOosPct);
+  const unavailabilityDelta = computePercentPointDelta(
+    unavailabilityPct,
+    prevUnavailabilityPct,
+  );
+  const revenueLostDelta = computeRelativeDelta(revenueLost7d, prevRevenueLost7d);
+  const inventoryDelta = computeRelativeDelta(onHandInventory, prevOnHandInventory);
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      {/* ── Header ── */}
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
-        <span className="text-xs text-slate-400">({period})</span>
-      </div>
-
-      {/* ── Snapshot row 1: Rep OOS % + Revenue Lost (7D) ── */}
+      <TrendWidgetHeader period={period} showPrevWeekLegend />
       <div className="grid grid-cols-2 gap-0 border-b border-slate-100 px-4 py-3">
-        <StatCell
+        <TrendSnapshotStatCell
           label="Rep OOS %"
           value={`${repOosPct}%`}
-          prev={`${prevRepOosPct}%`}
-          prevTrend={repOosPct > prevRepOosPct ? "worse" : repOosPct < prevRepOosPct ? "better" : "neutral"}
+          delta={repOosDelta}
+          deltaFormat="pp"
+          deltaPolarity="inverse"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="Revenue Lost (7D)"
           value={fmtRevenue(revenueLost7d)}
-          prev={fmtRevenue(prevRevenueLost7d)}
-          prevTrend={revenueLost7d > prevRevenueLost7d ? "worse" : revenueLost7d < prevRevenueLost7d ? "better" : "neutral"}
+          delta={revenueLostDelta}
+          deltaPolarity="inverse"
         />
       </div>
 
-      {/* ── Snapshot row 2: Unavailability + On-Hand Inventory ── */}
       <div className="grid grid-cols-2 gap-0 border-b border-slate-100 px-4 py-3">
-        <StatCell
+        <TrendSnapshotStatCell
           label="Unavailability"
           value={`${unavailabilityPct}%`}
           sub={crawlSub}
-          prev={`${prevUnavailabilityPct}%`}
-          prevTrend={unavailabilityPct > prevUnavailabilityPct ? "worse" : unavailabilityPct < prevUnavailabilityPct ? "better" : "neutral"}
+          delta={unavailabilityDelta}
+          deltaFormat="pp"
+          deltaPolarity="inverse"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="On-Hand Inventory"
           value={`${onHandInventory.toLocaleString()} units`}
-          prev={`${prevOnHandInventory.toLocaleString()} units`}
-          prevTrend={onHandInventory < prevOnHandInventory ? "worse" : onHandInventory > prevOnHandInventory ? "better" : "neutral"}
+          delta={inventoryDelta}
+          deltaPolarity="normal"
         />
       </div>
 

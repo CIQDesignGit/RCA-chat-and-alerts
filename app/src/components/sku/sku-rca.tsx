@@ -1159,6 +1159,11 @@ function RootCauseRow({
                 competitorAvgPrice="$362.09"
                 avgPriceGap="+$37.60"
                 rows={LBB_TREND_ROWS}
+                prevLbbPercent={55}
+                prevRevenueLost={52000}
+                prevYourAvgPrice={499.99}
+                prevCompetitorAvgPrice={340}
+                prevAvgPriceGap={-20}
               />
             </div>
           )}
@@ -1174,6 +1179,12 @@ function RootCauseRow({
                 noStrikethroughOnMsrp="7 / 7 days"
                 badgeShowing={false}
                 rows={PROMO_BADGE_TREND_ROWS}
+                prevBadgeMissingDays={4}
+                prevEstRevenueImpact={1800}
+                prevListPriceMismatchDays={5}
+                prevSellingPriceMismatchDays={6}
+                prevListPriceVisibilityDays={1}
+                prevNoStrikethroughDays={5}
               />
             </div>
           )}
@@ -1184,7 +1195,12 @@ function RootCauseRow({
           )}
           {cause.showCouponTrend && (
             <div className="mt-3">
-              <LastWeekTrendCoupon period="Jun 1–7" rows={COUPON_TREND_ROWS} />
+              <LastWeekTrendCoupon
+                period="Jun 1–7"
+                rows={COUPON_TREND_ROWS}
+                prevTotalDetectedCrawls={25}
+                prevTotalCrawls={35}
+              />
             </div>
           )}
           {cause.showBsrTrend && (
@@ -1194,6 +1210,8 @@ function RootCauseRow({
                 rows={BSR_TREND_ROWS}
                 avgRankLast7d={19}
                 currentRank={31}
+                prevAvgRankLast7d={14}
+                prevCurrentRank={22}
               />
             </div>
           )}

@@ -1,4 +1,7 @@
 import { TrendDateColumnHeader } from "./trend-date-header";
+import { computeRelativeDelta } from "./trend-snapshot-delta";
+import { TrendSnapshotStatCell } from "./trend-snapshot-stat-cell";
+import { TrendWidgetHeader } from "./trend-widget-header";
 
 // Merged "Last 7 Day Trend — Best Seller Rank" widget.
 // Rendered inside the expanded Best Seller Rank root cause row.
@@ -98,25 +101,6 @@ function AvgRankCell({
   );
 }
 
-// ─── Snapshot stat tile ───────────────────────────────────────────────────────
-
-type StatCellProps = {
-  label: string;
-  value: string;
-  valueClass?: string;
-};
-
-function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <span className={`text-base font-semibold ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
-
 function averageRank(rows: BsrTrendDay[]): number | null {
   const ranks = rows
     .map((day) => day.avgCategoryRank)
@@ -134,6 +118,9 @@ export type LastWeekTrendBestSellerRankProps = {
   avgRankLast7d?: number;
   /** Latest category rank — defaults to the last row's median rank. */
   currentRank?: number;
+  /** Previous 7-day window — used for snapshot deltas. */
+  prevAvgRankLast7d?: number;
+  prevCurrentRank?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -143,33 +130,39 @@ export function LastWeekTrendBestSellerRank({
   rows,
   avgRankLast7d,
   currentRank,
+  prevAvgRankLast7d,
+  prevCurrentRank,
 }: LastWeekTrendBestSellerRankProps) {
   const resolvedAvgRank = avgRankLast7d ?? averageRank(rows);
   const resolvedCurrentRank =
     currentRank ?? rows.at(-1)?.avgCategoryRank ?? null;
 
-  const avgRankWorsened =
-    resolvedAvgRank !== null &&
-    resolvedCurrentRank !== null &&
-    resolvedCurrentRank > resolvedAvgRank;
+  const avgRankDelta =
+    resolvedAvgRank !== null && prevAvgRankLast7d != null
+      ? computeRelativeDelta(resolvedAvgRank, prevAvgRankLast7d)
+      : null;
+  const currentRankDelta =
+    resolvedCurrentRank !== null && prevCurrentRank != null
+      ? computeRelativeDelta(resolvedCurrentRank, prevCurrentRank)
+      : null;
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
-        <span className="text-xs text-slate-400">({period})</span>
-      </div>
+      <TrendWidgetHeader period={period} showPrevWeekLegend />
 
       {/* ── 7-day snapshot ── */}
       <div className="grid grid-cols-2 gap-0 px-4 py-3">
-        <StatCell
+        <TrendSnapshotStatCell
           label="7 Day Avg Rank"
           value={resolvedAvgRank === null ? "—" : `#${resolvedAvgRank}`}
+          delta={avgRankDelta}
+          deltaPolarity="inverse"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="Current Rank"
           value={resolvedCurrentRank === null ? "—" : `#${resolvedCurrentRank}`}
-          valueClass={avgRankWorsened ? "text-rose-600" : "text-slate-700"}
+          delta={currentRankDelta}
+          deltaPolarity="inverse"
         />
       </div>
 

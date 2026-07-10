@@ -4,34 +4,11 @@
 
 import { Check, X } from "lucide-react";
 import { TrendDateColumnHeader } from "./trend-date-header";
+import { computeRelativeDelta, parseDaysCount, parseDollarString } from "./trend-snapshot-delta";
+import { PromoDaysValue, TrendSnapshotStatCell } from "./trend-snapshot-stat-cell";
+import { TrendWidgetHeader } from "./trend-widget-header";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type StatCellProps = {
-  label: string;
-  value: string;
-  valueClass?: string;
-};
-
-// Renders a metric tile. Values ending in " days" get the suffix styled lighter.
-function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps) {
-  const hasDaysSuffix = value.endsWith(" days");
-  const numberPart = hasDaysSuffix ? value.slice(0, -5) : value;
-
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <span className={`text-base font-semibold ${valueClass}`}>
-        {numberPart}
-        {hasDaysSuffix && (
-          <span className="text-sm font-normal text-slate-500"> days</span>
-        )}
-      </span>
-    </div>
-  );
-}
 
 export type PromoBadgeTrendDay = {
   date: string;
@@ -139,6 +116,13 @@ export type LastWeekTrendPromoBadgeProps = {
   noStrikethroughOnMsrp: string; // e.g. "7 / 7 days"
   badgeShowing: boolean;        // false = badge not showing (problem state)
   rows: PromoBadgeTrendDay[];
+  /** Previous 7-day window values for snapshot deltas. */
+  prevBadgeMissingDays?: number;
+  prevEstRevenueImpact?: number;
+  prevListPriceMismatchDays?: number;
+  prevSellingPriceMismatchDays?: number;
+  prevListPriceVisibilityDays?: number;
+  prevNoStrikethroughDays?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -152,31 +136,75 @@ export function LastWeekTrendPromoBadge({
   listPriceVisibility,
   noStrikethroughOnMsrp,
   rows,
+  prevBadgeMissingDays,
+  prevEstRevenueImpact,
+  prevListPriceMismatchDays,
+  prevSellingPriceMismatchDays,
+  prevListPriceVisibilityDays,
+  prevNoStrikethroughDays,
 }: LastWeekTrendPromoBadgeProps) {
+  const badgeMissingCount = parseDaysCount(badgeMissingDays);
+  const listPriceMismatchCount = parseDaysCount(listPriceMismatch);
+  const sellingPriceMismatchCount = parseDaysCount(sellingPriceMismatch);
+  const listPriceVisibilityCount = parseDaysCount(listPriceVisibility);
+  const noStrikethroughCount = parseDaysCount(noStrikethroughOnMsrp);
+  const revenueImpactAmount = parseDollarString(estRevenueImpact);
+
+  const daysDelta = (current: number | null, prev: number | undefined) =>
+    current !== null && prev != null
+      ? computeRelativeDelta(current, prev)
+      : null;
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      {/* ── Header ── */}
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
-        <span className="text-xs text-slate-400">({period})</span>
-      </div>
-
-      {/* ── Snapshot metrics row 1 ── */}
+      <TrendWidgetHeader period={period} showPrevWeekLegend />
       <div className="grid grid-cols-3 gap-0 px-4 py-3">
-        <StatCell label="Promo Badge Missing" value={badgeMissingDays} />
-        <StatCell
+        <TrendSnapshotStatCell
+          label="Promo Badge Missing"
+          value={<PromoDaysValue value={badgeMissingDays} />}
+          delta={daysDelta(badgeMissingCount, prevBadgeMissingDays)}
+          deltaPolarity="inverse"
+        />
+        <TrendSnapshotStatCell
           label="Est. Revenue Impact"
           value={estRevenueImpact}
-          valueClass={estRevenueImpact === "$0" ? "text-slate-700" : "text-rose-600"}
+          delta={
+            revenueImpactAmount !== null && prevEstRevenueImpact != null
+              ? computeRelativeDelta(
+                  Math.abs(revenueImpactAmount),
+                  Math.abs(prevEstRevenueImpact),
+                )
+              : null
+          }
+          deltaPolarity="inverse"
         />
-        <StatCell label="List Price Mismatch" value={listPriceMismatch} />
+        <TrendSnapshotStatCell
+          label="List Price Mismatch"
+          value={<PromoDaysValue value={listPriceMismatch} />}
+          delta={daysDelta(listPriceMismatchCount, prevListPriceMismatchDays)}
+          deltaPolarity="inverse"
+        />
       </div>
 
-      {/* ── Snapshot metrics row 2 ── */}
       <div className="grid grid-cols-3 gap-0 px-4 pb-5 pt-0">
-        <StatCell label="Selling Price Mismatch"  value={sellingPriceMismatch} />
-        <StatCell label="List Price Visibility"    value={listPriceVisibility} />
-        <StatCell label="No Strikethrough on MSRP" value={noStrikethroughOnMsrp} />
+        <TrendSnapshotStatCell
+          label="Selling Price Mismatch"
+          value={<PromoDaysValue value={sellingPriceMismatch} />}
+          delta={daysDelta(sellingPriceMismatchCount, prevSellingPriceMismatchDays)}
+          deltaPolarity="inverse"
+        />
+        <TrendSnapshotStatCell
+          label="List Price Visibility"
+          value={<PromoDaysValue value={listPriceVisibility} />}
+          delta={daysDelta(listPriceVisibilityCount, prevListPriceVisibilityDays)}
+          deltaPolarity="normal"
+        />
+        <TrendSnapshotStatCell
+          label="No Strikethrough on MSRP"
+          value={<PromoDaysValue value={noStrikethroughOnMsrp} />}
+          delta={daysDelta(noStrikethroughCount, prevNoStrikethroughDays)}
+          deltaPolarity="inverse"
+        />
       </div>
 
       {/* ── 7-day trend table — dates as columns, metrics as rows ── */}

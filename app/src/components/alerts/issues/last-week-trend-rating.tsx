@@ -1,4 +1,10 @@
 import { TrendDateColumnHeader } from "./trend-date-header";
+import {
+  computePercentPointDelta,
+  computeRelativeDelta,
+} from "./trend-snapshot-delta";
+import { TrendSnapshotStatCell } from "./trend-snapshot-stat-cell";
+import { TrendWidgetHeader } from "./trend-widget-header";
 
 // Combined "Last 7 Day Trend — Rating & Reviews" widget.
 // Snapshot summary tiles (top) + day-by-day trend table (bottom) in one card.
@@ -23,29 +29,15 @@ export type LastWeekTrendRatingProps = {
   oneStarPct: number;    // e.g. 14  (rendered as "14%")
   twoStarPct: number;    // e.g. 4   (rendered as "4%")
   belowBenchmark: boolean;
+  /** Previous 7-day window values for snapshot deltas. */
+  prevAvgRating?: number;
+  prevReviewCount?: number;
+  prevOneStarPct?: number;
+  prevTwoStarPct?: number;
   // ── Day-by-day trend (table) ──
   rows: RatingTrendDay[];
   ratingBenchmark?: number; // cells below this get bg-rose-50 — defaults to 4.0
 };
-
-// ─── Snapshot stat tile ───────────────────────────────────────────────────────
-
-type StatCellProps = {
-  label: string;
-  value: string;
-  valueClass?: string;
-};
-
-function StatCell({ label, value, valueClass = "text-slate-700" }: StatCellProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <span className={`text-base font-semibold ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
 
 // ─── Shared table primitives ───────────────────────────────────────────────────
 
@@ -160,38 +152,59 @@ export function LastWeekTrendRating({
   reviewCount,
   oneStarPct,
   twoStarPct,
-  belowBenchmark,
   rows,
   ratingBenchmark = 4.0,
+  prevAvgRating,
+  prevReviewCount,
+  prevOneStarPct,
+  prevTwoStarPct,
 }: LastWeekTrendRatingProps) {
+  const avgRatingDelta =
+    prevAvgRating != null
+      ? computeRelativeDelta(avgRating, prevAvgRating)
+      : null;
+  const reviewCountDelta =
+    prevReviewCount != null
+      ? computeRelativeDelta(reviewCount, prevReviewCount)
+      : null;
+  const oneStarDelta =
+    prevOneStarPct != null
+      ? computePercentPointDelta(oneStarPct, prevOneStarPct)
+      : null;
+  const twoStarDelta =
+    prevTwoStarPct != null
+      ? computePercentPointDelta(twoStarPct, prevTwoStarPct)
+      : null;
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      {/* ── Header ── */}
-      <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
-        <span className="text-xs text-slate-400">({period})</span>
-      </div>
-
-      {/* ── Snapshot metric tiles ── */}
+      <TrendWidgetHeader period={period} showPrevWeekLegend />
       <div className="grid grid-cols-4 gap-0 px-4 py-3">
-        <StatCell
+        <TrendSnapshotStatCell
           label="Avg Rating"
           value={`${avgRating.toFixed(1)} / ${maxRating.toFixed(1)}`}
-          valueClass={belowBenchmark ? "text-rose-600" : "text-slate-700"}
+          delta={avgRatingDelta}
+          deltaPolarity="normal"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="Review Count"
           value={reviewCount.toLocaleString()}
+          delta={reviewCountDelta}
+          deltaPolarity="normal"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="1-Star %"
           value={`${oneStarPct}%`}
-          valueClass={oneStarPct >= 10 ? "text-rose-600" : "text-slate-700"}
+          delta={oneStarDelta}
+          deltaFormat="pp"
+          deltaPolarity="inverse"
         />
-        <StatCell
+        <TrendSnapshotStatCell
           label="2-Star %"
           value={`${twoStarPct}%`}
-          valueClass={twoStarPct >= 8 ? "text-amber-600" : "text-slate-700"}
+          delta={twoStarDelta}
+          deltaFormat="pp"
+          deltaPolarity="inverse"
         />
       </div>
 
