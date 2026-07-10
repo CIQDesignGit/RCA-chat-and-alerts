@@ -593,8 +593,8 @@ function RootCauseIssueCard({
           badgeSeenCrawls={0}
           checks={[
             { label: "Is Promo Badge Visible?",                  passed: false },
-            { label: "Does Original Price Have Strikethrough?",  passed: true  },
-            { label: "Is Selling Price Correct?",                passed: true  },
+            { label: "Does List Price Have Strikethrough?",  passed: true  },
+            { label: "Is Offer Price Correct?",                passed: true  },
             { label: "Is Discount % Visible?",                   passed: false },
             { label: "Is Discount % Correct?",                   passed: true  },
             { label: "Are You the Buy Box Winner?",              passed: false },
