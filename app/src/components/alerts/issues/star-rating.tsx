@@ -61,14 +61,19 @@ export type StarRatingProps = {
   writtenReviewCount: number;
   /** Net-new reviews since yesterday */
   newReviewsSinceYesterday: number;
-  /** Share of 1-star ratings (current) */
+  /** Share of 1-star ratings (current overall mix) */
   oneStarPct: number;
-  /** Share of 2-star ratings (current) */
+  /** Share of 2-star ratings (current overall mix) */
   twoStarPct: number;
-  /** Share of 1-star ratings (previous period) — optional */
-  oldOneStarPct?: number;
-  /** Share of 2-star ratings (previous period) — optional */
-  oldTwoStarPct?: number;
+/**
+   * Of ratings that arrived in the last 24 hours, what % were 1-star.
+   * Shown in a supporting card beside the Old → New comparison.
+   */
+  newOneStarPctLast24h: number;
+  /**
+   * Of ratings that arrived in the last 24 hours, what % were 2-star.
+   */
+  newTwoStarPctLast24h: number;
   /**
    * Only pass when a fresh ≤2★ review actually landed.
    * When absent the flag card is suppressed entirely.
@@ -80,54 +85,43 @@ export type StarRatingProps = {
   };
 };
 
-function LowStarPctStat({
-  label,
-  value,
-  valueClass = "text-slate-700",
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-        {label}
-      </span>
-      <span className={`text-sm font-semibold ${valueClass}`}>{value}</span>
-    </div>
-  );
-}
-
-function LowStarPctRow({
+/** Supporting card — same shape as Old/New; kept distinct via separator, not loud styling */
+function NewLowStarCard({
   oneStarPct,
   twoStarPct,
-  muted = false,
-  variant = "neutral",
 }: {
   oneStarPct: number;
   twoStarPct: number;
-  muted?: boolean;
-  variant?: "neutral" | "alert";
 }) {
-  const valueClass = muted ? "text-slate-500" : "text-slate-700";
-
   return (
-    <div
-      className={`grid grid-cols-2 gap-4 border-t pt-2.5 ${
-        variant === "alert" ? "border-rose-100" : "border-slate-100"
-      }`}
-    >
-      <LowStarPctStat
-        label="1-Star %"
-        value={`${oneStarPct}%`}
-        valueClass={valueClass}
-      />
-      <LowStarPctStat
-        label="2-Star %"
-        value={`${twoStarPct}%`}
-        valueClass={valueClass}
-      />
+    <div className="flex w-fit flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
+      <div className="flex items-center gap-2">
+        <RatingLabel
+          label="New 1 and 2 star ratings"
+          tooltip="Of the ratings that arrived in the last 24 hours, what percentage were 1-star and 2-star."
+        />
+        <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 ring-1 ring-slate-200/80">
+          Last 24 hr
+        </span>
+      </div>
+      <div className="flex items-start gap-6">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            1-Star %
+          </span>
+          <span className="text-base font-semibold tabular-nums text-slate-700">
+            {oneStarPct}%
+          </span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            2-Star %
+          </span>
+          <span className="text-base font-semibold tabular-nums text-slate-700">
+            {twoStarPct}%
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -142,14 +136,27 @@ export function StarRatingIssue({
   newReviewsSinceYesterday,
   oneStarPct,
   twoStarPct,
-  oldOneStarPct,
-  oldTwoStarPct,
+  newOneStarPctLast24h,
+  newTwoStarPctLast24h,
   latestLowStarReview,
 }: StarRatingProps) {
+  // Absolute star-point change (e.g. 4.3 → 3.2 = −1.1)
+  const ratingDelta = Math.round((newRating - oldRating) * 10) / 10;
+  const ratingDeltaLabel =
+    ratingDelta > 0
+      ? `+${ratingDelta.toFixed(1)}`
+      : ratingDelta.toFixed(1);
+  const ratingDeltaClass =
+    ratingDelta > 0
+      ? "text-emerald-600"
+      : ratingDelta < 0
+        ? "text-rose-600"
+        : "text-slate-400";
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Old → New rating comparison */}
-      <div className="flex items-stretch gap-4">
+      {/* Old → New comparison + supporting last-24h card */}
+      <div className="flex flex-wrap items-stretch gap-4">
         {/* Old rating box — grey, neutral */}
         <div className="flex w-fit flex-col gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
           <RatingLabel
@@ -164,13 +171,6 @@ export function StarRatingIssue({
           <span className="text-xs text-slate-700">
             {oldWrittenReviewCount.toLocaleString()} reviews
           </span>
-          {oldOneStarPct != null && oldTwoStarPct != null && (
-            <LowStarPctRow
-              oneStarPct={oldOneStarPct}
-              twoStarPct={oldTwoStarPct}
-              muted
-            />
-          )}
         </div>
 
         {/* Arrow — centered vertically between the two cards */}
@@ -188,6 +188,12 @@ export function StarRatingIssue({
             <span className="text-2xl font-bold text-rose-500">{newRating.toFixed(1)}</span>
             <Stars rating={newRating} active={true} />
             <span className="text-sm text-slate-700">({reviewCount.toLocaleString()})</span>
+            <span
+              className={`text-sm font-semibold tabular-nums ${ratingDeltaClass}`}
+              title="Change vs old rating"
+            >
+              {ratingDeltaLabel}
+            </span>
           </div>
           {/* Written review count + new-since-yesterday */}
           <div className="flex items-center gap-2">
@@ -200,8 +206,15 @@ export function StarRatingIssue({
               </span>
             )}
           </div>
-          <LowStarPctRow oneStarPct={oneStarPct} twoStarPct={twoStarPct} variant="alert" />
         </div>
+
+        {/* Thin gap marker before supporting metric card */}
+        <div className="hidden w-px self-stretch bg-slate-200 sm:block" aria-hidden />
+
+        <NewLowStarCard
+          oneStarPct={newOneStarPctLast24h}
+          twoStarPct={newTwoStarPctLast24h}
+        />
       </div>
 
       {/* Low-star flag — only rendered when a fresh ≤2★ review landed */}

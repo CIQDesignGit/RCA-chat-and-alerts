@@ -55,14 +55,14 @@ function IssueBody({ issue }: { issue: Issue }) {
           oldRating={4.3}
           oldReviewCount={722}
           oldWrittenReviewCount={210}
-          oldOneStarPct={5}
-          oldTwoStarPct={3}
           newRating={3.2}
           reviewCount={736}
           writtenReviewCount={230}
           newReviewsSinceYesterday={14}
           oneStarPct={14}
           twoStarPct={8}
+          newOneStarPctLast24h={36}
+          newTwoStarPctLast24h={21}
           latestLowStarReview={{
             stars: 1,
             excerpt: "Product stopped working after 3 weeks. Suction completely gone and the battery barely lasts 10 minutes. Extremely disappointed for the price.",

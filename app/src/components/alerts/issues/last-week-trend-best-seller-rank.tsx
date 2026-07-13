@@ -116,11 +116,8 @@ export type LastWeekTrendBestSellerRankProps = {
   rows: BsrTrendDay[];
   /** Mean median category rank across the 7-day window — defaults to row average. */
   avgRankLast7d?: number;
-  /** Latest category rank — defaults to the last row's median rank. */
-  currentRank?: number;
-  /** Previous 7-day window — used for snapshot deltas. */
+  /** Previous 7-day window avg — used for snapshot delta. */
   prevAvgRankLast7d?: number;
-  prevCurrentRank?: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -129,21 +126,13 @@ export function LastWeekTrendBestSellerRank({
   period,
   rows,
   avgRankLast7d,
-  currentRank,
   prevAvgRankLast7d,
-  prevCurrentRank,
 }: LastWeekTrendBestSellerRankProps) {
   const resolvedAvgRank = avgRankLast7d ?? averageRank(rows);
-  const resolvedCurrentRank =
-    currentRank ?? rows.at(-1)?.avgCategoryRank ?? null;
 
   const avgRankDelta =
     resolvedAvgRank !== null && prevAvgRankLast7d != null
       ? computeRelativeDelta(resolvedAvgRank, prevAvgRankLast7d)
-      : null;
-  const currentRankDelta =
-    resolvedCurrentRank !== null && prevCurrentRank != null
-      ? computeRelativeDelta(resolvedCurrentRank, prevCurrentRank)
       : null;
 
   return (
@@ -151,17 +140,11 @@ export function LastWeekTrendBestSellerRank({
       <TrendWidgetHeader period={period} showPrevWeekLegend />
 
       {/* ── 7-day snapshot ── */}
-      <div className="grid grid-cols-2 gap-0 px-4 py-3">
+      <div className="grid grid-cols-1 gap-0 px-4 py-3">
         <TrendSnapshotStatCell
           label="7 Day Avg Rank"
           value={resolvedAvgRank === null ? "—" : `#${resolvedAvgRank}`}
           delta={avgRankDelta}
-          deltaPolarity="inverse"
-        />
-        <TrendSnapshotStatCell
-          label="Current Rank"
-          value={resolvedCurrentRank === null ? "—" : `#${resolvedCurrentRank}`}
-          delta={currentRankDelta}
           deltaPolarity="inverse"
         />
       </div>
