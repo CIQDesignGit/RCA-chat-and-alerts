@@ -80,7 +80,7 @@ export function LastWeekTrendMediaSpend({
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {/* ── Header ── */}
       <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
+        <span className="text-xs font-medium text-slate-600">Last Week Trend</span>
         <span className="text-xs text-slate-400">({period})</span>
       </div>
 

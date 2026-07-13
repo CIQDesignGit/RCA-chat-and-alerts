@@ -142,7 +142,7 @@ export function LastWeekTrendBestSellerRank({
       {/* ── 7-day snapshot ── */}
       <div className="grid grid-cols-1 gap-0 px-4 py-3">
         <TrendSnapshotStatCell
-          label="7 Day Avg Rank"
+          label="Last Week Avg Rank"
           value={resolvedAvgRank === null ? "—" : `#${resolvedAvgRank}`}
           delta={avgRankDelta}
           deltaPolarity="inverse"

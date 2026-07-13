@@ -18,7 +18,7 @@ export function TrendWidgetHeader({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-2.5">
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-slate-600">Last 7 Day Trend</span>
+        <span className="text-xs font-medium text-slate-600">Last Week Trend</span>
         <span className="text-xs text-slate-400">({period})</span>
       </div>
       {showPrevWeekLegend && (
@@ -32,7 +32,7 @@ export function TrendWidgetHeader({
             }
           />
           <TooltipContent side="top">
-            Delta values compared to the previous 7-day period
+            Delta values compared to the previous week
           </TooltipContent>
         </Tooltip>
       )}

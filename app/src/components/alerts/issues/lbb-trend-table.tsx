@@ -41,7 +41,7 @@ export function LbbTrendTable() {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div className="border-b border-slate-100 px-4 py-2.5">
-        <span className="text-xs font-medium text-slate-500">7-day Buy Box trend (May 3–9)</span>
+        <span className="text-xs font-medium text-slate-500">Last week Buy Box trend (May 3–9)</span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-auto border-collapse">
